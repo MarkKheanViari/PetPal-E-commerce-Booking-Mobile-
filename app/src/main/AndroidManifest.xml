@@ -23,14 +23,11 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".RegisterActivity"
-            android:exported="false" />
+        <activity android:name=".RegisterActivity" android:exported="false" />
+        <activity android:name=".MainActivity" android:exported="false" />
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
+        <!-- ✅ Fix: Declare ServiceAvailActivity -->
+        <activity android:name=".ServiceAvailActivity" android:exported="false" />
 
     </application>
 </manifest>
-

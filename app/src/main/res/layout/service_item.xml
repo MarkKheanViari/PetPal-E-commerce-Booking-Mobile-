@@ -6,6 +6,7 @@
     android:padding="16dp"
     android:background="@android:color/white">
 
+    <!-- Service Name -->
     <TextView
         android:id="@+id/serviceName"
         android:layout_width="match_parent"
@@ -13,7 +14,8 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@android:color/black"/>
-zz
+
+    <!-- Service Description -->
     <TextView
         android:id="@+id/serviceDescription"
         android:layout_width="match_parent"
@@ -21,6 +23,23 @@ zz
         android:layout_marginTop="4dp"
         android:textColor="@android:color/darker_gray"/>
 
+    <!-- Service Status -->
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textStyle="bold"/>
+
+    <!-- Avail Button -->
+    <Button
+        android:id="@+id/availButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Next"/>
+
+    <!-- Select Date (Initially Hidden) -->
     <TextView
         android:id="@+id/selectedDateText"
         android:layout_width="match_parent"
@@ -35,21 +54,5 @@ zz
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Select Date"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
-
-    <TextView
-        android:id="@+id/statusText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textStyle="bold"
         android:visibility="gone"/>
-
-    <Button
-        android:id="@+id/availButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Avail"/>
-
 </LinearLayout>

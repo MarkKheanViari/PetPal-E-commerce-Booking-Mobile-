@@ -1,6 +1,9 @@
 package com.example.myapplication
 
+import Service
 import android.app.DatePickerDialog
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,16 +19,12 @@ import org.json.JSONObject
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import Service
 
 class ServiceAdapter(
-    private val context: MainActivity,
-    private var services: MutableList<Service>,
+    private val context: Context, // ✅ Fix: Use Context instead of MainActivity
+    private var services: MutableList<Service>, // ✅ Fix: Ensure services is properly initialized
     private val onAvailClick: (Service, String) -> Unit
 ) : BaseAdapter() {
-
-    private val client = OkHttpClient()
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     override fun getCount(): Int = services.size
 
@@ -40,51 +39,37 @@ class ServiceAdapter(
         try {
             val service = services[position]
 
-            view.findViewById<TextView>(R.id.serviceName).text = service.serviceName
-            view.findViewById<TextView>(R.id.serviceDescription).text = service.description
-
-            val availButton = view.findViewById<Button>(R.id.availButton)
+            val serviceName = view.findViewById<TextView>(R.id.serviceName)
+            val serviceDescription = view.findViewById<TextView>(R.id.serviceDescription)
             val statusText = view.findViewById<TextView>(R.id.statusText)
+            val availButton = view.findViewById<Button>(R.id.availButton)
+            val selectDateButton = view.findViewById<Button>(R.id.selectDateButton)
+            val selectedDateText = view.findViewById<TextView>(R.id.selectedDateText)
 
-            val userId = context.getSharedPreferences("MyAppPrefs", android.content.Context.MODE_PRIVATE)
-                .getInt("user_id", -1)
+            serviceName.text = service.serviceName
+            serviceDescription.text = service.description
+            statusText.text = "Status: ${service.status}"
 
-            when {
-                service.userId == userId && service.status.isNotEmpty() -> {
-                    availButton.visibility = View.GONE
-                    statusText.apply {
-                        visibility = View.VISIBLE
-                        text = "Status: ${service.status}"
-                        setTextColor(when (service.status.lowercase()) {
-                            "pending" -> context.getColor(android.R.color.holo_orange_dark)
-                            "confirmed" -> context.getColor(android.R.color.holo_green_dark)
-                            "declined" -> context.getColor(android.R.color.holo_red_dark)
-                            else -> context.getColor(android.R.color.darker_gray)
-                        })
-                    }
-                }
-                service.status.isNotEmpty() -> {
-                    availButton.visibility = View.GONE
-                    statusText.apply {
-                        visibility = View.VISIBLE
-                        text = "Not Available"
-                        setTextColor(context.getColor(android.R.color.darker_gray))
-                    }
-                }
-                else -> {
-                    availButton.apply {
-                        visibility = View.VISIBLE
-                        setOnClickListener {
-                            if (userId != -1) {
-                                showDatePicker(service)
-                            } else {
-                                Toast.makeText(context, "Please login to avail services", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-                    statusText.visibility = View.GONE
-                }
+            // Hide select date options initially
+            selectDateButton.visibility = View.GONE
+            selectedDateText.visibility = View.GONE
+
+            availButton.setOnClickListener {
+                val intent = Intent(context, ServiceAvailActivity::class.java)
+                intent.putExtra("SERVICE_NAME", service.serviceName)
+                intent.putExtra("SERVICE_ID", service.id) // ✅ Ensure service ID is passed
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
             }
+
+
+
+
+
+            selectDateButton.setOnClickListener {
+                showDatePicker(service, selectedDateText)
+            }
+
         } catch (e: Exception) {
             Log.e("ServiceAdapter", "Error setting up view", e)
             Toast.makeText(context, "Error displaying service: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -93,18 +78,16 @@ class ServiceAdapter(
         return view
     }
 
-    private fun showDatePicker(service: Service) {
+    private fun showDatePicker(service: Service, selectedDateText: TextView) {
         val calendar = Calendar.getInstance()
-
-        // Don't allow past dates
         calendar.add(Calendar.DAY_OF_MONTH, 0) // Start from today
 
         DatePickerDialog(
             context,
             { _, year, month, dayOfMonth ->
                 calendar.set(year, month, dayOfMonth)
-                val selectedDate = dateFormat.format(calendar.time)
-                checkDateAvailability(service, selectedDate)
+                val selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+                selectedDateText.text = "Selected Date: $selectedDate"
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
@@ -113,77 +96,6 @@ class ServiceAdapter(
             datePicker.minDate = System.currentTimeMillis() - 1000
             show()
         }
-    }
-
-    private fun checkDateAvailability(service: Service, selectedDate: String) {
-        val jsonObject = JSONObject().apply {
-            put("service_id", service.id)
-            put("selected_date", selectedDate)
-        }
-
-        Log.d("ServiceAdapter", "Checking availability for date: $selectedDate")
-        Log.d("ServiceAdapter", "Request body: ${jsonObject.toString()}")
-
-        val mediaType = "application/json; charset=utf-8".toMediaType()
-        val requestBody = jsonObject.toString().toRequestBody(mediaType)
-
-        val request = Request.Builder()
-            .url("http://192.168.161.55/backend/check_date_availability.php")
-            .post(requestBody)
-            .header("Content-Type", "application/json")
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e("ServiceAdapter", "Network error", e)
-                context.runOnUiThread {
-                    Toast.makeText(
-                        context,
-                        "Failed to check date availability: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                try {
-                    val responseString = response.body?.string()
-                    Log.d("ServiceAdapter", "Raw response: $responseString")
-
-                    if (responseString.isNullOrEmpty()) {
-                        throw Exception("Empty response from server")
-                    }
-
-                    val jsonResponse = JSONObject(responseString)
-
-                    context.runOnUiThread {
-                        if (jsonResponse.optBoolean("available", false)) {
-                            // Show confirmation dialog
-                            android.app.AlertDialog.Builder(context)
-                                .setTitle("Confirm Service Request")
-                                .setMessage("Would you like to request this service for $selectedDate?")
-                                .setPositiveButton("Yes") { _, _ ->
-                                    onAvailClick(service, selectedDate)
-                                }
-                                .setNegativeButton("No", null)
-                                .show()
-                        } else {
-                            val message = jsonResponse.optString("message", "Date is not available")
-                            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e("ServiceAdapter", "Error processing response", e)
-                    context.runOnUiThread {
-                        Toast.makeText(
-                            context,
-                            "Error processing response: ${e.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            }
-        })
     }
 
     fun clear() {

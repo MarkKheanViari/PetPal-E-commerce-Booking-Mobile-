@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         checkUserAndResetIfNeeded()
         fetchProducts()
+        fetchServices()
     }
 
     private fun checkUserAndResetIfNeeded() {
@@ -169,9 +170,8 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun fetchServices() {
-        val userId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getInt("user_id", -1)
         val request = Request.Builder()
-            .url("http://192.168.1.65/backend/fetch_services.php?user_id=$userId")
+            .url("http://192.168.1.65/backend/fetch_services.php")
             .get()
             .build()
 
@@ -199,8 +199,8 @@ class MainActivity : AppCompatActivity() {
                                 id = jsonObject.getInt("id"),
                                 serviceName = jsonObject.getString("service_name"),
                                 description = jsonObject.getString("description"),
-                                status = jsonObject.optString("status", ""),
-                                userId = jsonObject.optInt("user_id", -1).takeIf { it != -1 }
+                                price = jsonObject.getDouble("price"),
+                                status = jsonObject.getString("status")
                             )
                         )
                     }
@@ -208,7 +208,10 @@ class MainActivity : AppCompatActivity() {
                     runOnUiThread {
                         val adapter = serviceListView.adapter as? ServiceAdapter
                         if (adapter == null) {
-                            serviceListView.adapter = ServiceAdapter(this@MainActivity, services.toMutableList()) { service, selectedDate ->
+                            serviceListView.adapter = ServiceAdapter(
+                                this@MainActivity,
+                                services.toMutableList()
+                            ) { service, selectedDate ->
                                 availService(service, selectedDate)
                             }
                         } else {
@@ -224,6 +227,8 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+
+
     private fun availService(service: Service, selectedDate: String) {
         val userId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getInt("user_id", -1)
         if (userId == -1) {
@@ -238,27 +243,34 @@ class MainActivity : AppCompatActivity() {
             put("selected_date", selectedDate)
         }
 
+        Log.d("Service Request", "📨 Sending JSON: $jsonObject")  // ✅ Debugging log
+
         val mediaType = "application/json; charset=utf-8".toMediaType()
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.65/backend/request_service.php")
+            .url("http://192.168.1.65/backend/request_service.php") // ✅ Check URL
             .post(requestBody)
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
+                Log.e("Service Request", "❌ Failed: ${e.message}")  // ✅ Debugging log
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Failed to request service: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "❌ Failed: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                Log.d("Service Request", "✅ Response: $responseBody")  // ✅ Debugging log
+
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Service request submitted successfully", Toast.LENGTH_SHORT).show()
-                    fetchServices()
+                    Toast.makeText(this@MainActivity, "✅ Service request sent", Toast.LENGTH_SHORT).show()
+                    fetchServices()  // Refresh list
                 }
             }
         })
     }
+
 }
