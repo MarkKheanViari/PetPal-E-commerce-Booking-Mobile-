@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         checkUserAndResetIfNeeded()
+        fetchProducts()
     }
 
     private fun checkUserAndResetIfNeeded() {
@@ -110,7 +111,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun fetchProducts() {
         val request = Request.Builder()
-            .url("http://192.168.161.55/backend/fetch_product.php")
+            .url("http://192.168.1.65/backend/fetch_product.php") // Ensure correct URL
             .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -147,8 +148,12 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     runOnUiThread {
-                        val adapter = ProductAdapter(this@MainActivity, productList)
-                        productListView.adapter = adapter
+                        val adapter = productListView.adapter as? ProductAdapter
+                        if (adapter == null) {
+                            productListView.adapter = ProductAdapter(this@MainActivity, productList)
+                        } else {
+                            adapter.updateProducts(productList) // ✅ Fix: Now it works!
+                        }
                     }
                 } catch (e: Exception) {
                     runOnUiThread {
@@ -159,10 +164,12 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+
+
     private fun fetchServices() {
         val userId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getInt("user_id", -1)
         val request = Request.Builder()
-            .url("http://192.168.161.55/backend/fetch_services.php?user_id=$userId")
+            .url("http://192.168.1.65/backend/fetch_services.php?user_id=$userId")
             .get()
             .build()
 
@@ -233,7 +240,7 @@ class MainActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.161.55/backend/request_service.php")
+            .url("http://192.168.1.65/backend/request_service.php")
             .post(requestBody)
             .build()
 

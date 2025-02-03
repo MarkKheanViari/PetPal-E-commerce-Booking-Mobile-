@@ -71,7 +71,7 @@ class RegisterActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.161.55/backend/mobile_register.php")
+            .url("http://192.168.1.65/backend/mobile_register.php")
             .post(requestBody)
             .build()
 
