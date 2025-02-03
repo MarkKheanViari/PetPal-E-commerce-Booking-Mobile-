@@ -28,16 +28,16 @@ class ProductAdapter(private val context: Context, private var productList: Muta
         productPrice.text = "₱${product.price}"
         productDescription.text = product.description
         productQuantity.text = "Stock: ${product.quantity}"
-        Glide.with(context).load(product.imageUrl).into(productImage)
+        Glide.with(context).load(product.imageUrl).into(productImage) // ✅ Load product image
 
         return view
     }
 
-    // ✅ Add this function to update the product list dynamically
     fun updateProducts(newProductList: List<Product>) {
         productList.clear()
         productList.addAll(newProductList)
         notifyDataSetChanged() // Refresh the UI
     }
 }
+
 

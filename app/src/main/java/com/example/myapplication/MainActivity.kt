@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun fetchProducts() {
         val request = Request.Builder()
-            .url("http://192.168.1.65/backend/fetch_product.php") // Ensure correct URL
+            .url("http://192.168.1.65/backend/fetch_product.php") // ✅ Fetch all products with images
             .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -142,7 +142,7 @@ class MainActivity : AppCompatActivity() {
                                 price = productJson.getString("price"),
                                 description = productJson.getString("description"),
                                 quantity = productJson.getInt("quantity"),
-                                imageUrl = productJson.getString("image")
+                                imageUrl = productJson.getString("image") // ✅ Ensure image URL is loaded
                             )
                         )
                     }
@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity() {
                         if (adapter == null) {
                             productListView.adapter = ProductAdapter(this@MainActivity, productList)
                         } else {
-                            adapter.updateProducts(productList) // ✅ Fix: Now it works!
+                            adapter.updateProducts(productList) // ✅ Update product list
                         }
                     }
                 } catch (e: Exception) {
@@ -163,6 +163,8 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
+
+
 
 
 
