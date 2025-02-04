@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -226,6 +227,43 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
+
+    private fun fetchServiceRequests() {
+        val userId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getInt("user_id", -1)
+        if (userId == -1) {
+            Toast.makeText(this, "Please login to view requests", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val url = "http://192.168.1.65/backend/fetch_service_requests.php?user_id=$userId"
+
+        val request = Request.Builder().url(url).get().build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "Failed to load requests", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                val jsonArray = JSONArray(responseBody ?: "[]")
+                val requests = mutableListOf<String>()
+
+                for (i in 0 until jsonArray.length()) {
+                    val jsonObject = jsonArray.getJSONObject(i)
+                    val requestText = "Service: ${jsonObject.getString("service_name")}, Date: ${jsonObject.getString("selected_date")}, Status: ${jsonObject.getString("status")}"
+                    requests.add(requestText)
+                }
+
+                runOnUiThread {
+                    serviceListView.adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_list_item_1, requests)
+                }
+            }
+        })
+    }
+
 
 
 

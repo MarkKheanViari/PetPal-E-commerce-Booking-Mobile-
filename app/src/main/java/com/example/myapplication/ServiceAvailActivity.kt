@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.util.*
@@ -85,8 +86,6 @@ class ServiceAvailActivity : AppCompatActivity() {
     }
 
     private fun sendServiceRequest(serviceId: Int, userId: Int, selectedDate: String) {
-        Log.d("DEBUG", "📨 Sending Request - User ID: $userId, Service ID: $serviceId, Date: $selectedDate")
-
         val jsonObject = JSONObject().apply {
             put("service_id", serviceId)
             put("user_id", userId)
@@ -102,21 +101,44 @@ class ServiceAvailActivity : AppCompatActivity() {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("Service Request", "❌ Failed: ${e.message}")
                 runOnUiThread {
-                    Toast.makeText(this@ServiceAvailActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@ServiceAvailActivity, "❌ Failed to request service", Toast.LENGTH_LONG).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
-                Log.d("Service Request", "✅ Response: $responseBody")
 
-                runOnUiThread {
-                    Toast.makeText(this@ServiceAvailActivity, "✅ Service request sent", Toast.LENGTH_LONG).show()
-                    finish()
+                Log.d("Service Request", "✅ Raw Response: $responseBody") // Add this to check API response
+
+                if (responseBody.isNullOrEmpty()) {
+                    Log.e("Service Request", "❌ API returned empty response")
+                    runOnUiThread {
+                        Toast.makeText(this@ServiceAvailActivity, "Error: No response from server", Toast.LENGTH_LONG).show()
+                    }
+                    return
+                }
+
+                try {
+                    val jsonResponse = JSONObject(responseBody)
+                    runOnUiThread {
+                        if (jsonResponse.optBoolean("success", false)) {
+                            Toast.makeText(this@ServiceAvailActivity, "✅ Service request sent", Toast.LENGTH_LONG).show()
+                            finish()
+                        } else {
+                            Toast.makeText(this@ServiceAvailActivity, jsonResponse.optString("message", "Error"), Toast.LENGTH_LONG).show()
+                        }
+                    }
+                } catch (e: JSONException) {
+                    Log.e("Service Request", "❌ JSON Parsing Error: ${e.message}")
+                    runOnUiThread {
+                        Toast.makeText(this@ServiceAvailActivity, "Invalid server response", Toast.LENGTH_LONG).show()
+                    }
                 }
             }
+
         })
     }
+
+
 }
