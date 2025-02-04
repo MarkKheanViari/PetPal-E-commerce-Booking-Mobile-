@@ -5,13 +5,19 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!-- 🟢 Accessible Tab Layout -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:contentDescription="Tab Navigation"
         app:tabMode="fixed"
-        app:tabGravity="fill"/>
+        app:tabGravity="fill"
+        app:tabIndicatorColor="@android:color/holo_blue_dark"
+        app:tabSelectedTextColor="@android:color/white"
+        app:tabTextColor="@android:color/darker_gray"/>
 
+    <!-- 🟢 Frame Layout to Hold ListViews -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -28,14 +34,18 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"/>
-
-        <Button
-            android:id="@+id/serviceHistoryButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="View Service History"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp"/>
     </FrameLayout>
+
+    <!-- 🟢 Move the Button Outside FrameLayout to Prevent Overlapping -->
+    <Button
+        android:id="@+id/serviceHistoryButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Service History"
+        android:padding="12dp"
+        android:layout_margin="16dp"
+        android:backgroundTint="@android:color/holo_blue_dark"
+        android:textColor="@android:color/white"
+        android:contentDescription="Opens Service History"/>
 
 </LinearLayout>

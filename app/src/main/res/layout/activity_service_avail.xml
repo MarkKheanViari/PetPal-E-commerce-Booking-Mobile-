@@ -2,30 +2,38 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="16dp"
     android:background="@android:color/white">
 
-    <!-- Service Name -->
+    <!-- 🟢 Service Name -->
     <TextView
         android:id="@+id/serviceNameText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Service Name"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@android:color/black"/>
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="8dp"/>
 
-    <!-- Customer Name Input -->
+    <!-- 🟢 Customer Name Input (Fixed Touch Target Size) -->
     <EditText
         android:id="@+id/customerNameInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:hint="Enter your name"
         android:layout_marginTop="12dp"
-        android:padding="12dp"
-        android:background="@android:drawable/edit_text"/>
+        android:padding="16dp"
+        android:background="@null"
+        android:elevation="4dp"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:backgroundTint="@android:color/darker_gray"/>
 
-    <!-- Date Selection -->
+    <!-- 🟢 Date Selection -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -37,43 +45,63 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="3">
+        android:weightSum="3"
+        android:layout_marginTop="8dp">
 
         <Spinner
             android:id="@+id/daySpinner"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:minHeight="48dp"
+            android:paddingVertical="12dp"
+            android:contentDescription="Select day"/>
 
         <Spinner
             android:id="@+id/monthSpinner"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:minHeight="48dp"
+            android:paddingVertical="12dp"
+            android:contentDescription="Select month"/>
 
         <Spinner
             android:id="@+id/yearSpinner"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:minHeight="48dp"
+            android:paddingVertical="12dp"
+            android:contentDescription="Select year"/>
     </LinearLayout>
 
-    <!-- Contact Number -->
+    <!-- 🟢 Contact Number Input (Fixed Touch Target Size) -->
     <EditText
         android:id="@+id/contactNumberInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:hint="Enter contact number"
         android:inputType="phone"
         android:layout_marginTop="12dp"
-        android:padding="12dp"
-        android:background="@android:drawable/edit_text"/>
+        android:padding="16dp"
+        android:background="@null"
+        android:elevation="4dp"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:backgroundTint="@android:color/darker_gray"/>
 
-    <!-- Submit Button -->
-    <Button
+    <!-- 🟢 Submit Button -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/submitButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:text="Submit"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@android:color/holo_blue_dark"
+        android:textColor="@android:color/white"
+        app:cornerRadius="8dp"/>
+
 </LinearLayout>

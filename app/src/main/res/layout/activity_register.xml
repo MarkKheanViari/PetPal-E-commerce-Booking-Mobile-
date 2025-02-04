@@ -4,71 +4,110 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:gravity="center">
+    android:gravity="center"
+    android:background="@android:color/white">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Register"
-        android:textSize="24sp"
+        android:textSize="26sp"
         android:textStyle="bold"
-        android:layout_marginBottom="32dp"/>
+        android:layout_marginBottom="32dp"
+        android:textColor="@android:color/black"
+        android:contentDescription="Registration Header"/>
 
     <EditText
         android:id="@+id/usernameInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_marginBottom="16dp"
+        android:background="@null"
+        android:backgroundTint="@android:color/darker_gray"
+        android:elevation="4dp"
         android:hint="Username"
         android:inputType="text"
-        android:padding="12dp"
-        android:layout_marginBottom="16dp"
-        android:background="@android:drawable/edit_text"/>
+        android:padding="16dp"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"/>
 
     <EditText
         android:id="@+id/emailInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:hint="Email"
         android:inputType="textEmailAddress"
-        android:padding="12dp"
+        android:padding="16dp"
         android:layout_marginBottom="16dp"
-        android:background="@android:drawable/edit_text"/>
+        android:background="@null"
+        android:elevation="4dp"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:backgroundTint="@android:color/darker_gray"/>
 
     <EditText
         android:id="@+id/passwordInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:hint="Password"
         android:inputType="textPassword"
-        android:padding="12dp"
+        android:padding="16dp"
         android:layout_marginBottom="16dp"
-        android:background="@android:drawable/edit_text"/>
+        android:background="@null"
+        android:elevation="4dp"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:backgroundTint="@android:color/darker_gray"/>
 
     <EditText
         android:id="@+id/confirmPasswordInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:hint="Confirm Password"
         android:inputType="textPassword"
-        android:padding="12dp"
+        android:padding="16dp"
         android:layout_marginBottom="24dp"
-        android:background="@android:drawable/edit_text"/>
+        android:background="@null"
+        android:elevation="4dp"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:backgroundTint="@android:color/darker_gray"/>
 
     <Button
         android:id="@+id/registerButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:text="Register"
         android:padding="12dp"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@android:color/holo_blue_dark"
+        android:textColor="@android:color/white"
+        android:contentDescription="Register Button"/>
 
-    <TextView
-        android:id="@+id/loginLink"
-        android:layout_width="wrap_content"
+    <!-- 🟢 Wrapped login link in a LinearLayout to increase touch area -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Already have an account? Login here"
-        android:textColor="@android:color/holo_blue_dark"
-        android:padding="8dp"/>
+        android:padding="10dp"
+        android:minHeight="48dp"
+        android:gravity="center">
+
+        <TextView
+            android:height="48dp"
+            android:id="@+id/loginLink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Already have an account? Login here"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="16sp"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="10dp"/>
+    </LinearLayout>
 
 </LinearLayout>
-

@@ -3,17 +3,38 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@android:color/white">
 
+    <!-- 🟢 Service History Title -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Service History"
-        android:textSize="20sp"
-        android:textStyle="bold"/>
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textColor="@android:color/black"
+        android:paddingBottom="12dp"/>
 
+    <!-- 🟢 Empty State Text (Initially Hidden) -->
+    <TextView
+        android:id="@+id/emptyStateText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No service history available."
+        android:textSize="16sp"
+        android:gravity="center"
+        android:padding="12dp"
+        android:visibility="gone"
+        android:textColor="@android:color/darker_gray"/>
+
+    <!-- 🟢 Service History List -->
     <ListView
         android:id="@+id/serviceListView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp"/>
 </LinearLayout>
