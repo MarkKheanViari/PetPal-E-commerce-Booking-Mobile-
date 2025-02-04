@@ -10,6 +10,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -30,7 +31,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_main) // ✅ Ensure layout is set before calling findViewById()
+
+        val serviceHistoryButton = findViewById<Button>(R.id.serviceHistoryButton)
+        serviceHistoryButton.setOnClickListener {
+            val intent = Intent(this, ServiceHistoryActivity::class.java)
+            startActivity(intent)
+        }
 
         productListView = findViewById(R.id.productListView)
         serviceListView = findViewById(R.id.serviceListView)
@@ -39,6 +46,7 @@ class MainActivity : AppCompatActivity() {
         setupTabs()
         checkUserAndResetIfNeeded()
     }
+
 
     override fun onResume() {
         super.onResume()

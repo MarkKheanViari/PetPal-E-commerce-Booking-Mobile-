@@ -25,9 +25,10 @@
 
         <activity android:name=".RegisterActivity" android:exported="false" />
         <activity android:name=".MainActivity" android:exported="false" />
-
-        <!-- ✅ Fix: Declare ServiceAvailActivity -->
         <activity android:name=".ServiceAvailActivity" android:exported="false" />
+
+        <!-- ✅ Fix: Declare ServiceHistoryActivity -->
+        <activity android:name=".ServiceHistoryActivity" android:exported="false" />
 
     </application>
 </manifest>

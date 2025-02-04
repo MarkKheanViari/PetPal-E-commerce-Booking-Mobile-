@@ -140,5 +140,64 @@ class ServiceAvailActivity : AppCompatActivity() {
         })
     }
 
+    private fun fetchAvailableDates() {
+        val request = Request.Builder()
+            .url("http://192.168.1.65/backend/check_date_availability.php")
+            .get()
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@ServiceAvailActivity, "Error fetching dates", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+
+                try {
+                    val jsonResponse = JSONObject(responseBody)
+                    val bookedDatesArray = jsonResponse.getJSONArray("booked_dates")
+                    val bookedDates = mutableListOf<String>()
+
+                    for (i in 0 until bookedDatesArray.length()) {
+                        bookedDates.add(bookedDatesArray.getString(i))
+                    }
+
+                    runOnUiThread {
+                        populateDateFields(bookedDates)
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        Toast.makeText(this@ServiceAvailActivity, "Error processing dates", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun populateDateFields(bookedDates: List<String>) {
+        val days = (1..31).map { it.toString() }
+        val months = listOf("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
+        val years = (Calendar.getInstance().get(Calendar.YEAR)..(Calendar.getInstance().get(Calendar.YEAR) + 5))
+            .map { it.toString() }
+
+        daySpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, days)
+        monthSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, months)
+        yearSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, years)
+
+        // Disable booked dates
+        daySpinner.post {
+            for (i in 0 until daySpinner.count) {
+                val selectedDate = "${yearSpinner.selectedItem}-${monthSpinner.selectedItem}-${daySpinner.getItemAtPosition(i)}"
+                if (bookedDates.contains(selectedDate)) {
+                    daySpinner.getChildAt(i)?.isEnabled = false // Disable booked date
+                }
+            }
+        }
+    }
+
+
 
 }

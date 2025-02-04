@@ -29,6 +29,13 @@
             android:layout_height="match_parent"
             android:visibility="gone"/>
 
+        <Button
+            android:id="@+id/serviceHistoryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View Service History"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"/>
     </FrameLayout>
 
 </LinearLayout>
