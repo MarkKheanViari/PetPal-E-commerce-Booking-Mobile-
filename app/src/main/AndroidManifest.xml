@@ -30,5 +30,6 @@
         <!-- ✅ Fix: Declare ServiceHistoryActivity -->
         <activity android:name=".ServiceHistoryActivity" android:exported="false" />
 
+
     </application>
 </manifest>
