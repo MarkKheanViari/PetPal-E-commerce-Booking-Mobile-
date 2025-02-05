@@ -48,4 +48,16 @@
         android:textColor="@android:color/white"
         android:contentDescription="Opens Service History"/>
 
+    <Button
+        android:id="@+id/viewCartButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Cart"
+        android:padding="12dp"
+        android:layout_margin="16dp"
+        android:backgroundTint="@android:color/holo_blue_dark"
+        android:textColor="@android:color/white"
+        android:contentDescription="Opens Shopping Cart"/>
+
+
 </LinearLayout>

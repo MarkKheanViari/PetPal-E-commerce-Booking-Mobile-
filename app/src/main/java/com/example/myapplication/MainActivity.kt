@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import com.example.myapplication.CartActivity
 import Product
 import ProductAdapter
 import Service
@@ -36,6 +37,12 @@ class MainActivity : AppCompatActivity() {
         val serviceHistoryButton = findViewById<Button>(R.id.serviceHistoryButton)
         serviceHistoryButton.setOnClickListener {
             val intent = Intent(this, ServiceHistoryActivity::class.java)
+            startActivity(intent)
+        }
+
+        val viewCartButton: Button = findViewById(R.id.viewCartButton)
+        viewCartButton.setOnClickListener {
+            val intent = Intent(this, CartActivity::class.java)
             startActivity(intent)
         }
 
@@ -158,13 +165,13 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     runOnUiThread {
-                        val adapter = productListView.adapter as? ProductAdapter
-                        if (adapter == null) {
+                        if (productListView.adapter == null) {
                             productListView.adapter = ProductAdapter(this@MainActivity, productList)
                         } else {
-                            adapter.updateProducts(productList) // ✅ Update product list
+                            (productListView.adapter as? ProductAdapter)?.updateProducts(productList)
                         }
                     }
+
                 } catch (e: Exception) {
                     runOnUiThread {
                         Toast.makeText(this@MainActivity, "Parsing error: ${e.message}", Toast.LENGTH_SHORT).show()

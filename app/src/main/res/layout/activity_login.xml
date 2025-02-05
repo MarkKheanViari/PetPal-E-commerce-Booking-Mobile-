@@ -71,7 +71,8 @@
             android:layout_height="wrap_content"
             android:text="Don't have an account? Register here"
             android:textColor="@android:color/holo_blue_dark"
-            android:textSize="22sp"
+            android:textSize="15sp"
+            android:height="48dp"
             android:clickable="true"
             android:focusable="true"
             android:padding="8dp"/>

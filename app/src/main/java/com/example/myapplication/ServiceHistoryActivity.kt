@@ -1,8 +1,8 @@
 package com.example.myapplication
 
-import android.annotation.SuppressLint
-import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -10,108 +10,244 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 
 class ServiceHistoryActivity : AppCompatActivity() {
-    private lateinit var serviceListView: ListView
-    private lateinit var client: OkHttpClient
-    private lateinit var historyAdapter: ArrayAdapter<String>
-    private val serviceHistory = mutableListOf<HashMap<String, String>>()
 
-    @SuppressLint("MissingInflatedId")
+    private lateinit var serviceListView: ListView
+    private lateinit var emptyStateText: TextView
+    private lateinit var progressBar: ProgressBar
+    private lateinit var clearHistoryButton: Button
+    private lateinit var historyAdapter: ServiceHistoryAdapter
+    private val client = OkHttpClient()
+    private var userId: Int = -1
+
+    private var servicesList: MutableList<HashMap<String, String>> = mutableListOf()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_service_history)
 
         serviceListView = findViewById(R.id.serviceListView)
-        client = OkHttpClient()
+        emptyStateText = findViewById(R.id.emptyStateText)
+        progressBar = findViewById(R.id.progressBar)
+        clearHistoryButton = findViewById(R.id.clearHistoryButton) // ✅ Initialize button
+
+        val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        userId = sharedPreferences.getInt("user_id", -1)
+
+        if (userId == -1) {
+            Toast.makeText(this, "❌ Please login to view history", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
+        clearHistoryButton.setOnClickListener {
+            clearServiceHistory()
+        }
 
         fetchServiceHistory()
     }
 
     private fun fetchServiceHistory() {
-        val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
-        val userId = sharedPreferences.getInt("user_id", -1)
+        val url = "http://192.168.1.65/backend/fetch_service_history.php?user_id=$userId"
+        val request = Request.Builder().url(url).get().build()
 
-        if (userId == -1) {
-            Toast.makeText(this, "Please log in to view service history", Toast.LENGTH_LONG).show()
-            return
-        }
-
-        val request = Request.Builder()
-            .url("http://192.168.1.65/backend/fetch_service_history.php?user_id=$userId")
-            .get()
-            .build()
+        runOnUiThread { progressBar.visibility = View.VISIBLE }
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(this@ServiceHistoryActivity, "Error fetching service history", Toast.LENGTH_LONG).show()
+                    progressBar.visibility = View.GONE
+                    Toast.makeText(this@ServiceHistoryActivity, "❌ Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
+                Log.d("Service History", "✅ Raw Response: $responseBody")
+
+                runOnUiThread { progressBar.visibility = View.GONE }
+
+                if (responseBody.isNullOrEmpty()) {
+                    runOnUiThread {
+                        emptyStateText.visibility = View.VISIBLE
+                        clearHistoryButton.visibility = View.GONE
+                        Toast.makeText(this@ServiceHistoryActivity, "❌ No service history found", Toast.LENGTH_LONG).show()
+                    }
+                    return
+                }
 
                 try {
-                    val jsonResponse = JSONObject(responseBody)
-                    val historyArray = jsonResponse.getJSONArray("history")
+                    val jsonArray = JSONArray(responseBody)
+                    servicesList.clear()
 
-                    serviceHistory.clear()
-
-                    for (i in 0 until historyArray.length()) {
-                        val service = historyArray.getJSONObject(i)
-                        val item = hashMapOf(
-                            "id" to service.getInt("id").toString(),
+                    for (i in 0 until jsonArray.length()) {
+                        val service = jsonArray.getJSONObject(i)
+                        val historyItem = hashMapOf(
+                            "id" to service.getString("id"),
                             "service_name" to service.getString("service_name"),
                             "selected_date" to service.getString("selected_date"),
                             "status" to service.getString("status")
                         )
-                        serviceHistory.add(item)
+                        servicesList.add(historyItem)
                     }
 
                     runOnUiThread {
-                        val adapter = ServiceHistoryAdapter(this@ServiceHistoryActivity, serviceHistory)
-                        serviceListView.adapter = adapter
+                        if (servicesList.isEmpty()) {
+                            emptyStateText.visibility = View.VISIBLE
+                            clearHistoryButton.visibility = View.GONE
+                        } else {
+                            emptyStateText.visibility = View.GONE
+                            clearHistoryButton.visibility = View.VISIBLE
+                            historyAdapter = ServiceHistoryAdapter(this@ServiceHistoryActivity, servicesList) { serviceId ->
+                                cancelServiceRequest(serviceId)
+                            }
+                            serviceListView.adapter = historyAdapter
+                        }
                     }
-                } catch (e: Exception) {
+
+                } catch (e: JSONException) {
+                    Log.e("Service History", "❌ JSON Parsing Error: ${e.message}")
                     runOnUiThread {
-                        Toast.makeText(this@ServiceHistoryActivity, "Error processing data", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@ServiceHistoryActivity, "❌ Error Processing Data", Toast.LENGTH_LONG).show()
                     }
                 }
             }
         })
     }
 
-    fun cancelServiceRequest(requestId: Int) {
-        val url = "http://192.168.1.65/backend/cancel_service_request.php" // ✅ Ensure this backend exists
+    private fun clearServiceHistory() {
+        val url = "http://192.168.1.65/backend/clear_service_history.php"
+        val jsonBody = """
+    {
+        "mobile_user_id": $userId
+    }
+    """.trimIndent()
 
-        val json = JSONObject()
-        json.put("id", requestId)
+        val requestBody = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaType())
 
-        val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody) // ✅ Change to POST to match working Postman request
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("Clear History", "❌ Network Error: ${e.message}")
+                runOnUiThread {
+                    Toast.makeText(this@ServiceHistoryActivity, "❌ Network Error", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                Log.d("Clear History", "✅ Full Server Response: $responseBody")
+
+                if (responseBody.isNullOrEmpty()) {
+                    runOnUiThread {
+                        Toast.makeText(this@ServiceHistoryActivity, "❌ No response from server", Toast.LENGTH_LONG).show()
+                    }
+                    return
+                }
+
+                try {
+                    val jsonResponse = JSONObject(responseBody)
+                    val success = jsonResponse.optBoolean("success", false)
+
+                    runOnUiThread {
+                        if (success) {
+                            Toast.makeText(this@ServiceHistoryActivity, "✅ Service history cleared!", Toast.LENGTH_LONG).show()
+                            servicesList.clear()
+                            historyAdapter.notifyDataSetChanged()
+                            clearHistoryButton.visibility = View.GONE
+                            emptyStateText.visibility = View.VISIBLE
+                        } else {
+                            val errorMessage = jsonResponse.optString("error", "Unknown error")
+                            Toast.makeText(this@ServiceHistoryActivity, "❌ Failed: $errorMessage", Toast.LENGTH_LONG).show()
+                            Log.e("Clear History", "❌ Server Error Message: $errorMessage")
+                        }
+                    }
+                } catch (e: JSONException) {
+                    Log.e("Clear History", "❌ JSON Parsing Error: ${e.message}")
+                    runOnUiThread {
+                        Toast.makeText(this@ServiceHistoryActivity, "❌ Error processing request", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        })
+    }
+
+
+
+    fun cancelServiceRequest(serviceId: Int) {
+        val url = "http://192.168.1.65/backend/cancel_service_request.php"
+        val jsonBody = """
+    {
+        "service_id": $serviceId
+    }
+    """.trimIndent()
+
+        val requestBody = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
             .url(url)
             .post(requestBody)
             .build()
 
-        val client = OkHttpClient()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
+                Log.e("Cancel Request", "❌ Network Error: ${e.message}")
                 runOnUiThread {
-                    Toast.makeText(this@ServiceHistoryActivity, "❌ Failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ServiceHistoryActivity, "❌ Network Error", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
-                runOnUiThread {
-                    Toast.makeText(this@ServiceHistoryActivity, "✅ Request cancelled", Toast.LENGTH_SHORT).show()
-                    fetchServiceHistory() // ✅ Refresh the list after cancelling
+                val responseBody = response.body?.string()
+                Log.d("Cancel Request", "✅ Response: $responseBody")
+
+                if (responseBody.isNullOrEmpty()) {
+                    runOnUiThread {
+                        Toast.makeText(this@ServiceHistoryActivity, "❌ No response from server", Toast.LENGTH_LONG).show()
+                    }
+                    return
+                }
+
+                try {
+                    val jsonResponse = JSONObject(responseBody)
+                    val success = jsonResponse.optBoolean("success", false)
+
+                    runOnUiThread {
+                        if (success) {
+                            Toast.makeText(this@ServiceHistoryActivity, "✅ Service request cancelled!", Toast.LENGTH_LONG).show()
+                            updateCancelledStatus(serviceId) // ✅ Update UI
+                        } else {
+                            Toast.makeText(this@ServiceHistoryActivity, "❌ Failed to cancel request", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                } catch (e: JSONException) {
+                    Log.e("Cancel Request", "❌ JSON Parsing Error: ${e.message}")
+                    runOnUiThread {
+                        Toast.makeText(this@ServiceHistoryActivity, "❌ Error processing request", Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         })
+    }
+
+    private fun updateCancelledStatus(serviceId: Int) {
+        for (service in servicesList) {
+            if (service["id"]?.toInt() == serviceId) {
+                service["status"] = "cancelled"
+                break
+            }
+        }
+        runOnUiThread {
+            historyAdapter.notifyDataSetChanged() // ✅ Refresh UI immediately
+        }
     }
 
 

@@ -29,6 +29,19 @@
         android:visibility="gone"
         android:textColor="@android:color/darker_gray"/>
 
+    <!-- 🟢 Clear History Button (Initially Hidden) -->
+    <Button
+        android:id="@+id/clearHistoryButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Clear Service History"
+        android:backgroundTint="@android:color/holo_red_light"
+        android:textColor="@android:color/white"
+        android:visibility="gone"
+        android:padding="10dp"
+        android:textStyle="bold"
+        android:layout_marginBottom="10dp"/>
+
     <!-- 🟢 Service History List -->
     <ListView
         android:id="@+id/serviceListView"
@@ -37,4 +50,13 @@
         android:layout_weight="1"
         android:divider="@android:color/darker_gray"
         android:dividerHeight="1dp"/>
+
+    <!-- 🟢 Progress Bar (Initially Hidden) -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_gravity="center"/>
+
 </LinearLayout>

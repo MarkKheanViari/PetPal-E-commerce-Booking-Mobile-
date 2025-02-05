@@ -55,12 +55,14 @@ class ServiceAdapter(
             selectedDateText.visibility = View.GONE
 
             availButton.setOnClickListener {
+                Log.d("ServiceAdapter", "📤 Sending Service ID: ${service.id}") // ✅ Debugging Log
                 val intent = Intent(context, ServiceAvailActivity::class.java)
-                intent.putExtra("SERVICE_NAME", service.serviceName)
-                intent.putExtra("SERVICE_ID", service.id) // ✅ Ensure service ID is passed
+                intent.putExtra("SERVICE_ID", service.id) // ✅ Ensure key is uppercase
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
             }
+
+
 
 
 

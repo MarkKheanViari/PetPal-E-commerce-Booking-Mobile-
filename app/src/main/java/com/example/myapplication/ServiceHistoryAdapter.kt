@@ -11,13 +11,12 @@ import androidx.core.content.ContextCompat
 
 class ServiceHistoryAdapter(
     private val context: Context,
-    private val services: List<HashMap<String, String>>
+    private val services: List<HashMap<String, String>>,
+    private val onCancelRequest: (Int) -> Unit // 🔥 Callback for canceling requests
 ) : BaseAdapter() {
 
     override fun getCount(): Int = services.size
-
     override fun getItem(position: Int): Any = services[position]
-
     override fun getItemId(position: Int): Long = services[position]["id"]!!.toLong()
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
@@ -27,46 +26,54 @@ class ServiceHistoryAdapter(
         val serviceName = view.findViewById<TextView>(R.id.serviceName)
         val serviceDate = view.findViewById<TextView>(R.id.serviceDate)
         val serviceStatus = view.findViewById<Button>(R.id.serviceStatus)
+        val cancelButton = view.findViewById<Button>(R.id.cancelButton) // ✅ Cancel Button
 
         val service = services[position]
+        val status = service["status"]!!.lowercase()
 
         serviceName.text = service["service_name"]
         serviceDate.text = "Date: ${service["selected_date"]}"
 
-        val status = service["status"]!!.lowercase() // Convert to lowercase for consistency
-
+        // 🔥 Handle status colors
         when (status) {
             "pending" -> {
-                serviceStatus.text = "Pending"
+                serviceStatus.text = "PENDING"
                 serviceStatus.setBackgroundColor(ContextCompat.getColor(context, android.R.color.holo_orange_light))
+                cancelButton.visibility = View.VISIBLE
 
-                // ✅ Make button clickable for cancel request
-                serviceStatus.setOnClickListener {
+                // ✅ Handle Cancel Click
+                cancelButton.setOnClickListener {
                     AlertDialog.Builder(context)
                         .setTitle("Cancel Service Request?")
                         .setMessage("Are you sure you want to cancel this request?")
                         .setPositiveButton("Yes") { _, _ ->
-                            (context as ServiceHistoryActivity).cancelServiceRequest(service["id"]!!.toInt()) // ✅ Calls cancel request function
+                            onCancelRequest(service["id"]!!.toInt()) // ✅ API Call
+                            service["status"] = "cancelled" // ✅ Update the status in memory
+                            notifyDataSetChanged() // ✅ Refresh UI
                         }
                         .setNegativeButton("No", null)
                         .show()
                 }
             }
             "confirmed", "approved" -> {
-                serviceStatus.text = "Approved"
+                serviceStatus.text = "APPROVED"
                 serviceStatus.setBackgroundColor(ContextCompat.getColor(context, android.R.color.holo_green_dark))
+                cancelButton.visibility = View.GONE
             }
             "declined" -> {
-                serviceStatus.text = "Declined"
+                serviceStatus.text = "DECLINED"
                 serviceStatus.setBackgroundColor(ContextCompat.getColor(context, android.R.color.holo_red_light))
+                cancelButton.visibility = View.GONE
             }
-            else -> {
-                serviceStatus.text = "Unknown"  // ✅ Debugging log
+            "cancelled" -> { // ✅ New Condition for Cancelled
+                serviceStatus.text = "CANCELLED"
                 serviceStatus.setBackgroundColor(ContextCompat.getColor(context, android.R.color.darker_gray))
-                Log.e("ServiceHistoryAdapter", "Unknown status received: $status") // ✅ Logs unknown status for debugging
+                cancelButton.visibility = View.GONE
             }
         }
+
         return view
     }
 
 }
+
