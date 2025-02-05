@@ -1,32 +1,45 @@
+package com.example.petpal
+
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import com.bumptech.glide.Glide
 import com.example.myapplication.R
 
-class CartAdapter(private val context: Context, private var cartItems: MutableList<CartItem>) : BaseAdapter() {
+class CartAdapter(
+    private val context: Context,
+    private val cartItems: List<HashMap<String, String>>
+) : BaseAdapter() {
 
     override fun getCount(): Int = cartItems.size
-    override fun getItem(position: Int): CartItem = cartItems[position]
-    override fun getItemId(position: Int): Long = cartItems[position].id.toLong()
+    override fun getItem(position: Int): Any = cartItems[position]
+    override fun getItemId(position: Int): Long = cartItems[position]["cart_id"]!!.toLong()
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view: View = convertView ?: LayoutInflater.from(context).inflate(R.layout.cart_item, parent, false)
-        val cartItem = getItem(position)
+        val view: View = convertView ?: LayoutInflater.from(context)
+            .inflate(R.layout.cart_item, parent, false)
 
-        val itemName: TextView = view.findViewById(R.id.cartItemName)
-        val itemPrice: TextView = view.findViewById(R.id.cartItemPrice)
-        val itemQuantity: TextView = view.findViewById(R.id.cartItemQuantity)
-        val itemImage: ImageView = view.findViewById(R.id.cartItemImage)
+        val itemName = view.findViewById<TextView>(R.id.cartItemName)
+        val itemPrice = view.findViewById<TextView>(R.id.cartItemPrice)
+        val itemQuantity = view.findViewById<TextView>(R.id.cartItemQuantity)
+        val itemImage = view.findViewById<ImageView>(R.id.cartItemImage)
+        val removeButton = view.findViewById<Button>(R.id.removeItemButton)
 
-        itemName.text = cartItem.name
-        itemPrice.text = "₱${cartItem.price}"
-        itemQuantity.text = "Qty: ${cartItem.quantity}"
-        Glide.with(context).load(cartItem.imageUrl).into(itemImage)
+        val item = cartItems[position]
+
+        itemName.text = item["name"]
+        itemPrice.text = "₱${item["price"]}"
+        itemQuantity.text = "Qty: ${item["quantity"]}"
+
+        // ✅ Load image with Glide
+        Glide.with(context).load(item["image"]).into(itemImage)
+
+        // ✅ Remove button logic
+        removeButton.setOnClickListener {
+            (context as CartActivity).removeItemFromCart(item["cart_id"]!!.toInt())
+        }
 
         return view
     }

@@ -1,5 +1,8 @@
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -29,7 +32,7 @@ class ProductAdapter(private val context: Context, private var products: Mutable
 
         val itemName: TextView = view.findViewById(R.id.productName)
         val itemPrice: TextView = view.findViewById(R.id.productPrice)
-        val itemStock: TextView = view.findViewById(R.id.productStock) // ✅ Ensure stock exists
+        val itemStock: TextView = view.findViewById(R.id.productStock)
         val itemImage: ImageView = view.findViewById(R.id.productImage)
         val addToCartButton: Button = view.findViewById(R.id.addToCartButton)
 
@@ -38,12 +41,18 @@ class ProductAdapter(private val context: Context, private var products: Mutable
         itemStock.text = "Stock: ${product.quantity}"
         Glide.with(context).load(product.imageUrl).into(itemImage)
 
-        addToCartButton.setOnClickListener {
-            if (product.quantity > 0) {
+        if (product.quantity > 0) {
+            addToCartButton.isEnabled = true
+            addToCartButton.text = "Add to Cart"
+            addToCartButton.setBackgroundColor(Color.parseColor("#FF9800")) // Orange color
+
+            addToCartButton.setOnClickListener {
                 addToCart(product)
-            } else {
-                Toast.makeText(context, "Out of stock", Toast.LENGTH_SHORT).show()
             }
+        } else {
+            addToCartButton.isEnabled = false
+            addToCartButton.text = "Out of Stock"
+            addToCartButton.setBackgroundColor(Color.GRAY)
         }
 
         return view
@@ -51,15 +60,15 @@ class ProductAdapter(private val context: Context, private var products: Mutable
 
     private fun addToCart(product: Product) {
         val sharedPreferences: SharedPreferences = context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-        val customerId = sharedPreferences.getInt("user_id", -1)
+        val mobileUserId = sharedPreferences.getInt("user_id", -1)
 
-        if (customerId == -1) {
-            Toast.makeText(context, "Please login to add to cart", Toast.LENGTH_SHORT).show()
+        if (mobileUserId == -1) {
+            Toast.makeText(context, "❌ Please login to add to cart", Toast.LENGTH_SHORT).show()
             return
         }
 
         val jsonObject = JSONObject().apply {
-            put("customer_id", customerId)
+            put("mobile_user_id", mobileUserId)
             put("product_id", product.id)
             put("quantity", 1) // Default to 1
         }
@@ -68,7 +77,7 @@ class ProductAdapter(private val context: Context, private var products: Mutable
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.65/backend/add_to_cart.php") // ✅ Check if this URL is correct
+            .url("http://192.168.1.65/backend/add_to_cart.php")
             .post(requestBody)
             .build()
 
@@ -76,53 +85,43 @@ class ProductAdapter(private val context: Context, private var products: Mutable
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("AddToCart", "❌ Network request failed: ${e.message}")
-                (context as? android.app.Activity)?.runOnUiThread {
+                Handler(Looper.getMainLooper()).post {
                     Toast.makeText(context, "Failed to connect to server", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
-                try {
-                    val responseBody = response.body?.string()
+                val responseBody = response.body?.string()
 
-                    if (responseBody.isNullOrEmpty()) {
-                        Log.e("AddToCart", "❌ Empty response from server")
-                        (context as? android.app.Activity)?.runOnUiThread {
-                            Toast.makeText(context, "Server returned empty response", Toast.LENGTH_SHORT).show()
+                Handler(Looper.getMainLooper()).post {
+                    if (responseBody != null) {
+                        val jsonResponse = JSONObject(responseBody)
+                        val success = jsonResponse.optBoolean("success", false)
+
+                        if (success) {
+                            Toast.makeText(context, "✅ Added to Cart!", Toast.LENGTH_SHORT).show()
+                            product.quantity -= 1
+                            notifyDataSetChanged() // Refresh UI dynamically
+                        } else {
+                            Toast.makeText(context, "❌ Error: ${jsonResponse.optString("message")}", Toast.LENGTH_SHORT).show()
                         }
-                        return
-                    }
-
-                    Log.d("AddToCart", "✅ Server Response: $responseBody")
-
-                    val jsonResponse = JSONObject(responseBody)
-                    val success = jsonResponse.optBoolean("success", false)
-                    val message = jsonResponse.optString("message", "Unknown error")
-
-                    (context as? android.app.Activity)?.runOnUiThread {
-                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                    }
-                } catch (e: Exception) {
-                    Log.e("AddToCart", "❌ JSON Parsing Error: ${e.message}")
-                    Log.e("AddToCart", "🔍 Full response: ${response.body?.string()}") // Log full response
-                    (context as? android.app.Activity)?.runOnUiThread {
-                        Toast.makeText(context, "Error processing server response", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
-
         })
     }
 
-
-
-    // ✅ Add this function to update the product list dynamically
+    // ✅ Single `updateProducts()` function (No more duplicate conflicts)
     fun updateProducts(newProducts: List<Product>) {
-        products.clear()
-        products.addAll(newProducts)
-        notifyDataSetChanged()
+        products.clear() // ✅ Clear old data
+        products.addAll(newProducts) // ✅ Add new data
+        notifyDataSetChanged() // ✅ Refresh UI
+    }
+
+
+
+    // ✅ Allow `MainActivity.kt` to get the list of products
+    fun getProducts(): List<Product> {
+        return products
     }
 }
-
-
-

@@ -7,14 +7,14 @@
     android:background="@android:color/white">
 
     <TextView
+        android:id="@+id/emptyText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Shopping Cart"
-        android:textSize="22sp"
-        android:textStyle="bold"
+        android:text="Your cart is empty."
+        android:textSize="16sp"
         android:gravity="center"
-        android:textColor="@android:color/black"
-        android:paddingBottom="12dp"/>
+        android:visibility="gone"
+        android:textColor="@android:color/darker_gray"/>
 
     <ListView
         android:id="@+id/cartListView"

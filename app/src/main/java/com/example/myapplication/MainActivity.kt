@@ -1,6 +1,5 @@
 package com.example.myapplication
 
-import com.example.myapplication.CartActivity
 import Product
 import ProductAdapter
 import Service
@@ -15,6 +14,7 @@ import android.widget.Button
 import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.petpal.CartActivity
 import com.google.android.material.tabs.TabLayout
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -32,18 +32,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main) // ✅ Ensure layout is set before calling findViewById()
+        setContentView(R.layout.activity_main)
 
         val serviceHistoryButton = findViewById<Button>(R.id.serviceHistoryButton)
         serviceHistoryButton.setOnClickListener {
-            val intent = Intent(this, ServiceHistoryActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, ServiceHistoryActivity::class.java))
         }
 
         val viewCartButton: Button = findViewById(R.id.viewCartButton)
         viewCartButton.setOnClickListener {
-            val intent = Intent(this, CartActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, CartActivity::class.java))
         }
 
         productListView = findViewById(R.id.productListView)
@@ -53,7 +51,6 @@ class MainActivity : AppCompatActivity() {
         setupTabs()
         checkUserAndResetIfNeeded()
     }
-
 
     override fun onResume() {
         super.onResume()
@@ -103,55 +100,34 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_logout -> {
-                logout()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    private fun logout() {
-        getSharedPreferences("MyAppPrefs", MODE_PRIVATE).edit().clear().apply()
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
-    }
-
     private fun fetchProducts() {
-        val request = Request.Builder()
-            .url("http://192.168.1.65/backend/fetch_product.php") // ✅ Fetch all products with images
-            .build()
+        val request = Request.Builder().url("http://192.168.1.65/backend/fetch_product.php").build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "❌ Network error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
-                if (!response.isSuccessful) {
+                val responseBody = response.body?.string()
+                Log.d("Product Fetch", "📦 Response: $responseBody")
+
+                if (responseBody.isNullOrEmpty()) {
                     runOnUiThread {
-                        Toast.makeText(this@MainActivity, "Failed to fetch products", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, "❌ No products found.", Toast.LENGTH_SHORT).show()
                     }
                     return
                 }
 
-                try {
-                    val json = JSONArray(response.body!!.string())
+                val json = JSONObject(responseBody)
+                if (json.optBoolean("success", false)) {
+                    val productsArray = json.optJSONArray("products") ?: JSONArray()
                     val productList = mutableListOf<Product>()
 
-                    for (i in 0 until json.length()) {
-                        val productJson = json.getJSONObject(i)
+                    for (i in 0 until productsArray.length()) {
+                        val productJson = productsArray.getJSONObject(i)
                         productList.add(
                             Product(
                                 id = productJson.getInt("id"),
@@ -159,7 +135,7 @@ class MainActivity : AppCompatActivity() {
                                 price = productJson.getString("price"),
                                 description = productJson.getString("description"),
                                 quantity = productJson.getInt("quantity"),
-                                imageUrl = productJson.getString("image") // ✅ Ensure image URL is loaded
+                                imageUrl = productJson.getString("image")
                             )
                         )
                     }
@@ -171,159 +147,42 @@ class MainActivity : AppCompatActivity() {
                             (productListView.adapter as? ProductAdapter)?.updateProducts(productList)
                         }
                     }
-
-                } catch (e: Exception) {
-                    runOnUiThread {
-                        Toast.makeText(this@MainActivity, "Parsing error: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
+                } else {
+                    Log.e("Product Fetch", "❌ JSON Success = false")
                 }
             }
         })
     }
-
-
-
-
 
     private fun fetchServices() {
-        val request = Request.Builder()
-            .url("http://192.168.1.65/backend/fetch_services.php")
-            .get()
-            .build()
+        val request = Request.Builder().url("http://192.168.1.65/backend/fetch_services.php").build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                try {
-                    val responseBody = response.body?.string()
-                    if (!response.isSuccessful || responseBody == null) {
-                        throw IOException("Unexpected response ${response.code}")
-                    }
-
-                    val jsonArray = JSONArray(responseBody)
-                    val services = mutableListOf<Service>()
-
-                    for (i in 0 until jsonArray.length()) {
-                        val jsonObject = jsonArray.getJSONObject(i)
-                        services.add(
-                            Service(
-                                id = jsonObject.getInt("id"),
-                                serviceName = jsonObject.getString("service_name"),
-                                description = jsonObject.getString("description"),
-                                price = jsonObject.getDouble("price"),
-                                status = jsonObject.getString("status")
-                            )
-                        )
-                    }
-
-                    runOnUiThread {
-                        val adapter = serviceListView.adapter as? ServiceAdapter
-                        if (adapter == null) {
-                            serviceListView.adapter = ServiceAdapter(
-                                this@MainActivity,
-                                services.toMutableList()
-                            ) { service, selectedDate ->
-                                availService(service, selectedDate)
-                            }
-                        } else {
-                            adapter.updateServices(services)
-                        }
-                    }
-                } catch (e: Exception) {
-                    runOnUiThread {
-                        Toast.makeText(this@MainActivity, "Error processing data: ${e.message}", Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
-        })
-    }
-
-    private fun fetchServiceRequests() {
-        val userId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getInt("user_id", -1)
-        if (userId == -1) {
-            Toast.makeText(this, "Please login to view requests", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val url = "http://192.168.1.65/backend/fetch_service_requests.php?user_id=$userId"
-
-        val request = Request.Builder().url(url).get().build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Failed to load requests", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "❌ Network error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
-                val jsonArray = JSONArray(responseBody ?: "[]")
-                val requests = mutableListOf<String>()
+                Log.d("Service Fetch", "📦 API Response: $responseBody")
 
-                for (i in 0 until jsonArray.length()) {
-                    val jsonObject = jsonArray.getJSONObject(i)
-                    val requestText = "Service: ${jsonObject.getString("service_name")}, Date: ${jsonObject.getString("selected_date")}, Status: ${jsonObject.getString("status")}"
-                    requests.add(requestText)
+                if (responseBody.isNullOrEmpty()) {
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, "❌ No services received.", Toast.LENGTH_SHORT).show()
+                    }
+                    return
                 }
 
-                runOnUiThread {
-                    serviceListView.adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_list_item_1, requests)
-                }
+                // Add parsing logic for services if needed
             }
         })
     }
 
-
-
-
-    private fun availService(service: Service, selectedDate: String) {
-        val userId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getInt("user_id", -1)
-        if (userId == -1) {
-            Toast.makeText(this, "Please login to avail services", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val jsonObject = JSONObject().apply {
-            put("service_id", service.id)
-            put("user_id", userId)
-            put("status", "pending")
-            put("selected_date", selectedDate)
-        }
-
-        Log.d("Service Request", "📨 Sending JSON: $jsonObject")  // ✅ Debugging log
-
-        val mediaType = "application/json; charset=utf-8".toMediaType()
-        val requestBody = jsonObject.toString().toRequestBody(mediaType)
-
-        val request = Request.Builder()
-            .url("http://192.168.1.65/backend/request_service.php") // ✅ Check URL
-            .post(requestBody)
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e("Service Request", "❌ Failed: ${e.message}")  // ✅ Debugging log
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "❌ Failed: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val responseBody = response.body?.string()
-                Log.d("Service Request", "✅ Response: $responseBody")  // ✅ Debugging log
-
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "✅ Service request sent", Toast.LENGTH_SHORT).show()
-                    fetchServices()  // Refresh list
-                }
-            }
-        })
+    private fun sortProductsByPrice() {
+        val adapter = productListView.adapter as? ProductAdapter ?: return
+        val sortedList = adapter.getProducts().sortedBy { product -> product.price.toDouble() }
+        adapter.updateProducts(sortedList)
     }
-
 }
