@@ -1,4 +1,5 @@
-package com.example.petpal
+package com.example.myapplication
+
 
 import android.content.Context
 import android.os.Bundle
@@ -6,6 +7,7 @@ import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.R
+import com.example.myapplication.CartAdapter
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -43,32 +45,43 @@ class CartActivity : AppCompatActivity() {
         }
 
         val url = "http://192.168.1.65/backend/fetch_cart.php?mobile_user_id=$mobileUserId"
+        Log.d("CartActivity", "🔄 Fetching cart from: $url") // ✅ Debugging log
 
         val request = Request.Builder().url(url).get().build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
+                    Log.e("CartActivity", "❌ Network Error: ${e.message}")
                     Toast.makeText(this@CartActivity, "❌ Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
-                Log.d("CartActivity", "✅ Response: $responseBody")
+                Log.d("CartActivity", "📦 API Response: $responseBody") // ✅ Debugging log
 
                 if (responseBody.isNullOrEmpty()) {
                     runOnUiThread {
+                        Toast.makeText(this@CartActivity, "❌ No cart items found.", Toast.LENGTH_SHORT).show()
                         emptyText.visibility = TextView.VISIBLE
                     }
                     return
                 }
 
                 try {
-                    val jsonArray = JSONObject(responseBody).getJSONArray("cart")
+                    val json = JSONObject(responseBody)
+                    if (!json.optBoolean("success", false)) {
+                        runOnUiThread {
+                            Toast.makeText(this@CartActivity, "❌ Error loading cart.", Toast.LENGTH_SHORT).show()
+                        }
+                        return
+                    }
+
+                    val cartArray = json.optJSONArray("cart") ?: JSONArray()
                     cartItems.clear()
 
-                    for (i in 0 until jsonArray.length()) {
-                        val item = jsonArray.getJSONObject(i)
+                    for (i in 0 until cartArray.length()) {
+                        val item = cartArray.getJSONObject(i)
                         val cartItem = hashMapOf(
                             "cart_id" to item.getString("cart_id"),
                             "product_id" to item.getString("product_id"),
@@ -92,6 +105,7 @@ class CartActivity : AppCompatActivity() {
             }
         })
     }
+
 
     // ✅ Remove item from cart
     fun removeItemFromCart(cartId: Int) {

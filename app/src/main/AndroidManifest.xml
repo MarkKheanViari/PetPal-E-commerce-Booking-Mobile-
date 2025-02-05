@@ -29,7 +29,10 @@
 
         <!-- ✅ Fix: Declare ServiceHistoryActivity -->
         <activity android:name=".ServiceHistoryActivity" android:exported="false" />
-        <activity android:name=".CartActivity"/>
+        <activity android:name="com.example.myapplication.CartActivity" android:exported="false" />
+
+
+
 
 
 

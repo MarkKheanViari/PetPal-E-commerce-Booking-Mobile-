@@ -1,4 +1,4 @@
-package com.example.petpal
+package com.example.myapplication
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.bumptech.glide.Glide
+import com.example.myapplication.CartActivity
 import com.example.myapplication.R
 
 class CartAdapter(
@@ -21,11 +22,12 @@ class CartAdapter(
         val view: View = convertView ?: LayoutInflater.from(context)
             .inflate(R.layout.cart_item, parent, false)
 
-        val itemName = view.findViewById<TextView>(R.id.cartItemName)
+        val itemName = view.findViewById<TextView>(R.id.cartItemName) // ✅ Check if ID exists in XML
         val itemPrice = view.findViewById<TextView>(R.id.cartItemPrice)
         val itemQuantity = view.findViewById<TextView>(R.id.cartItemQuantity)
         val itemImage = view.findViewById<ImageView>(R.id.cartItemImage)
         val removeButton = view.findViewById<Button>(R.id.removeItemButton)
+
 
         val item = cartItems[position]
 

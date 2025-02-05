@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import com.example.myapplication.CartActivity
 import Product
 import ProductAdapter
 import Service
@@ -14,7 +15,6 @@ import android.widget.Button
 import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.petpal.CartActivity
 import com.google.android.material.tabs.TabLayout
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
