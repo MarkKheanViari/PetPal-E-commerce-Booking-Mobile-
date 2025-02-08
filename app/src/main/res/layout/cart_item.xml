@@ -2,55 +2,79 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="12dp"
-    android:background="@android:color/white">
+    android:orientation="vertical"
+    android:padding="10dp">
 
     <ImageView
         android:id="@+id/cartItemImage"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:scaleType="centerCrop"
-        android:contentDescription="Product Image"/>
+        android:src="@android:drawable/ic_menu_report_image" />
+
+    <TextView
+        android:id="@+id/cartItemName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Product Name"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/cartItemPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="₱0.00"
+        android:textSize="14sp"
+        android:textColor="@color/black" />
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:padding="8dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="8dp">
 
-        <TextView
-            android:id="@+id/cartItemName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Product Name"
-            android:textSize="16sp"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:id="@+id/cartItemPrice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="₱0.00"
-            android:textSize="14sp"
-            android:textColor="@android:color/holo_green_dark"/>
+        <Button
+            android:id="@+id/btnDecrease"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:backgroundTint="@color/purple_200"
+            android:text="-"
+            android:textSize="18sp"
+            android:padding="8dp"
+            android:textColor="@color/white" />
 
         <TextView
             android:id="@+id/cartItemQuantity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Qty: 1"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"/>
+            android:layout_width="60dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text="1"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/btnIncrease"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:backgroundTint="@color/purple_200"
+            android:text="+"
+            android:textSize="18sp"
+            android:padding="8dp"
+            android:textColor="@color/white" />
     </LinearLayout>
 
-    <!-- ✅ Fix: Add Remove Button -->
     <Button
         android:id="@+id/removeItemButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
         android:text="Remove"
-        android:backgroundTint="@android:color/holo_red_light"
-        android:textColor="@android:color/white"/>
+        android:backgroundTint="@color/purple_700"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:padding="8dp"/>
+
 </LinearLayout>

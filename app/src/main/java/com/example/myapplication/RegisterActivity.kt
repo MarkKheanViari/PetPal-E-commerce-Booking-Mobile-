@@ -3,10 +3,7 @@ package com.example.myapplication
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -15,111 +12,111 @@ import org.json.JSONObject
 import java.io.IOException
 
 class RegisterActivity : AppCompatActivity() {
+
     private lateinit var usernameInput: EditText
     private lateinit var emailInput: EditText
     private lateinit var passwordInput: EditText
     private lateinit var confirmPasswordInput: EditText
+    private lateinit var locationInput: EditText
+    private lateinit var ageInput: EditText
+    private lateinit var contactInput: EditText
+    private lateinit var termsCheckbox: CheckBox
     private lateinit var registerButton: Button
-    private lateinit var loginLink: TextView
-    private val client = OkHttpClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        // Initialize views
+        // Initialize fields
         usernameInput = findViewById(R.id.usernameInput)
         emailInput = findViewById(R.id.emailInput)
         passwordInput = findViewById(R.id.passwordInput)
         confirmPasswordInput = findViewById(R.id.confirmPasswordInput)
+        locationInput = findViewById(R.id.locationInput)
+        ageInput = findViewById(R.id.ageInput)
+        contactInput = findViewById(R.id.contactInput)
+        termsCheckbox = findViewById(R.id.termsCheckbox)
         registerButton = findViewById(R.id.registerButton)
-        loginLink = findViewById(R.id.loginLink)
 
-        // Set up click listeners
         registerButton.setOnClickListener {
-            val username = usernameInput.text.toString()
-            val email = emailInput.text.toString()
-            val password = passwordInput.text.toString()
-            val confirmPassword = confirmPasswordInput.text.toString()
-
-            if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            if (password != confirmPassword) {
-                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            performRegistration(username, email, password)
-        }
-
-        loginLink.setOnClickListener {
-            finish() // Go back to LoginActivity
+            validateAndRegister()
         }
     }
 
-    private fun performRegistration(username: String, email: String, password: String) {
+    private fun validateAndRegister() {
+        val username = usernameInput.text.toString().trim()
+        val email = emailInput.text.toString().trim()
+        val password = passwordInput.text.toString()
+        val confirmPassword = confirmPasswordInput.text.toString()
+        val location = locationInput.text.toString().trim()
+        val age = ageInput.text.toString().trim()
+        val contact = contactInput.text.toString().trim()
+
+        // Validate fields
+        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || location.isEmpty() || age.isEmpty() || contact.isEmpty()) {
+            Toast.makeText(this, "❌ Please fill in all fields.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "❌ Please enter a valid email.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (password != confirmPassword) {
+            Toast.makeText(this, "❌ Passwords do not match.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (!termsCheckbox.isChecked) {
+            Toast.makeText(this, "❌ You must accept the Terms and Conditions.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Proceed with registration
+        registerUser(username, email, password, location, age, contact)
+    }
+
+    private fun registerUser(username: String, email: String, password: String, location: String, age: String, contact: String) {
+        val url = "http://192.168.1.65/backend/mobile_register.php"
+
         val jsonObject = JSONObject().apply {
             put("username", username)
             put("email", email)
             put("password", password)
+            put("location", location)
+            put("age", age)
+            put("contact_number", contact)  // Change this to "contact_number"
         }
 
-        val mediaType = "application/json; charset=utf-8".toMediaType()
-        val requestBody = jsonObject.toString().toRequestBody(mediaType)
+        val requestBody = jsonObject.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+        val request = Request.Builder().url(url).post(requestBody).build()
 
-        val request = Request.Builder()
-            .url("http://192.168.1.65/backend/mobile_register.php")
-            .post(requestBody)
-            .build()
-
+        val client = OkHttpClient()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("RegisterActivity", "Registration failed", e)
                 runOnUiThread {
-                    Toast.makeText(
-                        this@RegisterActivity,
-                        "Registration failed: ${e.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(this@RegisterActivity, "❌ Network error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
-                try {
-                    val responseData = response.body?.string()
-                    val jsonResponse = JSONObject(responseData)
-
-                    runOnUiThread {
+                val responseBody = response.body?.string()
+                runOnUiThread {
+                    Log.d("RegisterActivity", "📦 Response: $responseBody")
+                    if (responseBody != null) {
+                        val jsonResponse = JSONObject(responseBody)
                         if (jsonResponse.optBoolean("success", false)) {
-                            Toast.makeText(
-                                this@RegisterActivity,
-                                "Registration successful! Please login.",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            finish() // Go back to LoginActivity
+                            Toast.makeText(this@RegisterActivity, "✅ Registration successful!", Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(this@RegisterActivity, LoginActivity::class.java))
+                            finish()
                         } else {
-                            Toast.makeText(
-                                this@RegisterActivity,
-                                jsonResponse.optString("message", "Registration failed"),
-                                Toast.LENGTH_LONG
-                            ).show()
+                            Toast.makeText(this@RegisterActivity, "❌ ${jsonResponse.optString("message")}", Toast.LENGTH_SHORT).show()
                         }
-                    }
-                } catch (e: Exception) {
-                    Log.e("RegisterActivity", "Error processing response", e)
-                    runOnUiThread {
-                        Toast.makeText(
-                            this@RegisterActivity,
-                            "Error processing response: ${e.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
                     }
                 }
             }
         })
     }
-}
 
+}

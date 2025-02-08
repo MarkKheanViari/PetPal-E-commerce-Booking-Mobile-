@@ -55,12 +55,14 @@ class ServiceAdapter(
             selectedDateText.visibility = View.GONE
 
             availButton.setOnClickListener {
-                Log.d("ServiceAdapter", "📤 Sending Service ID: ${service.id}") // ✅ Debugging Log
-                val intent = Intent(context, ServiceAvailActivity::class.java)
-                intent.putExtra("SERVICE_ID", service.id) // ✅ Ensure key is uppercase
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
+                val selectedDate = selectedDateText.text.toString().removePrefix("Selected Date: ").trim()
+                if (selectedDate.isEmpty()) {
+                    Toast.makeText(context, "❌ Please select a date first.", Toast.LENGTH_SHORT).show()
+                } else {
+                    onAvailClick(service, selectedDate) // Pass the service and selected date
+                }
             }
+
 
 
 

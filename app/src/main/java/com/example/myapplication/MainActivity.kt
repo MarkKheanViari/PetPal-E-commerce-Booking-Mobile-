@@ -175,14 +175,51 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
 
-                // Add parsing logic for services if needed
+                try {
+                    val jsonResponse = JSONObject(responseBody)
+                    if (jsonResponse.optBoolean("success", false)) {
+                        val servicesArray = jsonResponse.getJSONArray("services") // ✅ Get the "services" array
+                        val serviceList = mutableListOf<Service>()
+
+                        for (i in 0 until servicesArray.length()) {
+                            val serviceJson = servicesArray.getJSONObject(i)
+                            serviceList.add(
+                                Service(
+                                    id = serviceJson.getInt("id"),
+                                    serviceName = serviceJson.getString("service_name"),
+                                    description = serviceJson.getString("description"),
+                                    price = serviceJson.getDouble("price"),
+                                    status = serviceJson.getString("status")
+                                )
+                            )
+                        }
+
+                        runOnUiThread {
+                            serviceListView.adapter = ServiceAdapter(this@MainActivity, serviceList) { service, selectedDate ->
+                                availService(service, selectedDate)
+                            }
+                        }
+                    } else {
+                        Log.e("Service Fetch", "❌ JSON Success = false")
+                    }
+                } catch (e: Exception) {
+                    Log.e("Service Fetch", "❌ JSON Parsing Error: ${e.message}")
+                }
             }
         })
     }
+
 
     private fun sortProductsByPrice() {
         val adapter = productListView.adapter as? ProductAdapter ?: return
         val sortedList = adapter.getProducts().sortedBy { product -> product.price.toDouble() }
         adapter.updateProducts(sortedList)
     }
+
+    private fun availService(service: Service, selectedDate: String) {
+        Toast.makeText(this, "Availing ${service.serviceName} on $selectedDate", Toast.LENGTH_SHORT).show()
+
+        // Add network request logic for availing service
+    }
+
 }

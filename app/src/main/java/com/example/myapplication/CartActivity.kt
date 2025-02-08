@@ -136,4 +136,45 @@ class CartActivity : AppCompatActivity() {
             }
         })
     }
+
+    fun updateCartQuantity(cartId: Int, newQuantity: Int) {
+        val url = "http://192.168.1.65/backend/update_cart.php"
+
+        val json = JSONObject()
+        json.put("cart_id", cartId)
+        json.put("quantity", newQuantity)
+
+        val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@CartActivity, "❌ Failed to update quantity", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                runOnUiThread {
+                    if (!responseBody.isNullOrEmpty()) {
+                        val jsonResponse = JSONObject(responseBody)
+                        val success = jsonResponse.optBoolean("success", false)
+
+                        if (success) {
+                            Toast.makeText(this@CartActivity, "✅ Quantity updated", Toast.LENGTH_SHORT).show()
+                            fetchCartItems() // Refresh cart
+                        } else {
+                            Toast.makeText(this@CartActivity, "❌ ${jsonResponse.optString("message")}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        })
+    }
+
 }

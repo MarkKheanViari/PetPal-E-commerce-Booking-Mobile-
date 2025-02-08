@@ -2,112 +2,148 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFF7E6"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center"
-    android:background="@android:color/white">
+    android:padding="16dp">
+
+    <!-- Top Decoration Image -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:scaleType="fitCenter" />
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Let's get you started!"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center"
+        android:textColor="#FF6F00" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Register"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="32dp"
-        android:textColor="@android:color/black"
-        android:contentDescription="Registration Header"/>
-
-    <EditText
-        android:id="@+id/usernameInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"
+        android:text="Enter your details to create an account"
+        android:textSize="14sp"
         android:layout_marginBottom="16dp"
-        android:background="@null"
-        android:backgroundTint="@android:color/darker_gray"
-        android:elevation="4dp"
-        android:hint="Username"
-        android:inputType="text"
-        android:padding="16dp"
-        android:textColor="@android:color/black"
-        android:textSize="16sp"/>
+        android:layout_gravity="center"
+        android:textColor="#8D8D8D" />
 
-    <EditText
-        android:id="@+id/emailInput"
+    <!-- First Row: Username and Email -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:hint="Email"
-        android:inputType="textEmailAddress"
-        android:padding="16dp"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+
+        <EditText
+            android:id="@+id/usernameInput"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="Username"
+            android:background="@drawable/edit_text_background"
+            android:padding="12dp"
+            android:layout_marginEnd="8dp" />
+
+        <EditText
+            android:id="@+id/emailInput"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:background="@drawable/edit_text_background"
+            android:padding="12dp" />
+    </LinearLayout>
+
+    <!-- Password and Confirm Password -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+
+        <EditText
+            android:id="@+id/passwordInput"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:background="@drawable/edit_text_background"
+            android:padding="12dp"
+            android:layout_marginEnd="8dp" />
+
+        <EditText
+            android:id="@+id/confirmPasswordInput"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="Confirm Password"
+            android:inputType="textPassword"
+            android:background="@drawable/edit_text_background"
+            android:padding="12dp" />
+    </LinearLayout>
+
+    <!-- Location, Age, and Contact Number -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <EditText
+            android:id="@+id/locationInput"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:hint="Location"
+            android:background="@drawable/edit_text_background"
+            android:padding="12dp"
+            android:layout_marginEnd="8dp" />
+
+        <EditText
+            android:id="@+id/ageInput"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="Age"
+            android:inputType="number"
+            android:background="@drawable/edit_text_background"
+            android:padding="12dp"
+            android:layout_marginEnd="8dp" />
+
+        <EditText
+            android:id="@+id/contactInput"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:hint="Contact Number"
+            android:inputType="phone"
+            android:background="@drawable/edit_text_background"
+            android:padding="12dp" />
+    </LinearLayout>
+
+    <!-- Checkbox and Register Button -->
+    <CheckBox
+        android:id="@+id/termsCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="I accept Terms and Conditions"
         android:layout_marginBottom="16dp"
-        android:background="@null"
-        android:elevation="4dp"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"
-        android:backgroundTint="@android:color/darker_gray"/>
-
-    <EditText
-        android:id="@+id/passwordInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="@null"
-        android:elevation="4dp"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"
-        android:backgroundTint="@android:color/darker_gray"/>
-
-    <EditText
-        android:id="@+id/confirmPasswordInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:hint="Confirm Password"
-        android:inputType="textPassword"
-        android:padding="16dp"
-        android:layout_marginBottom="24dp"
-        android:background="@null"
-        android:elevation="4dp"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"
-        android:backgroundTint="@android:color/darker_gray"/>
+        android:textColor="#8D8D8D" />
 
     <Button
         android:id="@+id/registerButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="48dp"
         android:text="Register"
-        android:padding="12dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="@android:color/holo_blue_dark"
+        android:background="@drawable/button_background"
         android:textColor="@android:color/white"
-        android:contentDescription="Register Button"/>
-
-    <!-- 🟢 Wrapped login link in a LinearLayout to increase touch area -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:minHeight="48dp"
-        android:gravity="center">
-
-        <TextView
-            android:height="48dp"
-            android:id="@+id/loginLink"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Already have an account? Login here"
-            android:textColor="@android:color/holo_blue_dark"
-            android:textSize="16sp"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="10dp"/>
-    </LinearLayout>
+        android:textStyle="bold"
+        android:padding="12dp" />
 
 </LinearLayout>
