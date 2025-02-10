@@ -1,13 +1,13 @@
 package com.example.myapplication
 
-
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.example.myapplication.R
-import com.example.myapplication.CartAdapter
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -15,10 +15,12 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 
-class CartActivity : AppCompatActivity() {
-    private lateinit var cartListView: ListView
+class CartActivity : AppCompatActivity(), CartActionListener {
+
+    private lateinit var recyclerView: RecyclerView
     private lateinit var emptyText: TextView
     private lateinit var checkoutButton: Button
+    private lateinit var totalPriceTextView: TextView
     private val client = OkHttpClient()
     private val cartItems = mutableListOf<HashMap<String, String>>()
     private lateinit var cartAdapter: CartAdapter
@@ -27,99 +29,60 @@ class CartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cart)
 
-        cartListView = findViewById(R.id.cartListView)
+        recyclerView = findViewById(R.id.cartRecyclerView)
         emptyText = findViewById(R.id.emptyText)
         checkoutButton = findViewById(R.id.checkoutButton)
+        totalPriceTextView = findViewById(R.id.totalPriceTextView) // Total price text view
+
+        // Initialize RecyclerView
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        cartAdapter = CartAdapter(this, cartItems, this)
+        recyclerView.adapter = cartAdapter
 
         fetchCartItems()
+
+        checkoutButton.setOnClickListener {
+            if (cartItems.isNotEmpty()) {
+                val intent = Intent(this, CheckoutActivity::class.java)
+                intent.putExtra("cartItems", ArrayList(cartItems)) // Pass cart items to CheckoutActivity
+                startActivity(intent)
+            } else {
+                Toast.makeText(this, "❌ Your cart is empty.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
-    private fun fetchCartItems() {
-        val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-        val mobileUserId = sharedPreferences.getInt("user_id", -1)
-
-        if (mobileUserId == -1) {
-            Toast.makeText(this, "❌ Please login to view cart", Toast.LENGTH_SHORT).show()
-            finish()
-            return
+    override fun updateCartQuantity(cartId: Int, newQuantity: Int) {
+        val url = "http://192.168.1.65/backend/update_cart.php"
+        val json = JSONObject().apply {
+            put("cart_id", cartId)
+            put("quantity", newQuantity)
         }
 
-        val url = "http://192.168.1.65/backend/fetch_cart.php?mobile_user_id=$mobileUserId"
-        Log.d("CartActivity", "🔄 Fetching cart from: $url") // ✅ Debugging log
+        val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+        val request = Request.Builder().url(url).post(requestBody).build()
 
-        val request = Request.Builder().url(url).get().build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Log.e("CartActivity", "❌ Network Error: ${e.message}")
-                    Toast.makeText(this@CartActivity, "❌ Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@CartActivity, "❌ Failed to update quantity", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
-                val responseBody = response.body?.string()
-                Log.d("CartActivity", "📦 API Response: $responseBody") // ✅ Debugging log
-
-                if (responseBody.isNullOrEmpty()) {
-                    runOnUiThread {
-                        Toast.makeText(this@CartActivity, "❌ No cart items found.", Toast.LENGTH_SHORT).show()
-                        emptyText.visibility = TextView.VISIBLE
-                    }
-                    return
-                }
-
-                try {
-                    val json = JSONObject(responseBody)
-                    if (!json.optBoolean("success", false)) {
-                        runOnUiThread {
-                            Toast.makeText(this@CartActivity, "❌ Error loading cart.", Toast.LENGTH_SHORT).show()
-                        }
-                        return
-                    }
-
-                    val cartArray = json.optJSONArray("cart") ?: JSONArray()
-                    cartItems.clear()
-
-                    for (i in 0 until cartArray.length()) {
-                        val item = cartArray.getJSONObject(i)
-                        val cartItem = hashMapOf(
-                            "cart_id" to item.getString("cart_id"),
-                            "product_id" to item.getString("product_id"),
-                            "name" to item.getString("name"),
-                            "price" to item.getString("price"),
-                            "quantity" to item.getString("quantity"),
-                            "image" to item.getString("image")
-                        )
-                        cartItems.add(cartItem)
-                    }
-
-                    runOnUiThread {
-                        cartAdapter = CartAdapter(this@CartActivity, cartItems)
-                        cartListView.adapter = cartAdapter
-                        emptyText.visibility = if (cartItems.isEmpty()) TextView.VISIBLE else TextView.GONE
-                    }
-
-                } catch (e: Exception) {
-                    Log.e("CartActivity", "❌ JSON Parsing Error: ${e.message}")
+                runOnUiThread {
+                    Toast.makeText(this@CartActivity, "✅ Quantity updated", Toast.LENGTH_SHORT).show()
+                    fetchCartItems() // Refresh cart
                 }
             }
         })
     }
 
-
-    // ✅ Remove item from cart
-    fun removeItemFromCart(cartId: Int) {
+    override fun removeItemFromCart(cartId: Int) {
         val url = "http://192.168.1.65/backend/remove_from_cart.php"
-
-        val json = JSONObject()
-        json.put("cart_id", cartId)
-
+        val json = JSONObject().apply { put("cart_id", cartId) }
         val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
-
-        val request = Request.Builder()
-            .url(url)
-            .post(requestBody)
-            .build()
+        val request = Request.Builder().url(url).post(requestBody).build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -137,44 +100,60 @@ class CartActivity : AppCompatActivity() {
         })
     }
 
-    fun updateCartQuantity(cartId: Int, newQuantity: Int) {
-        val url = "http://192.168.1.65/backend/update_cart.php"
+    private fun fetchCartItems() {
+        val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        val mobileUserId = sharedPreferences.getInt("user_id", -1)
 
-        val json = JSONObject()
-        json.put("cart_id", cartId)
-        json.put("quantity", newQuantity)
+        if (mobileUserId == -1) {
+            Toast.makeText(this, "❌ Please login to view cart", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
-        val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
-
-        val request = Request.Builder()
-            .url(url)
-            .post(requestBody)
-            .build()
+        val url = "http://192.168.1.65/backend/fetch_cart.php?mobile_user_id=$mobileUserId"
+        val request = Request.Builder().url(url).get().build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(this@CartActivity, "❌ Failed to update quantity", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@CartActivity, "❌ Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
-                runOnUiThread {
-                    if (!responseBody.isNullOrEmpty()) {
-                        val jsonResponse = JSONObject(responseBody)
-                        val success = jsonResponse.optBoolean("success", false)
 
-                        if (success) {
-                            Toast.makeText(this@CartActivity, "✅ Quantity updated", Toast.LENGTH_SHORT).show()
-                            fetchCartItems() // Refresh cart
-                        } else {
-                            Toast.makeText(this@CartActivity, "❌ ${jsonResponse.optString("message")}", Toast.LENGTH_SHORT).show()
-                        }
+                if (!responseBody.isNullOrEmpty()) {
+                    val jsonResponse = JSONObject(responseBody)
+                    val cartArray = jsonResponse.optJSONArray("cart") ?: JSONArray()
+
+                    cartItems.clear()
+                    var totalPrice = 0.0
+
+                    for (i in 0 until cartArray.length()) {
+                        val item = cartArray.getJSONObject(i)
+                        val price = item.getDouble("price")
+                        val quantity = item.getInt("quantity")
+                        totalPrice += price * quantity
+
+                        val cartItem = hashMapOf(
+                            "cart_id" to item.getString("cart_id"),
+                            "product_id" to item.getString("product_id"),
+                            "name" to item.getString("name"),
+                            "price" to price.toString(),
+                            "quantity" to quantity.toString(),
+                            "image" to item.getString("image")
+                        )
+                        cartItems.add(cartItem)
+                    }
+
+                    runOnUiThread {
+                        cartAdapter.notifyDataSetChanged()
+                        emptyText.visibility = if (cartItems.isEmpty()) TextView.VISIBLE else TextView.GONE
+                        totalPriceTextView.text = "₱ %.2f".format(totalPrice) // Display total price
                     }
                 }
             }
         })
     }
-
 }

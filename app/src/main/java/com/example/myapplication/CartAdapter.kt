@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -14,54 +15,60 @@ import java.io.IOException
 
 class CartAdapter(
     private val context: Context,
-    private val cartItems: MutableList<HashMap<String, String>>
-) : BaseAdapter() {
+    private val cartItems: List<HashMap<String, String>>,
+    private val listener: CartActionListener
+) : RecyclerView.Adapter<CartAdapter.CartViewHolder>() {
 
-    override fun getCount(): Int = cartItems.size
-    override fun getItem(position: Int): Any = cartItems[position]
-    override fun getItemId(position: Int): Long = cartItems[position]["cart_id"]!!.toLong()
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view: View = convertView ?: LayoutInflater.from(context)
-            .inflate(R.layout.cart_item, parent, false)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CartViewHolder {
+        val view = LayoutInflater.from(context).inflate(R.layout.cart_item, parent, false)
+        return CartViewHolder(view)
+    }
 
-        val itemName = view.findViewById<TextView>(R.id.cartItemName)
-        val itemPrice = view.findViewById<TextView>(R.id.cartItemPrice)
-        val itemQuantity = view.findViewById<TextView>(R.id.cartItemQuantity)
-        val itemImage = view.findViewById<ImageView>(R.id.cartItemImage)
-        val removeButton = view.findViewById<Button>(R.id.removeItemButton)
-        val btnIncrease = view.findViewById<Button>(R.id.btnIncrease) // ✅ Match ID with XML
-        val btnDecrease = view.findViewById<Button>(R.id.btnDecrease) // ✅ Match ID with XML
-
+    override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val item = cartItems[position]
 
-        itemName.text = item["name"]
-        itemPrice.text = "₱${item["price"]}"
-        itemQuantity.text = item["quantity"]
+        holder.productName.text = item["name"]
+        holder.productPrice.text = "₱${item["price"]}"
+        holder.quantityText.text = item["quantity"]
 
-        // ✅ Load image
-        Glide.with(context).load(item["image"]).into(itemImage)
+        // Load product image (use Glide or Picasso)
+        Glide.with(context).load(item["image"]).into(holder.productImage)
 
-        // ✅ Remove button logic
-        removeButton.setOnClickListener {
-            (context as CartActivity).removeItemFromCart(item["cart_id"]!!.toInt())
-        }
-
-        // ✅ Increase quantity
-        btnIncrease.setOnClickListener {
-            val currentQuantity = item["quantity"]!!.toInt()
-            (context as CartActivity).updateCartQuantity(item["cart_id"]!!.toInt(), currentQuantity + 1)
-        }
-
-        // ✅ Decrease quantity (prevent going below 1)
-        btnDecrease.setOnClickListener {
-            val currentQuantity = item["quantity"]!!.toInt()
-            if (currentQuantity > 1) {
-                (context as CartActivity).updateCartQuantity(item["cart_id"]!!.toInt(), currentQuantity - 1)
+        // Handle quantity control
+        holder.minusButton.setOnClickListener {
+            val newQuantity = holder.quantityText.text.toString().toInt() - 1
+            if (newQuantity > 0) {
+                listener.updateCartQuantity(item["cart_id"]!!.toInt(), newQuantity)
             }
         }
 
-        return view
+        holder.removeItemButton.setOnClickListener {
+            listener.removeItemFromCart(item["cart_id"]!!.toInt())
+        }
+
+
+        holder.plusButton.setOnClickListener {
+            val newQuantity = holder.quantityText.text.toString().toInt() + 1
+            listener.updateCartQuantity(item["cart_id"]!!.toInt(), newQuantity)
+        }
+
+        // Handle remove item
+        holder.removeItemButton.setOnClickListener {
+            listener.removeItemFromCart(item["cart_id"]!!.toInt())
+        }
     }
 
+    override fun getItemCount(): Int = cartItems.size
+
+    class CartViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val productImage: ImageView = view.findViewById(R.id.productImageView)
+        val productName: TextView = view.findViewById(R.id.productNameTextView)
+        val productPrice: TextView = view.findViewById(R.id.productPriceTextView)
+        val quantityText: TextView = view.findViewById(R.id.quantityTextView)
+        val minusButton: Button = view.findViewById(R.id.minusButton)
+        val plusButton: Button = view.findViewById(R.id.plusButton)
+        val removeItemButton: Button = view.findViewById(R.id.removeItemButton)
+    }
 }
+

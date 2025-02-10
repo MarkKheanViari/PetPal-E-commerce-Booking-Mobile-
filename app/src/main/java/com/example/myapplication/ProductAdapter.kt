@@ -1,4 +1,5 @@
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Handler
@@ -12,6 +13,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import com.bumptech.glide.Glide
+import com.example.myapplication.ProductDetailsActivity
 import com.example.myapplication.R
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -55,8 +57,21 @@ class ProductAdapter(private val context: Context, private var products: Mutable
             addToCartButton.setBackgroundColor(Color.GRAY)
         }
 
+        // 🛠 Add this click listener for navigating to ProductDetailsActivity
+        itemImage.setOnClickListener {
+            val intent = Intent(context, ProductDetailsActivity::class.java)
+            intent.putExtra("productId", product.id)
+            intent.putExtra("productName", product.name)
+            intent.putExtra("productImage", product.imageUrl)
+            intent.putExtra("productDescription", product.description)
+            intent.putExtra("productPrice", product.price)
+            context.startActivity(intent)
+        }
+
+
         return view
     }
+
 
     private fun addToCart(product: Product) {
         val sharedPreferences: SharedPreferences = context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
