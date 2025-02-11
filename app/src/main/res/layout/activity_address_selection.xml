@@ -9,7 +9,9 @@
         android:id="@+id/addressListView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp" />
 
     <Button
         android:id="@+id/addAddressButton"
@@ -17,5 +19,6 @@
         android:layout_height="wrap_content"
         android:text="Add Address"
         android:backgroundTint="@android:color/holo_orange_dark"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        android:layout_marginTop="16dp" />
 </LinearLayout>

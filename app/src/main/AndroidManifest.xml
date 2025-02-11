@@ -31,6 +31,9 @@
         <activity android:name=".ProductDetailsActivity" />
         <activity android:name=".CheckoutActivity" />
         <activity android:name=".AddressSelectionActivity" android:exported="false" />
+        <activity android:name=".AddAddressActivity" />
+
+
 
 
     </application>

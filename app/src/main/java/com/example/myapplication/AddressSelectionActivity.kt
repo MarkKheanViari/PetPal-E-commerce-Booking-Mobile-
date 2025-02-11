@@ -26,12 +26,12 @@ class AddressSelectionActivity : AppCompatActivity() {
         fetchUserAddresses()
 
         addAddressButton.setOnClickListener {
-            Toast.makeText(this, "Add Address Feature Coming Soon!", Toast.LENGTH_SHORT).show()
-            // Handle adding a new address here
+            val intent = Intent(this, AddAddressActivity::class.java)
+            startActivity(intent) // Go to Add Address Activity
         }
 
         addressListView.setOnItemClickListener { _, _, position, _ ->
-            val selectedAddress = "${addressList[position]["username"]} (${addressList[position]["contact_number"]})\n${addressList[position]["location"]}"
+            val selectedAddress = "${addressList[position]["full_name"]} (${addressList[position]["phone_number"]})\n${addressList[position]["street"]}, ${addressList[position]["region"]}"
             val intent = Intent().apply {
                 putExtra("selectedAddress", selectedAddress)
             }
@@ -50,7 +50,7 @@ class AddressSelectionActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.65/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.65/backend/fetch_user_addresses.php?mobile_user_id=$mobileUserId"
         val request = Request.Builder().url(url).get().build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -65,33 +65,39 @@ class AddressSelectionActivity : AppCompatActivity() {
                 if (!responseBody.isNullOrEmpty()) {
                     val jsonResponse = JSONObject(responseBody)
                     if (jsonResponse.optBoolean("success", false)) {
-                        val addressItem = hashMapOf(
-                            "username" to jsonResponse.optString("username"),
-                            "contact_number" to jsonResponse.optString("contact_number"),
-                            "location" to jsonResponse.optString("location")
-                        )
-
+                        val addresses = jsonResponse.optJSONArray("addresses") ?: JSONArray()
                         addressList.clear()
-                        addressList.add(addressItem)
+
+                        for (i in 0 until addresses.length()) {
+                            val address = addresses.getJSONObject(i)
+                            val addressItem = hashMapOf(
+                                "full_name" to address.getString("full_name"),
+                                "phone_number" to address.getString("phone_number"),
+                                "street" to address.getString("street"),
+                                "region" to address.optString("region", "N/A"),
+                                "label" to address.getString("label"),
+                                "is_default" to address.getString("is_default")
+                            )
+                            addressList.add(addressItem)
+                        }
 
                         runOnUiThread {
                             val adapter = SimpleAdapter(
                                 this@AddressSelectionActivity,
                                 addressList,
                                 android.R.layout.simple_list_item_2,
-                                arrayOf("username", "location"),
+                                arrayOf("full_name", "street"),
                                 intArrayOf(android.R.id.text1, android.R.id.text2)
                             )
                             addressListView.adapter = adapter
                         }
                     } else {
                         runOnUiThread {
-                            Toast.makeText(this@AddressSelectionActivity, "No address found.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@AddressSelectionActivity, "❌ No addresses found", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             }
         })
     }
-
 }
