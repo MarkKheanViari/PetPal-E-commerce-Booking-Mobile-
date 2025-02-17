@@ -20,7 +20,6 @@ class GroomingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_grooming)
 
-        // Initialize UI elements
         datePicker = findViewById(R.id.datePicker)
         groomTypeSpinner = findViewById(R.id.groomTypeSpinner)
         paymentMethodSpinner = findViewById(R.id.paymentMethodSpinner)
@@ -30,22 +29,15 @@ class GroomingActivity : AppCompatActivity() {
             submitAppointment()
         }
 
-        // ✅ Grooming Type List with Section Headers
         val groomTypes = listOf(
-            "── Basic Grooming ──", "Brushing", "Bathing", "Nail Trimming", "Ear Cleaning", "Teeth Brushing",
-            "── Advanced Grooming ──", "Deshedding Treatment", "Paw Pad Care", "Sanitary Trim", "Eye Cleaning",
-            "── Professional Grooming Services ──", "Full Haircut/Styling", "Hand Stripping", "Flea & Tick Treatment", "Anal Gland Expression"
+            "Brushing", "Bathing", "Nail Trimming", "Ear Cleaning", "Teeth Brushing",
+            "Deshedding Treatment", "Paw Pad Care", "Sanitary Trim", "Eye Cleaning",
+            "Full Haircut/Styling", "Hand Stripping", "Flea & Tick Treatment", "Anal Gland Expression"
         )
-
-        val groomAdapter = object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, groomTypes) {
-            override fun isEnabled(position: Int): Boolean {
-                return !groomTypes[position].startsWith("──")
-            }
-        }
+        val groomAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, groomTypes)
         groomAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         groomTypeSpinner.adapter = groomAdapter
 
-        // ✅ Payment Method Options
         val paymentMethods = listOf("Cash (on site)", "GCash (online)")
         val paymentAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, paymentMethods)
         paymentAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -54,7 +46,7 @@ class GroomingActivity : AppCompatActivity() {
 
     private fun submitAppointment() {
         val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
-        val userId = sharedPreferences.getInt("user_id", -1) // Fetch user_id
+        val userId = sharedPreferences.getInt("user_id", -1)
 
         if (userId == -1) {
             Toast.makeText(this, "User not logged in!", Toast.LENGTH_SHORT).show()
@@ -75,16 +67,7 @@ class GroomingActivity : AppCompatActivity() {
 
         val groomType = groomTypeSpinner.selectedItem.toString()
         val paymentMethod = paymentMethodSpinner.selectedItem.toString()
-
-        // Convert selected date to MM/DD/YYYY format
-        val selectedDate = String.format("%02d/%02d/%04d", datePicker.month + 1, datePicker.dayOfMonth, datePicker.year)
-
-        Log.d("GroomingActivity", "Formatted Date Sent: $selectedDate") // Debugging log
-
-        if (name.isEmpty() || address.isEmpty() || phoneNumber.isEmpty() || petName.isEmpty() || petBreed.isEmpty()) {
-            Toast.makeText(this, "Please fill in all required fields.", Toast.LENGTH_SHORT).show()
-            return
-        }
+        val selectedDate = "${datePicker.year}-${String.format("%02d", datePicker.month + 1)}-${String.format("%02d", datePicker.dayOfMonth)}"
 
         val jsonObject = JSONObject().apply {
             put("user_id", userId)
@@ -95,12 +78,9 @@ class GroomingActivity : AppCompatActivity() {
             put("pet_breed", petBreed)
             put("groom_type", groomType)
             put("notes", notes)
-            put("appointment_date", selectedDate) // Sending correct format
+            put("appointment_date", selectedDate)
             put("payment_method", paymentMethod)
         }
-
-
-        Log.d("GroomingActivity", "Final JSON Sent: $jsonObject") // Debugging log
 
         val requestBody = jsonObject.toString().toRequestBody("application/json".toMediaType())
 

@@ -20,7 +20,6 @@ class VeterinaryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_veterinary)
 
-        // Initialize UI Components
         datePicker = findViewById(R.id.datePicker)
         checkupTypeSpinner = findViewById(R.id.checkupTypeSpinner)
         paymentMethodSpinner = findViewById(R.id.paymentMethodSpinner)
@@ -30,27 +29,17 @@ class VeterinaryActivity : AppCompatActivity() {
             submitVeterinaryAppointment()
         }
 
-        // Initialize Checkup Type Spinner
-        val checkupTypes = arrayOf(
-            "── Routine Checkups ──",
-            "Wellness Exam", "Vaccination Check", "Parasite Screening", "Dental Checkup", "Nutritional Consultation",
-
-            "── Specialized Checkups ──",
-            "Blood Tests & Lab Work", "X-ray & Ultrasound", "Allergy Testing", "Skin & Coat Exam", "Eye & Ear Exam",
-
-            "── Senior Pet Checkups ──",
+        val checkupTypes = listOf(
+            "Wellness Exam", "Vaccination Check", "Parasite Screening", "Dental Checkup",
+            "Blood Tests & Lab Work", "X-ray & Ultrasound", "Allergy Testing", "Skin & Coat Exam",
             "Arthritis & Joint Health Check", "Kidney & Liver Function Tests", "Heart Health Check",
-
-            "── Emergency & Illness Checkups ──",
             "Injury or Trauma Exam", "Gastrointestinal Check", "Behavioral Consultation"
         )
-
         val checkupAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, checkupTypes)
         checkupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         checkupTypeSpinner.adapter = checkupAdapter
 
-        // ✅ Initialize Payment Method Spinner
-        val paymentMethods = arrayOf("Cash (on site)", "GCash (online)")
+        val paymentMethods = listOf("Cash (on site)", "GCash (online)")
         val paymentAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, paymentMethods)
         paymentAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         paymentMethodSpinner.adapter = paymentAdapter
@@ -79,16 +68,7 @@ class VeterinaryActivity : AppCompatActivity() {
 
         val checkupType = checkupTypeSpinner.selectedItem.toString()
         val paymentMethod = paymentMethodSpinner.selectedItem.toString()
-
-        // ✅ Convert selected date to MM/DD/YYYY format
-        val selectedDate = String.format("%02d/%02d/%04d", datePicker.month + 1, datePicker.dayOfMonth, datePicker.year)
-
-        Log.d("VeterinaryActivity", "Formatted Date Sent: $selectedDate") // Debugging log
-
-        if (name.isEmpty() || address.isEmpty() || phoneNumber.isEmpty() || petName.isEmpty() || petBreed.isEmpty()) {
-            Toast.makeText(this, "Please fill in all required fields.", Toast.LENGTH_SHORT).show()
-            return
-        }
+        val selectedDate = "${datePicker.year}-${String.format("%02d", datePicker.month + 1)}-${String.format("%02d", datePicker.dayOfMonth)}"
 
         val jsonObject = JSONObject().apply {
             put("user_id", userId)
@@ -99,11 +79,9 @@ class VeterinaryActivity : AppCompatActivity() {
             put("pet_breed", petBreed)
             put("checkup_type", checkupType)
             put("notes", notes)
-            put("appointment_date", selectedDate) // ✅ Send MM/DD/YYYY format
+            put("appointment_date", selectedDate)
             put("payment_method", paymentMethod)
         }
-
-        Log.d("VeterinaryActivity", "Final JSON Sent: $jsonObject") // Debugging log
 
         val requestBody = jsonObject.toString().toRequestBody("application/json".toMediaType())
 
@@ -136,6 +114,4 @@ class VeterinaryActivity : AppCompatActivity() {
             }
         })
     }
-
-
 }
