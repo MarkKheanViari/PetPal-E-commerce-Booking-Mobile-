@@ -32,6 +32,9 @@
         <activity android:name=".CheckoutActivity" />
         <activity android:name=".AddressSelectionActivity" android:exported="false" />
         <activity android:name=".AddAddressActivity" />
+        <activity android:name=".GroomingActivity" android:exported="false" />
+        <activity android:name=".VeterinaryActivity" android:exported="false" />
+
 
 
 

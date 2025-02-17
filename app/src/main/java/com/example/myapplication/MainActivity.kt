@@ -102,23 +102,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupBottomTabs() {
-        if (bottomTabLayout.tabCount == 0) {  // Ensure tabs are added only once
-            bottomTabLayout.addTab(bottomTabLayout.newTab().setText("Products"))
-            bottomTabLayout.addTab(bottomTabLayout.newTab().setText("Services"))
-        }
+        bottomTabLayout.removeAllTabs() // Reset to avoid duplicate tabs
+
+        bottomTabLayout.addTab(bottomTabLayout.newTab().setText("Products"))
+        bottomTabLayout.addTab(bottomTabLayout.newTab().setText("Grooming"))
+        bottomTabLayout.addTab(bottomTabLayout.newTab().setText("Veterinary"))
 
         bottomTabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 when (tab?.position) {
-                    0 -> {  // Products Tab
+                    0 -> { // Products Tab
                         productListView.visibility = View.VISIBLE
                         serviceListView.visibility = View.GONE
-                        fetchProducts()  // Refresh products when selected
                     }
-                    1 -> {  // Services Tab
-                        productListView.visibility = View.GONE
-                        serviceListView.visibility = View.VISIBLE
-                        fetchServices()  // Fetch services when tab is selected
+                    1 -> { // Grooming Tab (Launch Grooming Activity)
+                        startActivity(Intent(this@MainActivity, GroomingActivity::class.java))
+                    }
+                    2 -> { // Veterinary Tab (Launch Veterinary Activity)
+                        startActivity(Intent(this@MainActivity, VeterinaryActivity::class.java))
                     }
                 }
             }
@@ -127,6 +128,60 @@ class MainActivity : AppCompatActivity() {
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
     }
+
+
+
+    private fun fetchServicesByType(type: String) {
+        val url = "http://192.168.1.65/backend/fetch_services.php?type=$type"
+        val request = Request.Builder().url(url).build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "❌ Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                if (responseBody.isNullOrEmpty()) {
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, "❌ No $type services found.", Toast.LENGTH_SHORT).show()
+                    }
+                    return
+                }
+
+                val json = JSONObject(responseBody)
+                if (json.optBoolean("success", false)) {
+                    val servicesArray = json.getJSONArray("services")
+                    val serviceList = mutableListOf<Service>()
+
+                    for (i in 0 until servicesArray.length()) {
+                        val serviceJson = servicesArray.getJSONObject(i)
+                        serviceList.add(
+                            Service(
+                                id = serviceJson.getInt("id"),
+                                serviceName = serviceJson.getString("service_name"),
+                                description = serviceJson.getString("description"),
+                                price = serviceJson.getDouble("price"),
+                                status = serviceJson.getString("status")
+                            )
+                        )
+                    }
+
+                    runOnUiThread {
+                        serviceListView.adapter = ServiceAdapter(this@MainActivity, serviceList) { service, selectedDate ->
+                            availService(service, selectedDate)
+                        }
+                    }
+                } else {
+                    Log.e("Service Fetch", "❌ JSON Success = false")
+                }
+            }
+        })
+    }
+
+
 
 
     private fun fetchProducts() {

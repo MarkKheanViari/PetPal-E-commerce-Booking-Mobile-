@@ -97,35 +97,37 @@ class LoginActivity : AppCompatActivity() {
 
                     runOnUiThread {
                         if (jsonResponse.optBoolean("success", false)) {
-                            // Save user data
-                            sharedPreferences.edit().apply {
-                                putInt("user_id", jsonResponse.getInt("user_id"))
-                                putString("username", jsonResponse.getString("username"))
-                                apply()
-                            }
+                            val userId = jsonResponse.optInt("user_id", -1)
+                            Log.d("LoginActivity", "Received user_id: $userId") // DEBUG
 
-                            // Start MainActivity
-                            startMainActivity()
-                            finish()
+                            if (userId != -1) {
+                                // Save user data
+                                sharedPreferences.edit().apply {
+                                    putInt("user_id", userId)
+                                    putString("username", jsonResponse.getString("username"))
+                                    apply()
+                                }
+
+                                Log.d("LoginActivity", "Stored user_id: ${sharedPreferences.getInt("user_id", -1)}") // DEBUG
+
+                                // Start MainActivity
+                                startMainActivity()
+                                finish()
+                            } else {
+                                Toast.makeText(this@LoginActivity, "Error: User ID is missing!", Toast.LENGTH_LONG).show()
+                            }
                         } else {
-                            Toast.makeText(
-                                this@LoginActivity,
-                                jsonResponse.optString("message", "Login failed"),
-                                Toast.LENGTH_LONG
-                            ).show()
+                            Toast.makeText(this@LoginActivity, jsonResponse.optString("message", "Login failed"), Toast.LENGTH_LONG).show()
                         }
                     }
                 } catch (e: Exception) {
                     Log.e("LoginActivity", "Error processing response", e)
                     runOnUiThread {
-                        Toast.makeText(
-                            this@LoginActivity,
-                            "Error processing response: ${e.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        Toast.makeText(this@LoginActivity, "Error processing response: ${e.message}", Toast.LENGTH_LONG).show()
                     }
                 }
             }
+
         })
     }
 

@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <!-- 🟢 View Cart Button (Upper Right, Square) -->
+    <!-- 🟢 View Cart Button (Upper Right) -->
     <Button
         android:id="@+id/viewCartButton"
         android:layout_width="48dp"
@@ -89,8 +88,8 @@
         android:layout_alignParentBottom="true"
         app:tabGravity="fill"
         app:tabMode="fixed"
-        app:tabIndicatorHeight="0dp"
-        app:tabSelectedTextColor="@android:color/holo_blue_dark"
+        app:tabIndicatorColor="@android:color/holo_blue_dark"
+        app:tabSelectedTextColor="@android:color/black"
         app:tabTextColor="@android:color/darker_gray">
 
         <com.google.android.material.tabs.TabItem
@@ -100,10 +99,16 @@
             android:text="Products" />
 
         <com.google.android.material.tabs.TabItem
-            android:id="@+id/tabServices"
+            android:id="@+id/tabGrooming"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Services" />
+            android:text="Grooming" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tabVeterinary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Veterinary" />
     </com.google.android.material.tabs.TabLayout>
 
 </RelativeLayout>
