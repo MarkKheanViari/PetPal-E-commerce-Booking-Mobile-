@@ -63,7 +63,7 @@ class VeterinaryActivity : AppCompatActivity() {
         val petBreed = when {
             findViewById<CheckBox>(R.id.catCheckbox).isChecked -> "Cat"
             findViewById<CheckBox>(R.id.dogCheckbox).isChecked -> "Dog"
-            else -> ""
+            else -> "Unknown"
         }
 
         val checkupType = checkupTypeSpinner.selectedItem.toString()
@@ -71,7 +71,7 @@ class VeterinaryActivity : AppCompatActivity() {
         val selectedDate = "${datePicker.year}-${String.format("%02d", datePicker.month + 1)}-${String.format("%02d", datePicker.dayOfMonth)}"
 
         val jsonObject = JSONObject().apply {
-            put("user_id", userId)
+            put("mobile_user_id", userId)
             put("name", name)
             put("address", address)
             put("phone_number", phoneNumber)
