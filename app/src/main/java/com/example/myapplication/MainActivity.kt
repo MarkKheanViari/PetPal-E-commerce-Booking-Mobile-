@@ -52,21 +52,24 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         checkUserAndResetIfNeeded()
         fetchProducts()
-        fetchServices()
+//        fetchServices()
     }
 
     private fun checkUserAndResetIfNeeded() {
         val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         val userId = sharedPreferences.getInt("user_id", -1)
-        if (userId != currentUserId) {
-            currentUserId = userId
-            resetServices()
+        Log.d("MainActivity", "User ID Retrieved: $userId") // Log to check
+
+        if (userId == -1) {
+            Toast.makeText(this, "❌ User not logged in!", Toast.LENGTH_SHORT).show()
+            finish()
         }
+
     }
 
     private fun resetServices() {
         (serviceListView.adapter as? ServiceAdapter)?.clear()
-        fetchServices()
+//        fetchServices()
         fetchProducts()
     }
 
@@ -131,61 +134,61 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    private fun fetchServicesByType(type: String) {
-        val url = "http://192.168.1.65/backend/fetch_services.php?type=$type"
-        val request = Request.Builder().url(url).build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "❌ Network error: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val responseBody = response.body?.string()
-                if (responseBody.isNullOrEmpty()) {
-                    runOnUiThread {
-                        Toast.makeText(this@MainActivity, "❌ No $type services found.", Toast.LENGTH_SHORT).show()
-                    }
-                    return
-                }
-
-                val json = JSONObject(responseBody)
-                if (json.optBoolean("success", false)) {
-                    val servicesArray = json.getJSONArray("services")
-                    val serviceList = mutableListOf<Service>()
-
-                    for (i in 0 until servicesArray.length()) {
-                        val serviceJson = servicesArray.getJSONObject(i)
-                        serviceList.add(
-                            Service(
-                                id = serviceJson.getInt("id"),
-                                serviceName = serviceJson.getString("service_name"),
-                                description = serviceJson.getString("description"),
-                                price = serviceJson.getDouble("price"),
-                                status = serviceJson.getString("status")
-                            )
-                        )
-                    }
-
-                    runOnUiThread {
-                        serviceListView.adapter = ServiceAdapter(this@MainActivity, serviceList) { service, selectedDate ->
-                            availService(service, selectedDate)
-                        }
-                    }
-                } else {
-                    Log.e("Service Fetch", "❌ JSON Success = false")
-                }
-            }
-        })
-    }
+//    private fun fetchServicesByType(type: String) {
+//        val url = "http://192.168.150.55/backend/fetch_services.php?type=$type"
+//        val request = Request.Builder().url(url).build()
+//
+//        client.newCall(request).enqueue(object : Callback {
+//            override fun onFailure(call: Call, e: IOException) {
+//                runOnUiThread {
+//                    Toast.makeText(this@MainActivity, "❌ Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+//                }
+//            }
+//
+//            override fun onResponse(call: Call, response: Response) {
+//                val responseBody = response.body?.string()
+//                if (responseBody.isNullOrEmpty()) {
+//                    runOnUiThread {
+//                        Toast.makeText(this@MainActivity, "❌ No $type services found.", Toast.LENGTH_SHORT).show()
+//                    }
+//                    return
+//                }
+//
+//                val json = JSONObject(responseBody)
+//                if (json.optBoolean("success", false)) {
+//                    val servicesArray = json.getJSONArray("services")
+//                    val serviceList = mutableListOf<Service>()
+//
+//                    for (i in 0 until servicesArray.length()) {
+//                        val serviceJson = servicesArray.getJSONObject(i)
+//                        serviceList.add(
+//                            Service(
+//                                id = serviceJson.getInt("id"),
+//                                serviceName = serviceJson.getString("service_name"),
+//                                description = serviceJson.getString("description"),
+//                                price = serviceJson.getDouble("price"),
+//                                status = serviceJson.getString("status")
+//                            )
+//                        )
+//                    }
+//
+//                    runOnUiThread {
+//                        serviceListView.adapter = ServiceAdapter(this@MainActivity, serviceList) { service, selectedDate ->
+//                            availService(service, selectedDate)
+//                        }
+//                    }
+//                } else {
+//                    Log.e("Service Fetch", "❌ JSON Success = false")
+//                }
+//            }
+//        })
+//    }
 
 
 
 
     private fun fetchProducts() {
-        val request = Request.Builder().url("http://192.168.1.65/backend/fetch_product.php").build()
+        val request = Request.Builder().url("http://192.168.150.55/backend/fetch_product.php").build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
@@ -237,58 +240,58 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun fetchServices() {
-        val request = Request.Builder().url("http://192.168.1.65/backend/fetch_services.php").build()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "❌ Network error: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val responseBody = response.body?.string()
-                Log.d("Service Fetch", "📦 API Response: $responseBody")
-
-                if (responseBody.isNullOrEmpty()) {
-                    runOnUiThread {
-                        Toast.makeText(this@MainActivity, "❌ No services received.", Toast.LENGTH_SHORT).show()
-                    }
-                    return
-                }
-
-                val json = JSONObject(responseBody)
-                if (json.optBoolean("success", false)) {
-                    val servicesArray = json.getJSONArray("services")
-                    val serviceList = mutableListOf<Service>()
-
-                    for (i in 0 until servicesArray.length()) {
-                        val serviceJson = servicesArray.getJSONObject(i)
-                        serviceList.add(
-                            Service(
-                                id = serviceJson.getInt("id"),
-                                serviceName = serviceJson.getString("service_name"),
-                                description = serviceJson.getString("description"),
-                                price = serviceJson.getDouble("price"),
-                                status = serviceJson.getString("status")
-                            )
-                        )
-                    }
-
-                    runOnUiThread {
-                        serviceListView.adapter = ServiceAdapter(this@MainActivity, serviceList) { service, selectedDate ->
-                            availService(service, selectedDate)
-                        }
-                    }
-                } else {
-                    Log.e("Service Fetch", "❌ JSON Success = false")
-                }
-            }
-        })
-    }
+//    private fun fetchServices() {
+//        val request = Request.Builder().url("http://192.168.150.55/backend/fetch_services.php").build()
+//        client.newCall(request).enqueue(object : Callback {
+//            override fun onFailure(call: Call, e: IOException) {
+//                runOnUiThread {
+//                    Toast.makeText(this@MainActivity, "❌ Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+//                }
+//            }
+//
+//            override fun onResponse(call: Call, response: Response) {
+//                val responseBody = response.body?.string()
+//                Log.d("Service Fetch", "📦 API Response: $responseBody")
+//
+//                if (responseBody.isNullOrEmpty()) {
+//                    runOnUiThread {
+//                        Toast.makeText(this@MainActivity, "❌ No services received.", Toast.LENGTH_SHORT).show()
+//                    }
+//                    return
+//                }
+//
+//                val json = JSONObject(responseBody)
+//                if (json.optBoolean("success", false)) {
+//                    val servicesArray = json.getJSONArray("services")
+//                    val serviceList = mutableListOf<Service>()
+//
+//                    for (i in 0 until servicesArray.length()) {
+//                        val serviceJson = servicesArray.getJSONObject(i)
+//                        serviceList.add(
+//                            Service(
+//                                id = serviceJson.getInt("id"),
+//                                serviceName = serviceJson.getString("service_name"),
+//                                description = serviceJson.getString("description"),
+//                                price = serviceJson.getDouble("price"),
+//                                status = serviceJson.getString("status")
+//                            )
+//                        )
+//                    }
+//
+//                    runOnUiThread {
+//                        serviceListView.adapter = ServiceAdapter(this@MainActivity, serviceList) { service, selectedDate ->
+//                            availService(service, selectedDate)
+//                        }
+//                    }
+//                } else {
+//                    Log.e("Service Fetch", "❌ JSON Success = false")
+//                }
+//            }
+//        })
+//    }
 
     private fun fetchProductsByCategory(category: String) {
-        val url = "http://192.168.1.65/backend/fetch_product.php?category=$category"
+        val url = "http://192.168.150.55/backend/fetch_product.php?category=$category"
         Log.d("FetchProducts", "Fetching products for category: $category")
 
         val request = Request.Builder().url(url).build()
