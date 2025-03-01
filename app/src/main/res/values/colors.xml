@@ -11,4 +11,12 @@
     <color name="light_gray">#D3D3D3</color>
     <color name="gray">#D3D3D3</color>
     <color name="holo_orange_dark">#FF8C00</color>
+    <color name="lavender">#8692f7</color>
+    <color name="smth_orange">#FF8D4C</color>
+    <color name="smth_black">#80000000</color>
+    <color name="light_orange">#80FFBA69</color>
+    <color name="blue">#0000FF</color>
+    <color name="red">#FF0000</color>
+    <color name="light_smth">#F4E0CE</color>
+    <color name="darker_orange">#FF6F1D</color>
 </resources>

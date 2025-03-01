@@ -1,114 +1,205 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:fitsSystemWindows="true"
+    tools:context=".MainActivity"
+    tools:openDrawer="start">
 
-    <!-- 🟢 View Cart Button (Upper Right) -->
-    <Button
-        android:id="@+id/viewCartButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="8dp"
-        android:backgroundTint="@android:color/holo_orange_dark"
-        android:text="🛒"
-        android:textColor="@android:color/white"
-        android:layout_alignParentTop="true" />
-
-    <!-- 🟢 Horizontal Category Buttons -->
-    <HorizontalScrollView
-        android:id="@+id/categoryButtonsContainer"
+    <!-- Main Content -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/viewCartButton"
-        android:layout_marginTop="8dp">
+        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/allButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@android:color/holo_orange_light"
-                android:text="All"
-                android:textColor="@android:color/white"
-                android:layout_marginEnd="8dp" />
-
-            <Button
-                android:id="@+id/catButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@android:color/darker_gray"
-                android:text="Cat"
-                android:textColor="@android:color/white"
-                android:layout_marginEnd="8dp" />
-
-            <Button
-                android:id="@+id/dogButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@android:color/darker_gray"
-                android:text="Dog"
-                android:textColor="@android:color/white" />
-        </LinearLayout>
-    </HorizontalScrollView>
-
-    <!-- 🟢 Frame Layout to Hold ListViews -->
-    <FrameLayout
-        android:id="@+id/contentFrame"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_below="@id/categoryButtonsContainer"
-        android:layout_above="@id/bottomTabLayout"
-        android:layout_marginTop="8dp">
-
-        <ListView
-            android:id="@+id/productListView"
+        <!-- Toolbar -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="visible" />
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/white"
+            android:elevation="4dp"
+            android:gravity="center"
+            android:padding="8dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <ListView
-            android:id="@+id/serviceListView"
+            <!-- Menu Icon -->
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/menuIcon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="start"
+                android:layout_marginStart="30dp"
+                android:src="@drawable/menu_bar" />
+
+            <!-- Toolbar Title -->
+            <TextView
+                android:id="@+id/toolbarTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Catalog"
+                android:textSize="25sp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/alata" />
+
+            <!-- Cart Icon (viewCartButton) -->
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/viewCartButton"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="30dp"
+                android:src="@drawable/cart" />
+        </androidx.appcompat.widget.Toolbar>
+
+        <!-- Search Input -->
+        <EditText
+            android:id="@+id/search_bar"
+            android:layout_width="350dp"
+            android:layout_height="60dp"
+            android:hint="      Search"
+            android:textSize="18sp"
+            android:fontFamily="@font/alata"
+            android:textColorHint="@color/black"
+            android:maxLines="1"
+            android:drawableEnd="@drawable/search_icon"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:background="@drawable/searchactivity_roundedcorner"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- "Browse Through" Text -->
+        <TextView
+            android:id="@+id/browseText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Browse Through"
+            android:textSize="20sp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/alata"
+            android:paddingTop="10dp"
+            android:layout_marginStart="30dp"
+            app:layout_constraintTop_toBottomOf="@id/search_bar"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Category Scroll -->
+        <HorizontalScrollView
+            android:id="@+id/categoryScrollView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
-    </FrameLayout>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:scrollbars="none"
+            app:layout_constraintTop_toBottomOf="@id/browseText">
 
-    <!-- 🟢 Bottom Navigation Tab Layout -->
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/bottomTabLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:tabGravity="fill"
-        app:tabMode="fixed"
-        app:tabIndicatorColor="@android:color/holo_blue_dark"
-        app:tabSelectedTextColor="@android:color/black"
-        app:tabTextColor="@android:color/darker_gray">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="30dp"
+                android:orientation="horizontal"
+                android:paddingHorizontal="17dp">
 
-        <com.google.android.material.tabs.TabItem
-            android:id="@+id/tabProducts"
+                <!-- Category Buttons -->
+                <Button
+                    android:id="@+id/allButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/smth_orange"
+                    android:text="All Items"
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="20dp" />
+
+                <Button
+                    android:id="@+id/catButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/light_smth"
+                    android:text="Cat Items"
+                    android:textColor="@color/gray"
+                    app:cornerRadius="20dp" />
+
+                <Button
+                    android:id="@+id/dogButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:backgroundTint="@color/light_smth"
+                    android:text="Dog Items"
+                    android:textColor="@color/gray"
+                    app:cornerRadius="20dp" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- "Recommended Items" Text -->
+        <TextView
+            android:id="@+id/recommendTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Products" />
+            android:text="Recommended Items"
+            android:textSize="20sp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/alata"
+            android:layout_marginStart="30dp"
+            app:layout_constraintTop_toBottomOf="@id/categoryScrollView"
+            app:layout_constraintStart_toStartOf="parent" />
 
-        <com.google.android.material.tabs.TabItem
-            android:id="@+id/tabGrooming"
-            android:layout_width="wrap_content"
+        <!-- Container for Catalog UI (ListViews for Products and Services) -->
+        <FrameLayout
+            android:id="@+id/contentFrame"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/recommendTxt"
+            app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="10dp">
+
+            <!-- ListView for Products -->
+            <ListView
+                android:id="@+id/productsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="374dp"
+                android:visibility="visible" />
+
+            <!-- ListView for Services -->
+            <ListView
+                android:id="@+id/serviceRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Bottom Navigation View -->
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigation"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Grooming" />
+            android:background="@android:color/white"
+            app:menu="@menu/bottom_nav_menu"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-        <com.google.android.material.tabs.TabItem
-            android:id="@+id/tabVeterinary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Veterinary" />
-    </com.google.android.material.tabs.TabLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</RelativeLayout>
+    <!-- Navigation Drawer -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="250dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/white"
+        app:headerLayout="@layout/nav_header"
+        app:itemIconTint="@color/smth_orange"
+        app:itemTextColor="@color/smth_orange"
+        app:menu="@menu/nav_menu" />
+
+</androidx.drawerlayout.widget.DrawerLayout>

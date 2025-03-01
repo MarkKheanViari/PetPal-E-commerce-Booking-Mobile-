@@ -92,7 +92,7 @@ class ProductAdapter(private val context: Context, private var products: Mutable
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.150.55/backend/add_to_cart.php")
+            .url("http://192.168.1.13/backend/add_to_cart.php")
             .post(requestBody)
             .build()
 

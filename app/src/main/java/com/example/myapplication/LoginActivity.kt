@@ -40,7 +40,7 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
-        // Initialize views
+        // Initialize views (IDs exactly as in XML)
         usernameInput = findViewById(R.id.usernameInput)
         passwordInput = findViewById(R.id.passwordInput)
         loginButton = findViewById(R.id.loginButton)
@@ -74,7 +74,7 @@ class LoginActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.150.55/backend/mobile_login.php")
+            .url("http://192.168.1.13/backend/mobile_login.php")
             .post(requestBody)
             .build()
 
@@ -82,11 +82,7 @@ class LoginActivity : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("LoginActivity", "Login failed", e)
                 runOnUiThread {
-                    Toast.makeText(
-                        this@LoginActivity,
-                        "Login failed: ${e.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(this@LoginActivity, "Login failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
 
@@ -98,7 +94,7 @@ class LoginActivity : AppCompatActivity() {
                     runOnUiThread {
                         if (jsonResponse.optBoolean("success", false)) {
                             val userId = jsonResponse.optInt("user_id", -1)
-                            Log.d("LoginActivity", "Received user_id: $userId") // DEBUG
+                            Log.d("LoginActivity", "Received user_id: $userId")
 
                             if (userId != -1) {
                                 // Save user data
@@ -108,9 +104,7 @@ class LoginActivity : AppCompatActivity() {
                                     apply()
                                 }
 
-                                Log.d("LoginActivity", "Stored user_id: ${sharedPreferences.getInt("user_id", -1)}") // DEBUG
-
-                                // Start MainActivity
+                                Log.d("LoginActivity", "Stored user_id: ${sharedPreferences.getInt("user_id", -1)}")
                                 startMainActivity()
                                 finish()
                             } else {
@@ -127,7 +121,6 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             }
-
         })
     }
 
@@ -135,4 +128,3 @@ class LoginActivity : AppCompatActivity() {
         startActivity(Intent(this, MainActivity::class.java))
     }
 }
-

@@ -35,9 +35,5 @@
         <activity android:name=".GroomingActivity" android:exported="false" />
         <activity android:name=".VeterinaryActivity" android:exported="false" />
 
-
-
-
-
     </application>
 </manifest>

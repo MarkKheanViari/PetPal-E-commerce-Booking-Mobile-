@@ -85,7 +85,7 @@ class GroomingActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.150.55/backend/submit_grooming_appointment.php")
+            .url("http://192.168.1.13/backend/submit_grooming_appointment.php")
             .post(requestBody)
             .build()
 

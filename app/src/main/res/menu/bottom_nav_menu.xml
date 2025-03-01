@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Category item -->
+    <item
+        android:id="@+id/nav_products"
+        android:title="Category"
+        android:icon="@drawable/home_icon" />
+
+    <!-- Service item -->
+    <item
+        android:id="@+id/menu_service"
+        android:title="Service"
+        android:icon="@drawable/baseline_receipt_24" />
+
+
+</menu>

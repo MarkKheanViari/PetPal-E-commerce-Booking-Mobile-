@@ -50,7 +50,7 @@ class AddressSelectionActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.150.55/backend/fetch_user_addresses.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.13/backend/fetch_user_addresses.php?mobile_user_id=$mobileUserId"
         val request = Request.Builder().url(url).get().build()
 
         client.newCall(request).enqueue(object : Callback {

@@ -52,7 +52,7 @@ class ServiceHistoryActivity : AppCompatActivity() {
     }
 
     private fun fetchServiceHistory() {
-        val url = "http://192.168.150.55/backend/fetch_service_history.php?user_id=$userId"
+        val url = "http://192.168.1.13/backend/fetch_service_history.php?user_id=$userId"
         val request = Request.Builder().url(url).get().build()
 
         runOnUiThread { progressBar.visibility = View.VISIBLE }
@@ -120,7 +120,7 @@ class ServiceHistoryActivity : AppCompatActivity() {
     }
 
     private fun clearServiceHistory() {
-        val url = "http://192.168.150.55/backend/clear_service_history.php"
+        val url = "http://192.168.1.13/backend/clear_service_history.php"
         val jsonBody = """
     {
         "mobile_user_id": $userId
@@ -183,7 +183,7 @@ class ServiceHistoryActivity : AppCompatActivity() {
 
 
     fun cancelServiceRequest(serviceId: Int) {
-        val url = "http://192.168.150.55/backend/cancel_service_request.php"
+        val url = "http://192.168.1.13/backend/cancel_service_request.php"
         val jsonBody = """
     {
         "service_id": $serviceId

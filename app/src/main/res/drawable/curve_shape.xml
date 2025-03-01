@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="100dp"
+    android:viewportWidth="200"
+    android:viewportHeight="100">
+
+    <!-- Background color shape -->
+    <path
+        android:fillColor="#FFB166"
+    android:pathData="M 0 0 H 200 V 100 H 0 Z" />
+
+    <!-- Curved overlay cutout -->
+    <path
+        android:fillColor="#333333"
+    android:pathData="M 0 0 H 200 V 100 C 150 80, 80 80, 0 50 Z" />
+</vector>
