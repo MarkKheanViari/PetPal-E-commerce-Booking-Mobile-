@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
     private val client = OkHttpClient()
     private var currentUserId: Int = -1
 
-    // Global lists for products (for potential local search/filtering)
+    // Global lists for local filtering or searching
     private val allProducts = mutableListOf<Product>()
     private val displayedProducts = mutableListOf<Product>()
 
@@ -42,28 +42,29 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Get the DrawerLayout and menu icon from XML
+        // 1) Check if user is logged in (or finish)
+        checkUserAndResetIfNeeded()
+
+        // 2) Set up DrawerLayout and menu icon
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
         val menuIcon = findViewById<ImageView>(R.id.menuIcon)
         menuIcon.setOnClickListener {
-            // Open the navigation drawer from the start side
             drawerLayout.openDrawer(GravityCompat.START)
         }
 
-        // viewCartButton is defined in XML as an ImageView.
+        // 3) Set up cart button
         val viewCartButton = findViewById<ImageView>(R.id.viewCartButton)
         viewCartButton.setOnClickListener {
             startActivity(Intent(this, CartActivity::class.java))
         }
 
-        // Ensure these IDs match your XML
+        // 4) Find ListViews and bottom nav
         productListView = findViewById(R.id.productsRecyclerView)
         serviceListView = findViewById(R.id.serviceRecyclerView)
         bottomNavigation = findViewById(R.id.bottomNavigation)
 
-        // Set up item click listener on productListView to launch details screen.
-        productListView.setOnItemClickListener { parent, view, position, id ->
-            // Assuming your adapter returns a Product object
+        // 5) Set up item click listener for product details
+        productListView.setOnItemClickListener { _, _, position, _ ->
             val selectedProduct = productListView.adapter.getItem(position) as Product
             val intent = Intent(this, ProductDetailsActivity::class.java).apply {
                 putExtra("id", selectedProduct.id)
@@ -76,17 +77,21 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // 6) Setup category buttons & bottom navigation
         setupCategoryButtons()
         setupBottomNavigation()
 
-        checkUserAndResetIfNeeded()
+        // 7) Fetch products only once here
+        fetchProducts()
     }
 
     override fun onResume() {
         super.onResume()
-        checkUserAndResetIfNeeded()
-        fetchProducts()
-        // Uncomment fetchServices() if needed.
+        // DO NOT fetch again here - otherwise we risk overwriting our local list
+        // with an empty or partial list if the server call fails or returns nothing.
+
+        // If you *do* want to re-fetch from server each time,
+        // you can do so conditionally, e.g. if(allProducts.isEmpty()) fetchProducts()
     }
 
     private fun checkUserAndResetIfNeeded() {
@@ -96,12 +101,14 @@ class MainActivity : AppCompatActivity() {
         if (userId == -1) {
             Toast.makeText(this, "❌ User not logged in!", Toast.LENGTH_SHORT).show()
             finish()
+        } else {
+            currentUserId = userId
         }
     }
 
     private fun resetServices() {
         (serviceListView.adapter as? ServiceAdapter)?.clear()
-        fetchProducts()
+        // fetchProducts() // only if you want to forcibly refresh
     }
 
     private fun setupCategoryButtons() {
@@ -134,11 +141,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Set up BottomNavigationView listener.
     private fun setupBottomNavigation() {
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
-                // These IDs must match your bottom_nav_menu.xml.
                 R.id.nav_products -> {
                     productListView.visibility = View.VISIBLE
                     serviceListView.visibility = View.GONE
@@ -188,12 +193,13 @@ class MainActivity : AppCompatActivity() {
                         )
                     }
                     runOnUiThread {
-                        // Update global lists for search filtering
+                        // Clear the old lists and update with new data
                         allProducts.clear()
                         allProducts.addAll(fetchedProducts)
-                        // Initially display all products
+
                         displayedProducts.clear()
                         displayedProducts.addAll(fetchedProducts)
+
                         if (productListView.adapter == null) {
                             productListView.adapter = ProductAdapter(this@MainActivity, displayedProducts)
                         } else {
@@ -254,10 +260,8 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    // ============== Local Search ==============
+    // Optional local search if you want it
     private fun performLocalSearch(query: String) {
-        // Optionally, you can normalize the query (remove spaces) if needed:
-        // val normalizedQuery = query.replace("\\s+".toRegex(), "")
         val filtered = allProducts.filter { product ->
             product.name.contains(query, ignoreCase = true) ||
                     product.description.contains(query, ignoreCase = true)
