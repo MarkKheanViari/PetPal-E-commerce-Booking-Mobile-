@@ -1,3 +1,5 @@
+package com.example.myapplication
+
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -12,69 +14,81 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.myapplication.ProductDetailsActivity
-import com.example.myapplication.R
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
 
-class ProductAdapter(private val context: Context, private var products: MutableList<Product>) :
-    android.widget.BaseAdapter() {
+class ProductAdapter(
+    private val context: Context,
+    private var products: MutableList<Product>
+) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
-    override fun getCount(): Int = products.size
-    override fun getItem(position: Int): Product = products[position]
-    override fun getItemId(position: Int): Long = products[position].id.toLong()
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view: View = convertView ?: LayoutInflater.from(context).inflate(R.layout.product_item, parent, false)
-        val product = getItem(position)
-
+    inner class ProductViewHolder(view: View): RecyclerView.ViewHolder(view) {
         val itemName: TextView = view.findViewById(R.id.productName)
         val itemPrice: TextView = view.findViewById(R.id.productPrice)
         val itemStock: TextView = view.findViewById(R.id.productStock)
         val itemImage: ImageView = view.findViewById(R.id.productImage)
         val addToCartButton: Button = view.findViewById(R.id.addToCartButton)
-
-        itemName.text = product.name
-        itemPrice.text = "₱${product.price}"
-        itemStock.text = "Stock: ${product.quantity}"
-        Glide.with(context).load(product.imageUrl).into(itemImage)
-
-        if (product.quantity > 0) {
-            addToCartButton.isEnabled = true
-            addToCartButton.text = "Add to Cart"
-            addToCartButton.setBackgroundColor(Color.parseColor("#FF9800")) // Orange color
-
-            addToCartButton.setOnClickListener {
-                addToCart(product)
-            }
-        } else {
-            addToCartButton.isEnabled = false
-            addToCartButton.text = "Out of Stock"
-            addToCartButton.setBackgroundColor(Color.GRAY)
-        }
-
-        // 🛠 Add this click listener for navigating to ProductDetailsActivity
-        itemImage.setOnClickListener {
-            val intent = Intent(context, ProductDetailsActivity::class.java)
-            intent.putExtra("productId", product.id)
-            intent.putExtra("productName", product.name)
-            intent.putExtra("productImage", product.imageUrl)
-            intent.putExtra("productDescription", product.description)
-            intent.putExtra("productPrice", product.price)
-            context.startActivity(intent)
-        }
-
-
-        return view
     }
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
+        val view = LayoutInflater.from(context).inflate(R.layout.product_item, parent, false)
+        return ProductViewHolder(view)
+    }
 
-    private fun addToCart(product: Product) {
-        val sharedPreferences: SharedPreferences = context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+    override fun getItemCount(): Int {
+        Log.d("DEBUG:ProductAdapter", "getItemCount() returns ${products.size}")
+        return products.size
+    }
+
+    override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
+        val product = products[position]
+        Log.d("DEBUG:ProductAdapter", "onBindViewHolder() for position $position: ${product.name}")
+
+        // Set product details
+        holder.itemName.text = product.name
+        holder.itemPrice.text = "₱${product.price}"
+        holder.itemStock.text = "Stock: ${product.quantity}"
+
+        // Load image with Glide
+        Glide.with(context)
+            .load(product.imageUrl)
+            .into(holder.itemImage)
+
+        // Setup add-to-cart button state
+        if (product.quantity > 0) {
+            holder.addToCartButton.isEnabled = true
+            holder.addToCartButton.text = "Add to Cart"
+            holder.addToCartButton.setBackgroundColor(Color.parseColor("#FF9800"))
+            holder.addToCartButton.setOnClickListener {
+                addToCart(product, position)
+            }
+        } else {
+            holder.addToCartButton.isEnabled = false
+            holder.addToCartButton.text = "Out of Stock"
+            holder.addToCartButton.setBackgroundColor(Color.GRAY)
+        }
+
+        // Clicking the image opens details
+        holder.itemImage.setOnClickListener {
+            val intent = Intent(context, ProductDetailsActivity::class.java).apply {
+                putExtra("productId", product.id)
+                putExtra("productName", product.name)
+                putExtra("productImage", product.imageUrl)
+                putExtra("productDescription", product.description)
+                putExtra("productPrice", product.price)
+            }
+            context.startActivity(intent)
+        }
+    }
+
+    private fun addToCart(product: Product, position: Int) {
+        val sharedPreferences: SharedPreferences =
+            context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
         val mobileUserId = sharedPreferences.getInt("user_id", -1)
 
         if (mobileUserId == -1) {
@@ -85,40 +99,41 @@ class ProductAdapter(private val context: Context, private var products: Mutable
         val jsonObject = JSONObject().apply {
             put("mobile_user_id", mobileUserId)
             put("product_id", product.id)
-            put("quantity", 1) // Default to 1
+            put("quantity", 1)
         }
 
         val mediaType = "application/json; charset=utf-8".toMediaType()
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.13/backend/add_to_cart.php")
+            .url("http://192.168.1.12/backend/add_to_cart.php")
             .post(requestBody)
             .build()
 
         val client = OkHttpClient()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("AddToCart", "❌ Network request failed: ${e.message}")
                 Handler(Looper.getMainLooper()).post {
                     Toast.makeText(context, "Failed to connect to server", Toast.LENGTH_SHORT).show()
                 }
             }
-
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
-
                 Handler(Looper.getMainLooper()).post {
                     if (responseBody != null) {
                         val jsonResponse = JSONObject(responseBody)
                         val success = jsonResponse.optBoolean("success", false)
-
                         if (success) {
                             Toast.makeText(context, "✅ Added to Cart!", Toast.LENGTH_SHORT).show()
-                            product.quantity -= 1
-                            notifyDataSetChanged() // Refresh UI dynamically
+                            // Decrement stock and update only this item
+                            product.quantity--
+                            notifyItemChanged(position)
                         } else {
-                            Toast.makeText(context, "❌ Error: ${jsonResponse.optString("message")}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "❌ Error: ${jsonResponse.optString("message")}",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 }
@@ -126,17 +141,16 @@ class ProductAdapter(private val context: Context, private var products: Mutable
         })
     }
 
-    // ✅ Single `updateProducts()` function (No more duplicate conflicts)
+    /**
+     * Update the adapter's products list and notify changes.
+     */
     fun updateProducts(newProducts: List<Product>) {
-        products.clear() // ✅ Clear old data
-        products.addAll(newProducts) // ✅ Add new data
-        notifyDataSetChanged() // ✅ Refresh UI
+        Log.d("DEBUG:ProductAdapter", "updateProducts() called with ${newProducts.size} items")
+        products.clear()
+        products.addAll(newProducts)
+        Log.d("DEBUG:ProductAdapter", "After update, getItemCount() returns ${getItemCount()}")
+        notifyDataSetChanged()
     }
 
-
-
-    // ✅ Allow `MainActivity.kt` to get the list of products
-    fun getProducts(): List<Product> {
-        return products
-    }
+    fun getProducts(): List<Product> = products
 }

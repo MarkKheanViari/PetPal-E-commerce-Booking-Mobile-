@@ -114,10 +114,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:layout_marginEnd="8dp"
-                    android:backgroundTint="@color/smth_orange"
-                    android:text="All Items"
-                    android:textColor="@android:color/white"
-                    app:cornerRadius="20dp" />
+                    android:backgroundTint="@color/orange"
+                    android:text="ALL ITEMS"
+                    android:textColor="@android:color/white" />
 
                 <Button
                     android:id="@+id/catButton"
@@ -125,18 +124,16 @@
                     android:layout_height="40dp"
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/light_smth"
-                    android:text="Cat Items"
-                    android:textColor="@color/gray"
-                    app:cornerRadius="20dp" />
+                    android:text="CAT ITEMS"
+                    android:textColor="@color/black" />
 
                 <Button
                     android:id="@+id/dogButton"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:backgroundTint="@color/light_smth"
-                    android:text="Dog Items"
-                    android:textColor="@color/gray"
-                    app:cornerRadius="20dp" />
+                    android:text="DOG ITEMS"
+                    android:textColor="@color/black" />
             </LinearLayout>
         </HorizontalScrollView>
 
@@ -153,33 +150,28 @@
             app:layout_constraintTop_toBottomOf="@id/categoryScrollView"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <!-- Container for Catalog UI (ListViews for Products and Services) -->
-        <FrameLayout
+        <!-- Container for Product List -->
+        <LinearLayout
             android:id="@+id/contentFrame"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:orientation="vertical"
             app:layout_constraintTop_toBottomOf="@id/recommendTxt"
             app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="10dp"
+            android:paddingHorizontal="16dp">
 
-            <!-- ListView for Products -->
-            <ListView
+            <!-- RecyclerView for Products -->
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/productsRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="374dp"
-                android:visibility="visible" />
-
-            <!-- ListView for Services -->
-            <ListView
-                android:id="@+id/serviceRecyclerView"
-                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone" />
-        </FrameLayout>
+                android:scrollbars="vertical" />
+        </LinearLayout>
 
-        <!-- Bottom Navigation View -->
+        <!-- Bottom Navigation -->
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigation"
             android:layout_width="match_parent"
@@ -198,8 +190,8 @@
         android:layout_gravity="start"
         android:background="@color/white"
         app:headerLayout="@layout/nav_header"
-        app:itemIconTint="@color/smth_orange"
-        app:itemTextColor="@color/smth_orange"
+        app:itemIconTint="@color/orange"
+        app:itemTextColor="@color/orange"
         app:menu="@menu/nav_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

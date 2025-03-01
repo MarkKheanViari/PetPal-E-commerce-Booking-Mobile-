@@ -1,22 +1,19 @@
 package com.example.myapplication
 
-import com.example.myapplication.CartActivity
-import Product
-import ProductAdapter
-import Service
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import okhttp3.*
 import org.json.JSONArray
@@ -24,91 +21,71 @@ import org.json.JSONObject
 import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
-    // Using ListView for products and services.
-    private lateinit var productListView: ListView
-    private lateinit var serviceListView: ListView
 
-    // Using BottomNavigationView for bottom navigation.
+    // RecyclerView and Adapter
+    private lateinit var productsRecyclerView: androidx.recyclerview.widget.RecyclerView
+    private lateinit var productAdapter: ProductAdapter
+
+    // Bottom Navigation
     private lateinit var bottomNavigation: BottomNavigationView
 
+    // DrawerLayout
+    private lateinit var drawerLayout: DrawerLayout
+
+    // OkHttp client
     private val client = OkHttpClient()
+
+    // Shared Preferences and current user
     private var currentUserId: Int = -1
 
-    // Global lists for local filtering or searching
+    // Lists holding all products and those currently displayed
     private val allProducts = mutableListOf<Product>()
     private val displayedProducts = mutableListOf<Product>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("DEBUG:MainActivity", "onCreate called")
         setContentView(R.layout.activity_main)
 
-        // 1) Check if user is logged in (or finish)
         checkUserAndResetIfNeeded()
 
-        // 2) Set up DrawerLayout and menu icon
-        val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+        // Setup DrawerLayout and menu icon
+        drawerLayout = findViewById(R.id.drawer_layout)
         val menuIcon = findViewById<ImageView>(R.id.menuIcon)
         menuIcon.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
 
-        // 3) Set up cart button
+        // Setup cart button
         val viewCartButton = findViewById<ImageView>(R.id.viewCartButton)
         viewCartButton.setOnClickListener {
             startActivity(Intent(this, CartActivity::class.java))
         }
 
-        // 4) Find ListViews and bottom nav
-        productListView = findViewById(R.id.productsRecyclerView)
-        serviceListView = findViewById(R.id.serviceRecyclerView)
-        bottomNavigation = findViewById(R.id.bottomNavigation)
+        // Initialize RecyclerView
+        productsRecyclerView = findViewById(R.id.productsRecyclerView)
+        productsRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        // 5) Set up item click listener for product details
-        productListView.setOnItemClickListener { _, _, position, _ ->
-            val selectedProduct = productListView.adapter.getItem(position) as Product
-            val intent = Intent(this, ProductDetailsActivity::class.java).apply {
-                putExtra("id", selectedProduct.id)
-                putExtra("name", selectedProduct.name)
-                putExtra("price", selectedProduct.price)
-                putExtra("description", selectedProduct.description)
-                putExtra("quantity", selectedProduct.quantity)
-                putExtra("imageUrl", selectedProduct.imageUrl)
-            }
-            startActivity(intent)
-        }
+        // Create adapter with displayedProducts list
+        productAdapter = ProductAdapter(this, displayedProducts)
+        productsRecyclerView.adapter = productAdapter
 
-        // 6) Setup category buttons & bottom navigation
         setupCategoryButtons()
         setupBottomNavigation()
 
-        // 7) Fetch products only once here
+        // Fetch products from the server
         fetchProducts()
     }
 
-    override fun onResume() {
-        super.onResume()
-        // DO NOT fetch again here - otherwise we risk overwriting our local list
-        // with an empty or partial list if the server call fails or returns nothing.
-
-        // If you *do* want to re-fetch from server each time,
-        // you can do so conditionally, e.g. if(allProducts.isEmpty()) fetchProducts()
-    }
-
     private fun checkUserAndResetIfNeeded() {
-        val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        val sharedPreferences: SharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         val userId = sharedPreferences.getInt("user_id", -1)
-        Log.d("MainActivity", "User ID Retrieved: $userId")
         if (userId == -1) {
             Toast.makeText(this, "❌ User not logged in!", Toast.LENGTH_SHORT).show()
             finish()
         } else {
             currentUserId = userId
         }
-    }
-
-    private fun resetServices() {
-        (serviceListView.adapter as? ServiceAdapter)?.clear()
-        // fetchProducts() // only if you want to forcibly refresh
     }
 
     private fun setupCategoryButtons() {
@@ -120,12 +97,10 @@ class MainActivity : AppCompatActivity() {
             fetchProductsByCategory("all")
             updateButtonStyles(allButton, catButton, dogButton)
         }
-
         catButton.setOnClickListener {
             fetchProductsByCategory("cat")
             updateButtonStyles(catButton, allButton, dogButton)
         }
-
         dogButton.setOnClickListener {
             fetchProductsByCategory("dog")
             updateButtonStyles(dogButton, allButton, catButton)
@@ -133,24 +108,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateButtonStyles(selectedButton: Button, vararg otherButtons: Button) {
-        selectedButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.orange))
+        selectedButton.setBackgroundTintList(
+            ContextCompat.getColorStateList(this, R.color.orange)
+        )
         selectedButton.setTextColor(Color.WHITE)
         for (button in otherButtons) {
-            button.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.light_gray))
+            button.setBackgroundTintList(
+                ContextCompat.getColorStateList(this, R.color.light_smth)
+            )
             button.setTextColor(Color.BLACK)
         }
     }
 
     private fun setupBottomNavigation() {
+        bottomNavigation = findViewById(R.id.bottomNavigation)
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_products -> {
-                    productListView.visibility = View.VISIBLE
-                    serviceListView.visibility = View.GONE
+                    productsRecyclerView.visibility = View.VISIBLE
                     true
                 }
                 R.id.menu_service -> {
-                    startActivity(Intent(this, GroomingActivity::class.java))
+
+                    startActivity(Intent(this, ServiceAvailActivity::class.java))
                     true
                 }
                 else -> false
@@ -158,8 +138,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Fetch all products from the server.
+     */
     private fun fetchProducts() {
-        val request = Request.Builder().url("http://192.168.1.13/backend/fetch_product.php").build()
+        val request = Request.Builder()
+            .url("http://192.168.1.12/backend/fetch_product.php")
+            .build()
+
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
@@ -168,111 +154,121 @@ class MainActivity : AppCompatActivity() {
             }
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
-                Log.d("Product Fetch", "📦 Response: $responseBody")
                 if (responseBody.isNullOrEmpty()) {
                     runOnUiThread {
-                        Toast.makeText(this@MainActivity, "❌ No products found.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, "❌ Empty response from server", Toast.LENGTH_SHORT).show()
                     }
                     return
                 }
-                val json = JSONObject(responseBody)
-                if (json.optBoolean("success", false)) {
-                    val productsArray = json.optJSONArray("products") ?: JSONArray()
-                    val fetchedProducts = mutableListOf<Product>()
-                    for (i in 0 until productsArray.length()) {
-                        val productJson = productsArray.getJSONObject(i)
-                        fetchedProducts.add(
-                            Product(
-                                id = productJson.getInt("id"),
-                                name = productJson.getString("name"),
-                                price = productJson.getString("price"),
-                                description = productJson.getString("description"),
-                                quantity = productJson.getInt("quantity"),
-                                imageUrl = productJson.getString("image")
+                try {
+                    val json = JSONObject(responseBody)
+                    if (json.optBoolean("success", false)) {
+                        val productsArray = json.optJSONArray("products") ?: JSONArray()
+                        val fetchedProducts = mutableListOf<Product>()
+                        val baseImageUrl = "http://192.168.1.12/backend/images/"
+                        for (i in 0 until productsArray.length()) {
+                            val productJson = productsArray.getJSONObject(i)
+                            val rawImage = productJson.optString("image", "")
+                            val fullImageUrl = if (rawImage.startsWith("http")) rawImage else baseImageUrl + rawImage
+
+                            fetchedProducts.add(
+                                Product(
+                                    id = productJson.getInt("id"),
+                                    name = productJson.getString("name"),
+                                    price = productJson.getString("price"),
+                                    description = productJson.getString("description"),
+                                    quantity = productJson.getInt("quantity"),
+                                    imageUrl = fullImageUrl
+                                )
                             )
-                        )
-                    }
-                    runOnUiThread {
-                        // Clear the old lists and update with new data
-                        allProducts.clear()
-                        allProducts.addAll(fetchedProducts)
-
-                        displayedProducts.clear()
-                        displayedProducts.addAll(fetchedProducts)
-
-                        if (productListView.adapter == null) {
-                            productListView.adapter = ProductAdapter(this@MainActivity, displayedProducts)
-                        } else {
-                            (productListView.adapter as? ProductAdapter)?.updateProducts(displayedProducts)
                         }
+                        runOnUiThread {
+                            Log.d("DEBUG:MainActivity", "Fetched ${fetchedProducts.size} products")
+                            allProducts.clear()
+                            allProducts.addAll(fetchedProducts)
+                            displayedProducts.clear()
+                            displayedProducts.addAll(fetchedProducts)
+                            // Pass a new copy of the list to the adapter
+                            productAdapter.updateProducts(ArrayList(displayedProducts))
+                        }
+                    } else {
+                        Log.e("DEBUG:MainActivity", "Server returned success=false")
                     }
-                } else {
-                    Log.e("Product Fetch", "❌ JSON Success = false")
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, "Parsing error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         })
     }
 
+    /**
+     * Fetch products by category from the server.
+     */
     private fun fetchProductsByCategory(category: String) {
-        val url = "http://192.168.1.13/backend/fetch_product.php?category=$category"
-        Log.d("FetchProducts", "Fetching products for category: $category")
+        if (category == "all") {
+            displayedProducts.clear()
+            displayedProducts.addAll(allProducts)
+            productAdapter.updateProducts(ArrayList(displayedProducts))
+            return
+        }
+
+        val url = "http://192.168.1.12/backend/fetch_product.php?category=$category"
         val request = Request.Builder().url(url).build()
+
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "❌ Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
             override fun onResponse(call: Call, response: Response) {
-                val responseBody = response.body?.string()
-                if (responseBody.isNullOrEmpty()) {
+                val responseData = response.body?.string()
+                if (responseData.isNullOrEmpty()) {
                     runOnUiThread {
-                        Toast.makeText(this@MainActivity, "❌ No products found for $category.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, "No products found for $category", Toast.LENGTH_SHORT).show()
                     }
                     return
                 }
-                val json = JSONObject(responseBody)
-                if (json.optBoolean("success", false)) {
-                    val productsArray = json.optJSONArray("products") ?: JSONArray()
-                    val filteredProducts = mutableListOf<Product>()
+                try {
+                    val jsonResponse = JSONObject(responseData)
+                    if (!jsonResponse.optBoolean("success", false)) {
+                        runOnUiThread {
+                            Toast.makeText(this@MainActivity, "Failed to fetch products for $category", Toast.LENGTH_SHORT).show()
+                        }
+                        return
+                    }
+                    val productsArray = jsonResponse.optJSONArray("products") ?: JSONArray()
+                    val baseImageUrl = "http://192.168.1.12/backend/images/"
+                    val categoryProducts = mutableListOf<Product>()
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)
-                        filteredProducts.add(
+                        val rawImage = productJson.optString("image", "")
+                        val fullImageUrl = if (rawImage.startsWith("http")) rawImage else baseImageUrl + rawImage
+
+                        categoryProducts.add(
                             Product(
                                 id = productJson.getInt("id"),
                                 name = productJson.getString("name"),
                                 price = productJson.getString("price"),
                                 description = productJson.getString("description"),
                                 quantity = productJson.getInt("quantity"),
-                                imageUrl = productJson.getString("image")
+                                imageUrl = fullImageUrl
                             )
                         )
                     }
                     runOnUiThread {
                         displayedProducts.clear()
-                        displayedProducts.addAll(filteredProducts)
-                        (productListView.adapter as? ProductAdapter)?.updateProducts(displayedProducts)
+                        displayedProducts.addAll(categoryProducts)
+                        productAdapter.updateProducts(ArrayList(displayedProducts))
                     }
-                } else {
-                    Log.e("FetchProducts", "❌ JSON success = false")
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, "Error parsing data: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         })
-    }
-
-    // Optional local search if you want it
-    private fun performLocalSearch(query: String) {
-        val filtered = allProducts.filter { product ->
-            product.name.contains(query, ignoreCase = true) ||
-                    product.description.contains(query, ignoreCase = true)
-        }
-        displayedProducts.clear()
-        displayedProducts.addAll(filtered)
-        (productListView.adapter as? ProductAdapter)?.updateProducts(displayedProducts)
-    }
-
-    private fun availService(service: Service, selectedDate: String) {
-        Toast.makeText(this, "Availing ${service.serviceName} on $selectedDate", Toast.LENGTH_SHORT).show()
-        // Add network request logic for availing service if needed.
     }
 }

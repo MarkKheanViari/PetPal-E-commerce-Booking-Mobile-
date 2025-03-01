@@ -1,89 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
+<androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="12dp"
-    android:clickable="true"
-    android:focusable="true"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="8dp">
+    card_view:cardUseCompatPadding="true"
+    card_view:cardCornerRadius="8dp"
+    card_view:cardElevation="2dp"
+    android:layout_margin="8dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="8dp"
+        android:orientation="vertical">
 
-        <!-- Product Image -->
         <ImageView
             android:id="@+id/productImage"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/cat"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:background="@drawable/cat"/>
 
-        <!-- Product Name -->
         <TextView
             android:id="@+id/productName"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:textColor="@android:color/black"
             android:text="Product Name"
             android:textSize="16sp"
-            android:textColor="@color/black"
             android:textStyle="bold"
-            android:maxLines="2"
-            android:ellipsize="end"
-            app:layout_constraintTop_toBottomOf="@id/productImage"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp" />
 
-        <!-- Product Price -->
         <TextView
             android:id="@+id/productPrice"
             android:layout_width="wrap_content"
+            android:text="Product Price"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="₱0.00"
-            android:textSize="16sp"
-            android:textColor="@color/orange"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="14sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/productName"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:paddingBottom="4dp" />
 
-        <!-- Product Stock -->
         <TextView
             android:id="@+id/productStock"
-            android:layout_width="match_parent"
+            android:text="Stock: 100"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Stock: 0"
+            android:textColor="@android:color/black"
             android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:gravity="center"
-            app:layout_constraintTop_toBottomOf="@id/productPrice"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:paddingBottom="4dp" />
 
-        <!-- Add to Cart Button -->
         <Button
             android:id="@+id/addToCartButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:text="Add to Cart"
-            android:backgroundTint="@android:color/holo_blue_dark"
-            android:textColor="@android:color/white"
-            app:layout_constraintTop_toBottomOf="@id/productStock"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            android:textAllCaps="false" />
+    </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</com.google.android.material.card.MaterialCardView>
+</androidx.cardview.widget.CardView>
