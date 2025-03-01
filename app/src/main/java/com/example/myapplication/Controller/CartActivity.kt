@@ -19,7 +19,8 @@ class CartActivity : AppCompatActivity(), CartActionListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyText: TextView
-    private lateinit var checkoutButton: Button
+    // Updated type: use ImageView instead of Button
+    private lateinit var checkoutButton: ImageView
     private lateinit var totalPriceTextView: TextView
     private val client = OkHttpClient()
     private val cartItems = mutableListOf<HashMap<String, String>>()
@@ -32,7 +33,7 @@ class CartActivity : AppCompatActivity(), CartActionListener {
         recyclerView = findViewById(R.id.cartRecyclerView)
         emptyText = findViewById(R.id.emptyText)
         checkoutButton = findViewById(R.id.checkoutButton)
-        totalPriceTextView = findViewById(R.id.totalPriceTextView) // Total price text view
+        totalPriceTextView = findViewById(R.id.totalPriceTextView)
 
         // Initialize RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -150,7 +151,7 @@ class CartActivity : AppCompatActivity(), CartActionListener {
                     runOnUiThread {
                         cartAdapter.notifyDataSetChanged()
                         emptyText.visibility = if (cartItems.isEmpty()) TextView.VISIBLE else TextView.GONE
-                        totalPriceTextView.text = "₱ %.2f".format(totalPrice) // Display total price
+                        totalPriceTextView.text = "₱ %.2f".format(totalPrice)
                     }
                 }
             }

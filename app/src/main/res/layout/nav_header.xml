@@ -6,27 +6,31 @@
     android:layout_height="176dp"
     android:gravity="bottom"
     android:padding="16dp"
-    android:background="@drawable/header"
+    android:background="@drawable/oranage_header"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
+        android:id="@+id/headerImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/logo"/>
+        android:src="@drawable/logo" />
 
+    <!-- Name TextView -->
     <TextView
+        android:id="@+id/headerName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Android Knowledge"
-        android:textColor="@color/white"
-        android:textStyle="bold"/>
+        android:text="Username here"
+        android:textColor="@android:color/white"
+        android:textStyle="bold" />
 
+    <!-- Email TextView -->
     <TextView
+        android:id="@+id/headerEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="contact@androidknowledge.com"
-        android:textColor="@color/white"
+        android:text="user@example.com"
+        android:textColor="@android:color/white"
         android:textSize="14sp"
-        android:layout_marginBottom="16dp"/>
-
+        android:layout_marginBottom="16dp" />
 </LinearLayout>

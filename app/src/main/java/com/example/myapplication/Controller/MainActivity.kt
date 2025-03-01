@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -15,6 +16,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.navigation.NavigationView
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -44,7 +46,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("DEBUG:MainActivity", "onCreate called")
         setContentView(R.layout.activity_main)
 
         checkUserAndResetIfNeeded()
@@ -54,6 +55,27 @@ class MainActivity : AppCompatActivity() {
         val menuIcon = findViewById<ImageView>(R.id.menuIcon)
         menuIcon.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
+        }
+
+        // Get the NavigationView and update header with user data
+        val navView = findViewById<NavigationView>(R.id.nav_view)
+        val headerView = navView.getHeaderView(0)
+        val headerName = headerView.findViewById<TextView>(R.id.headerName)
+        val headerEmail = headerView.findViewById<TextView>(R.id.headerEmail)
+        val sharedPrefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        headerName.text = sharedPrefs.getString("username", "User Name")
+        headerEmail.text = sharedPrefs.getString("user_email", "user@example.com")
+
+        // Listen for NavigationView menu item selections, including Logout
+        navView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_logout -> {
+                    doLogout()
+                }
+                // Handle other nav items if needed
+            }
+            drawerLayout.closeDrawer(GravityCompat.START)
+            true
         }
 
         // Setup cart button
@@ -129,7 +151,6 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.menu_service -> {
-
                     startActivity(Intent(this, ServiceAvailActivity::class.java))
                     true
                 }
@@ -138,9 +159,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Fetch all products from the server.
-     */
     private fun fetchProducts() {
         val request = Request.Builder()
             .url("http://192.168.1.12/backend/fetch_product.php")
@@ -188,7 +206,6 @@ class MainActivity : AppCompatActivity() {
                             allProducts.addAll(fetchedProducts)
                             displayedProducts.clear()
                             displayedProducts.addAll(fetchedProducts)
-                            // Pass a new copy of the list to the adapter
                             productAdapter.updateProducts(ArrayList(displayedProducts))
                         }
                     } else {
@@ -203,9 +220,6 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    /**
-     * Fetch products by category from the server.
-     */
     private fun fetchProductsByCategory(category: String) {
         if (category == "all") {
             displayedProducts.clear()
@@ -270,5 +284,19 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    // Logout function
+    private fun doLogout() {
+        // Clear SharedPreferences
+        val sharedPrefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        sharedPrefs.edit().clear().apply()
+
+        // Show a toast message if desired
+        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
+
+        // Redirect to LoginActivity
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
     }
 }

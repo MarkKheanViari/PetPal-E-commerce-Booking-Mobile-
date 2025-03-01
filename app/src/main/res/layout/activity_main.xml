@@ -208,7 +208,7 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Navigation Drawer
+    <!-- Navigation Drawer-->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="250dp"
@@ -216,8 +216,8 @@
         android:layout_gravity="start"
         android:background="@color/white"
         app:headerLayout="@layout/nav_header"
-        app:itemIconTint="@color/orange"
+        app:itemIconTint="@color/smth_orange"
         app:itemTextColor="@color/orange"
-        app:menu="@menu/nav_menu" /> -->
+        app:menu="@menu/nav_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

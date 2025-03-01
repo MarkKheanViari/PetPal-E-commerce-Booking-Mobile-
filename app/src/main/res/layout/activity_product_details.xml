@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/product_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/product_view"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/white">
 
     <!-- Top Toolbar -->
@@ -58,7 +59,8 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:src="@drawable/cat" />
-    
+
+    <!-- Price Container -->
     <LinearLayout
         android:id="@+id/price_container"
         android:layout_width="match_parent"
@@ -74,6 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"/>
 
+        <!-- Product Price (note the ID is kept as-is from your original layout) -->
         <TextView
             android:id="@+id/prduct_price"
             android:layout_width="wrap_content"
@@ -110,7 +113,6 @@
             android:textColor="@color/black"
             android:fontFamily="@font/alata"
             android:layout_gravity="center_vertical"/>
-
     </LinearLayout>
 
     <!-- Product Name + Description in a scrollable area -->
@@ -119,7 +121,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/price_container"
-        app:layout_constraintBottom_toTopOf="@+id/addtocart_container"
+        app:layout_constraintBottom_toTopOf="@+id/button_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -163,53 +165,60 @@
         </LinearLayout>
     </ScrollView>
 
+    <!-- Container for buttons at the bottom -->
     <LinearLayout
-        android:id="@+id/addtocart_container"
-        android:layout_width="205dp"
+        android:id="@+id/button_container"
+        android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:orientation="vertical"
-        android:padding="10dp"
-        android:background="@color/light_orange"
-        app:layout_constraintStart_toStartOf="parent"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/cart_icon"
-            android:layout_gravity="center"
-            android:contentDescription="@string/design_desc"/>
+        <LinearLayout
+            android:id="@+id/addtocart_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:background="@color/light_orange"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add to Cart"
-            android:textSize="17sp"
-            android:textColor="@color/black"
-            android:fontFamily="@font/alata"
-            android:layout_gravity="center"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/cart_icon"
+                android:contentDescription="@string/design_desc"/>
 
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add to Cart"
+                android:textSize="17sp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/alata"/>
+        </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/buynow_container"
-        android:layout_width="205dp"
-        android:layout_height="80dp"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:background="@color/smth_orange"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        <LinearLayout
+            android:id="@+id/buynow_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@color/smth_orange"
+            android:clickable="true"
+            android:focusable="true">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Buy Now"
-            android:textSize="17sp"
-            android:textColor="@color/black"
-            android:fontFamily="@font/alata"
-            android:layout_gravity="center"/>
-
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Buy Now"
+                android:textSize="17sp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/alata"/>
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

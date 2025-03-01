@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -20,6 +21,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var passwordInput: EditText
     private lateinit var loginButton: Button
     private lateinit var registerLink: TextView
+    private lateinit var rememberMeCheckBox: CheckBox
     private lateinit var sharedPreferences: SharedPreferences
     private val client = OkHttpClient()
 
@@ -27,24 +29,26 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // Clear any existing login data
-        getSharedPreferences("MyAppPrefs", MODE_PRIVATE).edit().clear().apply()
-
         // Initialize SharedPreferences
         sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        // If the user did not choose "Remember Me" previously, clear stored login data.
+        if (!sharedPreferences.getBoolean("remember_me", false)) {
+            sharedPreferences.edit().clear().apply()
+        }
 
-        // Check if user is already logged in
+        // Check if user is already logged in (i.e. if user_id exists in SharedPreferences)
         if (sharedPreferences.contains("user_id")) {
             startMainActivity()
             finish()
             return
         }
 
-        // Initialize views (IDs exactly as in XML)
+        // Initialize views
         usernameInput = findViewById(R.id.usernameInput)
         passwordInput = findViewById(R.id.passwordInput)
         loginButton = findViewById(R.id.loginButton)
         registerLink = findViewById(R.id.registerLink)
+        rememberMeCheckBox = findViewById(R.id.rememberMe)
 
         // Set up click listeners
         loginButton.setOnClickListener {
@@ -97,10 +101,13 @@ class LoginActivity : AppCompatActivity() {
                             Log.d("LoginActivity", "Received user_id: $userId")
 
                             if (userId != -1) {
-                                // Save user data
+                                // Save user data including email using optString with a default value.
+                                // Also store the "remember_me" flag based on the checkbox.
                                 sharedPreferences.edit().apply {
                                     putInt("user_id", userId)
                                     putString("username", jsonResponse.getString("username"))
+                                    putString("user_email", jsonResponse.optString("email", "user@example.com"))
+                                    putBoolean("remember_me", rememberMeCheckBox.isChecked)
                                     apply()
                                 }
 

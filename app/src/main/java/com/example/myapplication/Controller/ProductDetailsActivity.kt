@@ -2,8 +2,8 @@ package com.example.myapplication
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -16,54 +16,35 @@ import java.io.IOException
 
 class ProductDetailsActivity : AppCompatActivity() {
 
-    private var quantity = 1 // Default quantity
+    // Using a default quantity of 1 (since the XML does not include quantity controls)
+    private var quantity = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_product_details)
 
+        // Retrieve product data passed via Intent
         val productId = intent.getIntExtra("productId", -1)
         val productName = intent.getStringExtra("productName")
         val productImage = intent.getStringExtra("productImage")
         val productDescription = intent.getStringExtra("productDescription")
         val productPrice = intent.getStringExtra("productPrice")?.toDoubleOrNull() ?: 0.0
 
-        // UI Elements
-        val productNameTextView = findViewById<TextView>(R.id.productNameText)
-        val productImageView = findViewById<ImageView>(R.id.productImage)
-        val productDescriptionTextView = findViewById<TextView>(R.id.productDescriptionText)
-        val productPriceTextView = findViewById<TextView>(R.id.productPriceText)
-        val quantityTextView = findViewById<TextView>(R.id.quantityText)
-        val minusButton = findViewById<Button>(R.id.minusButton)
-        val plusButton = findViewById<Button>(R.id.plusButton)
-        val addToCartButton = findViewById<Button>(R.id.addToCartButton)
-        val buyNowButton = findViewById<Button>(R.id.buyNowButton)
+        // Bind UI elements (IDs updated to match XML)
+        val productNameTextView = findViewById<TextView>(R.id.productName)
+        val productImageView = findViewById<ImageView>(R.id.productImageView)
+        val productDescriptionTextView = findViewById<TextView>(R.id.productDescription)
+        val productPriceTextView = findViewById<TextView>(R.id.prduct_price)
 
-        // Set product details
+        // Set product details into views
         productNameTextView.text = productName
         productDescriptionTextView.text = productDescription
         productPriceTextView.text = "₱$productPrice"
         Picasso.get().load(productImage).into(productImageView)
 
-        // Update quantity
-        quantityTextView.text = quantity.toString()
-
-        // Handle plus button click
-        plusButton.setOnClickListener {
-            quantity++
-            quantityTextView.text = quantity.toString()
-        }
-
-        // Handle minus button click
-        minusButton.setOnClickListener {
-            if (quantity > 1) {
-                quantity--
-                quantityTextView.text = quantity.toString()
-            }
-        }
-
-        // Add to Cart Button Click
-        addToCartButton.setOnClickListener {
+        // Set up click listener for the Add to Cart container
+        val addToCartContainer = findViewById<LinearLayout>(R.id.addtocart_container)
+        addToCartContainer.setOnClickListener {
             if (productId != -1) {
                 addToCart(productId, quantity)
             } else {
@@ -71,8 +52,9 @@ class ProductDetailsActivity : AppCompatActivity() {
             }
         }
 
-        // Buy Now Button Click
-        buyNowButton.setOnClickListener {
+        // Set up click listener for the Buy Now container
+        val buyNowContainer = findViewById<LinearLayout>(R.id.buynow_container)
+        buyNowContainer.setOnClickListener {
             if (productId != -1) {
                 goToCheckout(productId, productName, productPrice, quantity)
             } else {
@@ -81,6 +63,7 @@ class ProductDetailsActivity : AppCompatActivity() {
         }
     }
 
+    // Function to add product to cart
     private fun addToCart(productId: Int, quantity: Int) {
         val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         val mobileUserId = sharedPreferences.getInt("user_id", -1)
@@ -96,7 +79,8 @@ class ProductDetailsActivity : AppCompatActivity() {
             put("quantity", quantity)
         }
 
-        val requestBody = jsonObject.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+        val requestBody = jsonObject.toString()
+            .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
             .url("http://192.168.1.12/backend/add_to_cart.php")
@@ -107,7 +91,11 @@ class ProductDetailsActivity : AppCompatActivity() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(this@ProductDetailsActivity, "❌ Failed to connect to server", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@ProductDetailsActivity,
+                        "❌ Failed to connect to server",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
@@ -118,9 +106,17 @@ class ProductDetailsActivity : AppCompatActivity() {
                         val jsonResponse = JSONObject(responseBody)
                         val success = jsonResponse.optBoolean("success", false)
                         if (success) {
-                            Toast.makeText(this@ProductDetailsActivity, "✅ Added $quantity item(s) to Cart!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@ProductDetailsActivity,
+                                "✅ Added $quantity item(s) to Cart!",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } else {
-                            Toast.makeText(this@ProductDetailsActivity, "❌ Error: ${jsonResponse.optString("message")}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@ProductDetailsActivity,
+                                "❌ Error: ${jsonResponse.optString("message")}",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 }
@@ -128,7 +124,13 @@ class ProductDetailsActivity : AppCompatActivity() {
         })
     }
 
-    private fun goToCheckout(productId: Int, productName: String?, productPrice: Double, quantity: Int) {
+    // Function to navigate to checkout
+    private fun goToCheckout(
+        productId: Int,
+        productName: String?,
+        productPrice: Double,
+        quantity: Int
+    ) {
         val intent = Intent(this, CheckoutActivity::class.java).apply {
             putExtra("productId", productId)
             putExtra("productName", productName)
