@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -24,9 +25,14 @@ class CheckoutActivity : AppCompatActivity() {
     private lateinit var userInfoText: TextView
     private lateinit var selectPaymentButton: Button
     private lateinit var paymentMethodText: TextView
+    private lateinit var placeOrderButton: Button
+
+    // This holds the raw cart items passed from the previous activity
     private lateinit var cartItems: ArrayList<HashMap<String, String>>
-    private lateinit var cartList: ArrayList<CartItem> // ✅ Initialize cartList
+    // This list will be converted into a list of CartItem objects
+    private lateinit var cartList: ArrayList<CartItem>
     private var cartTotal: Double = 0.0
+
     private val client = OkHttpClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,18 +45,27 @@ class CheckoutActivity : AppCompatActivity() {
         userInfoText = findViewById(R.id.userInfoText)
         selectPaymentButton = findViewById(R.id.selectPaymentButton)
         paymentMethodText = findViewById(R.id.paymentMethodText)
+        placeOrderButton = findViewById(R.id.placeOrderButton)
 
-        // Initialize cart list
-        cartList = arrayListOf()
+        // Retrieve cart items from intent extras (if none, use an empty list)
         cartItems = intent.getSerializableExtra("cartItems") as? ArrayList<HashMap<String, String>> ?: arrayListOf()
+        cartList = arrayListOf()
 
-        val placeOrderButton: Button = findViewById(R.id.placeOrderButton)
-
+        // Set up place order button click listener
+        placeOrderButton = findViewById(R.id.placeOrderButton)
         placeOrderButton.setOnClickListener {
-            Log.d("CheckoutActivity", "✅ Place Order Button Clicked!") // Debugging log
+            Log.d("CheckoutActivity", "✅ Place Order Button Clicked!")
             submitOrder()
         }
-        // Convert raw cart items to `CartItem` objects
+
+        // Add click listener for the checkout ImageView in bottom container
+        val checkoutBtn = findViewById<ImageView>(R.id.checkoutBtn)
+        checkoutBtn.setOnClickListener {
+            submitOrder()
+        }
+
+
+        // Convert raw cart items to CartItem objects
         cartList.addAll(cartItems.map {
             CartItem(
                 productId = it["product_id"]?.toInt() ?: 0,
@@ -60,13 +75,13 @@ class CheckoutActivity : AppCompatActivity() {
             )
         })
 
-        // Fetch user info
+        // Fetch user info from your backend
         fetchUserInfo()
 
-        // Calculate total price
+        // Calculate total price and update totalTextView
         calculateTotal()
 
-        // Initialize RecyclerView
+        // Initialize RecyclerView with a CheckoutAdapter
         recyclerView.layoutManager = LinearLayoutManager(this)
         val checkoutAdapter = CheckoutAdapter(this, cartItems)
         recyclerView.adapter = checkoutAdapter
@@ -74,7 +89,6 @@ class CheckoutActivity : AppCompatActivity() {
         // Payment Method Selection
         selectPaymentButton.setOnClickListener {
             val paymentOptions = arrayOf("COD (Cash on Delivery)", "GCASH")
-
             val builder = android.app.AlertDialog.Builder(this)
             builder.setTitle("Select Payment Method")
             builder.setItems(paymentOptions) { _, which ->
@@ -112,7 +126,6 @@ class CheckoutActivity : AppCompatActivity() {
                         val username = jsonResponse.optString("username")
                         val contactNumber = jsonResponse.optString("contact_number")
                         val location = jsonResponse.optString("location")
-
                         runOnUiThread {
                             userInfoText.text = "$username ($contactNumber)\n$location"
                         }
@@ -123,13 +136,12 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
     private fun submitOrder() {
-        Log.d("CheckoutActivity", "🚀 submitOrder() function triggered!") // ✅ Confirm function call
-
+        Log.d("CheckoutActivity", "🚀 submitOrder() function triggered!")
         val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         val userId = sharedPreferences.getInt("user_id", -1)
 
         if (userId == -1) {
-            Log.e("CheckoutActivity", "❌ User not logged in!") // ✅ Log error
+            Log.e("CheckoutActivity", "❌ User not logged in!")
             Toast.makeText(this, "User not logged in!", Toast.LENGTH_SHORT).show()
             return
         }
@@ -150,19 +162,17 @@ class CheckoutActivity : AppCompatActivity() {
             })
         }
 
-        Log.d("CheckoutActivity", "📦 Request JSON: $jsonObject") // ✅ Log the request
-
+        Log.d("CheckoutActivity", "📦 Request JSON: $jsonObject")
         val requestBody = jsonObject.toString().toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/submit_order.php") // Ensure this URL is correct
+            .url("http://192.168.1.12/backend/submit_order.php")
             .post(requestBody)
             .build()
 
-        val client = OkHttpClient()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("CheckoutActivity", "❌ Network Error: ${e.message}") // ✅ Log network error
+                Log.e("CheckoutActivity", "❌ Network Error: ${e.message}")
                 runOnUiThread {
                     Toast.makeText(this@CheckoutActivity, "❌ Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
@@ -170,8 +180,7 @@ class CheckoutActivity : AppCompatActivity() {
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
-                Log.d("CheckoutActivity", "📦 API Response: $responseBody") // ✅ Log API response
-
+                Log.d("CheckoutActivity", "📦 API Response: $responseBody")
                 runOnUiThread {
                     if (response.isSuccessful && responseBody?.contains("success") == true) {
                         Toast.makeText(this@CheckoutActivity, "✅ Order Placed Successfully!", Toast.LENGTH_SHORT).show()
@@ -185,10 +194,11 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
     private fun calculateTotal() {
-        cartTotal = cartList.sumOf { it.price * it.quantity } // ✅ Fixed calculation
+        cartTotal = cartList.sumOf { it.price * it.quantity }
         totalTextView.text = "Total: ₱%.2f".format(cartTotal)
     }
 
+    // Method for address selection (if needed)
     fun navigateToAddressSelection(view: View) {
         val intent = Intent(this, AddressSelectionActivity::class.java)
         startActivityForResult(intent, REQUEST_CODE_ADDRESS)

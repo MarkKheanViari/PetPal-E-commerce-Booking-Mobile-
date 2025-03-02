@@ -11,18 +11,24 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
+import com.example.petpal.ServiceFragment
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
+
+    // OkHttp client (fixes "Unresolved reference: client")
+    private val client = OkHttpClient()
 
     // RecyclerView and Adapter
     private lateinit var productsRecyclerView: androidx.recyclerview.widget.RecyclerView
@@ -33,9 +39,6 @@ class MainActivity : AppCompatActivity() {
 
     // DrawerLayout
     private lateinit var drawerLayout: DrawerLayout
-
-    // OkHttp client
-    private val client = OkHttpClient()
 
     // Shared Preferences and current user
     private var currentUserId: Int = -1
@@ -72,7 +75,12 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_logout -> {
                     doLogout()
                 }
-                // Handle other nav items if needed
+                // If you want the nav drawer to also load the ServiceFragment:
+                R.id.menu_service -> {
+                    loadFragment(ServiceFragment())
+                    true
+                }
+                else -> false
             }
             drawerLayout.closeDrawer(GravityCompat.START)
             true
@@ -84,11 +92,9 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, CartActivity::class.java))
         }
 
-        // Initialize RecyclerView
+        // Initialize RecyclerView for products
         productsRecyclerView = findViewById(R.id.productsRecyclerView)
         productsRecyclerView.layoutManager = LinearLayoutManager(this)
-
-        // Create adapter with displayedProducts list
         productAdapter = ProductAdapter(this, displayedProducts)
         productsRecyclerView.adapter = productAdapter
 
@@ -97,6 +103,15 @@ class MainActivity : AppCompatActivity() {
 
         // Fetch products from the server
         fetchProducts()
+    }
+
+    // Loads a fragment into the container with id "fragment_container"
+    private fun loadFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+
     }
 
     private fun checkUserAndResetIfNeeded() {
@@ -147,11 +162,17 @@ class MainActivity : AppCompatActivity() {
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_products -> {
-                    productsRecyclerView.visibility = View.VISIBLE
+                    // Show the main UI again
+                    showMainUI(true)
+                    // Remove or pop the ServiceFragment so the product list reappears
+                    supportFragmentManager.popBackStack() // or remove the fragment
                     true
                 }
                 R.id.menu_service -> {
-                    startActivity(Intent(this, ServiceAvailActivity::class.java))
+                    // Hide the main UI
+                    showMainUI(false)
+                    // Load the ServiceFragment
+                    loadFragment(ServiceFragment())
                     true
                 }
                 else -> false
@@ -159,11 +180,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    // Hide or show the main product UI
+    private fun showMainUI(show: Boolean) {
+        val visibility = if (show) View.VISIBLE else View.GONE
+        findViewById<TextView>(R.id.browseText).visibility = visibility
+        findViewById<View>(R.id.categoryScrollView).visibility = visibility
+        findViewById<TextView>(R.id.recommendTxt).visibility = visibility
+        findViewById<View>(R.id.productsRecyclerView).visibility = visibility
+    }
+
+
     private fun fetchProducts() {
         val request = Request.Builder()
             .url("http://192.168.1.12/backend/fetch_product.php")
             .build()
 
+        // Use the declared OkHttp client
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
@@ -188,7 +221,6 @@ class MainActivity : AppCompatActivity() {
                             val productJson = productsArray.getJSONObject(i)
                             val rawImage = productJson.optString("image", "")
                             val fullImageUrl = if (rawImage.startsWith("http")) rawImage else baseImageUrl + rawImage
-
                             fetchedProducts.add(
                                 Product(
                                     id = productJson.getInt("id"),
@@ -260,7 +292,6 @@ class MainActivity : AppCompatActivity() {
                         val productJson = productsArray.getJSONObject(i)
                         val rawImage = productJson.optString("image", "")
                         val fullImageUrl = if (rawImage.startsWith("http")) rawImage else baseImageUrl + rawImage
-
                         categoryProducts.add(
                             Product(
                                 id = productJson.getInt("id"),
@@ -288,14 +319,9 @@ class MainActivity : AppCompatActivity() {
 
     // Logout function
     private fun doLogout() {
-        // Clear SharedPreferences
         val sharedPrefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         sharedPrefs.edit().clear().apply()
-
-        // Show a toast message if desired
         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
-
-        // Redirect to LoginActivity
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }

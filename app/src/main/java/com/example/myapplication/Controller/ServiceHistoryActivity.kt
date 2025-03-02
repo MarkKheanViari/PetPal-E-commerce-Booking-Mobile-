@@ -35,6 +35,7 @@ class ServiceHistoryActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
         clearHistoryButton = findViewById(R.id.clearHistoryButton) // ✅ Initialize button
 
+
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
         userId = sharedPreferences.getInt("user_id", -1)
 
