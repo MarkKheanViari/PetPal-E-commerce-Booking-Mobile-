@@ -12,8 +12,12 @@
 
     <!-- Main Content -->
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rootLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:clickable="true">
 
         <!-- Toolbar -->
         <androidx.appcompat.widget.Toolbar
@@ -132,7 +136,6 @@
                 android:orientation="horizontal"
                 android:paddingHorizontal="17dp">
 
-                <!-- Category Buttons -->
                 <Button
                     android:id="@+id/allButton"
                     android:layout_width="wrap_content"
@@ -186,7 +189,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <!-- RecyclerView for Products -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/productsRecyclerView"
                 android:layout_width="match_parent"

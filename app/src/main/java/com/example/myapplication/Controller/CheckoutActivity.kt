@@ -39,6 +39,13 @@ class CheckoutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_checkout)
 
+        // Hook up the back button to finish the activity
+        val backBtn = findViewById<ImageView>(R.id.backBtn)
+        backBtn.setOnClickListener {
+            // Close the current activity and go back
+            finish()
+        }
+
         // Initialize UI elements
         recyclerView = findViewById(R.id.checkoutRecyclerView)
         totalTextView = findViewById(R.id.totalTextView)
@@ -52,7 +59,6 @@ class CheckoutActivity : AppCompatActivity() {
         cartList = arrayListOf()
 
         // Set up place order button click listener
-        placeOrderButton = findViewById(R.id.placeOrderButton)
         placeOrderButton.setOnClickListener {
             Log.d("CheckoutActivity", "✅ Place Order Button Clicked!")
             submitOrder()
@@ -64,7 +70,6 @@ class CheckoutActivity : AppCompatActivity() {
             submitOrder()
         }
 
-
         // Convert raw cart items to CartItem objects
         cartList.addAll(cartItems.map {
             CartItem(
@@ -72,6 +77,8 @@ class CheckoutActivity : AppCompatActivity() {
                 productName = it["product_name"] ?: "Unknown",
                 quantity = it["quantity"]?.toInt() ?: 1,
                 price = it["price"]?.toDouble() ?: 0.0
+                // If you also store image in CartItem, you'd add it here, e.g.:
+                // imageUrl = it["product_image"] ?: ""
             )
         })
 
@@ -82,6 +89,7 @@ class CheckoutActivity : AppCompatActivity() {
         calculateTotal()
 
         // Initialize RecyclerView with a CheckoutAdapter
+        // Make sure your CheckoutAdapter loads the image from "product_image" key
         recyclerView.layoutManager = LinearLayoutManager(this)
         val checkoutAdapter = CheckoutAdapter(this, cartItems)
         recyclerView.adapter = checkoutAdapter

@@ -1,15 +1,17 @@
 package com.example.myapplication
 
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -17,9 +19,9 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.petpal.ServiceFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
-import com.example.petpal.ServiceFragment
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -27,40 +29,34 @@ import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
-    // OkHttp client (fixes "Unresolved reference: client")
     private val client = OkHttpClient()
-
-    // RecyclerView and Adapter
     private lateinit var productsRecyclerView: androidx.recyclerview.widget.RecyclerView
     private lateinit var productAdapter: ProductAdapter
-
-    // Bottom Navigation
-    private lateinit var bottomNavigation: BottomNavigationView
-
-    // DrawerLayout
+    lateinit var bottomNavigation: BottomNavigationView
     private lateinit var drawerLayout: DrawerLayout
-
-    // Shared Preferences and current user
+    private lateinit var rootLayout: ConstraintLayout
     private var currentUserId: Int = -1
-
-    // Lists holding all products and those currently displayed
     private val allProducts = mutableListOf<Product>()
     private val displayedProducts = mutableListOf<Product>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Ensure the window resizes when keyboard appears
+        window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         setContentView(R.layout.activity_main)
+
+        // Get a reference to the root layout for tapping outside the search bar
+        rootLayout = findViewById(R.id.rootLayout)
 
         checkUserAndResetIfNeeded()
 
-        // Setup DrawerLayout and menu icon
         drawerLayout = findViewById(R.id.drawer_layout)
         val menuIcon = findViewById<ImageView>(R.id.menuIcon)
         menuIcon.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
 
-        // Get the NavigationView and update header with user data
+        // NavigationView setup using the menu XML you provided
         val navView = findViewById<NavigationView>(R.id.nav_view)
         val headerView = navView.getHeaderView(0)
         val headerName = headerView.findViewById<TextView>(R.id.headerName)
@@ -69,30 +65,38 @@ class MainActivity : AppCompatActivity() {
         headerName.text = sharedPrefs.getString("username", "User Name")
         headerEmail.text = sharedPrefs.getString("user_email", "user@example.com")
 
-        // Listen for NavigationView menu item selections, including Logout
+        // Set click listener on the header if you want the whole header to launch profile
+        headerView.setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+            drawerLayout.closeDrawer(GravityCompat.START)
+        }
+
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
+                R.id.nav_profile -> {
+                    startActivity(Intent(this, ProfileActivity::class.java))
+                    true
+                }
                 R.id.nav_logout -> {
                     doLogout()
+                    true
                 }
-                // If you want the nav drawer to also load the ServiceFragment:
                 R.id.menu_service -> {
                     loadFragment(ServiceFragment())
                     true
                 }
                 else -> false
+            }.also {
+                drawerLayout.closeDrawer(GravityCompat.START)
             }
-            drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
 
-        // Setup cart button
         val viewCartButton = findViewById<ImageView>(R.id.viewCartButton)
         viewCartButton.setOnClickListener {
             startActivity(Intent(this, CartActivity::class.java))
         }
 
-        // Initialize RecyclerView for products
         productsRecyclerView = findViewById(R.id.productsRecyclerView)
         productsRecyclerView.layoutManager = LinearLayoutManager(this)
         productAdapter = ProductAdapter(this, displayedProducts)
@@ -101,17 +105,88 @@ class MainActivity : AppCompatActivity() {
         setupCategoryButtons()
         setupBottomNavigation()
 
-        // Fetch products from the server
+        // Handle search bar focus and text changes
+        val searchBar = findViewById<EditText>(R.id.search_bar)
+        searchBar.setOnFocusChangeListener { _, hasFocus ->
+            bottomNavigation.visibility = if (hasFocus) View.GONE else View.VISIBLE
+        }
+        searchBar.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
+                hideKeyboardAndClearFocus(searchBar)
+                true
+            } else {
+                false
+            }
+        }
+
+        // Add TextWatcher to automatically filter products as the user types
+        searchBar.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                // Filter products using the current text in the search bar
+                filterProducts(s.toString())
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // No action needed here
+            }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // No action needed here
+            }
+        })
+
+        // Optionally, tap outside to clear focus
+        rootLayout.setOnClickListener {
+            if (searchBar.hasFocus()) {
+                hideKeyboardAndClearFocus(searchBar)
+            }
+        }
+
         fetchProducts()
     }
 
-    // Loads a fragment into the container with id "fragment_container"
+    // Force bottom navigation visible when the window regains focus
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            bottomNavigation.visibility = View.VISIBLE
+        }
+    }
+
+    // Clear focus and force bottom nav visible on back press
+    override fun onBackPressed() {
+        val searchBar = findViewById<EditText>(R.id.search_bar)
+        if (searchBar.hasFocus()) {
+            hideKeyboardAndClearFocus(searchBar)
+            // Post a delay to ensure keyboard is hidden and then force bottom nav visible
+            searchBar.postDelayed({
+                bottomNavigation.visibility = View.VISIBLE
+            }, 300)
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    private fun hideKeyboardAndClearFocus(searchBar: EditText) {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(searchBar.windowToken, 0)
+        searchBar.clearFocus()
+        bottomNavigation.visibility = View.VISIBLE
+    }
+
+    // This function filters allProducts by the query and updates the adapter
+    private fun filterProducts(query: String) {
+        val filteredList = allProducts.filter { product ->
+            product.name.contains(query, ignoreCase = true)
+        }
+        displayedProducts.clear()
+        displayedProducts.addAll(filteredList)
+        productAdapter.updateProducts(ArrayList(displayedProducts))
+    }
+
     private fun loadFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
-
     }
 
     private fun checkUserAndResetIfNeeded() {
@@ -145,14 +220,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateButtonStyles(selectedButton: Button, vararg otherButtons: Button) {
-        selectedButton.setBackgroundTintList(
-            ContextCompat.getColorStateList(this, R.color.orange)
-        )
+        selectedButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.orange))
         selectedButton.setTextColor(Color.WHITE)
         for (button in otherButtons) {
-            button.setBackgroundTintList(
-                ContextCompat.getColorStateList(this, R.color.light_smth)
-            )
+            button.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.light_smth))
             button.setTextColor(Color.BLACK)
         }
     }
@@ -162,16 +233,12 @@ class MainActivity : AppCompatActivity() {
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_products -> {
-                    // Show the main UI again
                     showMainUI(true)
-                    // Remove or pop the ServiceFragment so the product list reappears
-                    supportFragmentManager.popBackStack() // or remove the fragment
+                    supportFragmentManager.popBackStack()
                     true
                 }
                 R.id.menu_service -> {
-                    // Hide the main UI
                     showMainUI(false)
-                    // Load the ServiceFragment
                     loadFragment(ServiceFragment())
                     true
                 }
@@ -180,8 +247,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    // Hide or show the main product UI
     private fun showMainUI(show: Boolean) {
         val visibility = if (show) View.VISIBLE else View.GONE
         findViewById<TextView>(R.id.browseText).visibility = visibility
@@ -190,13 +255,11 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.productsRecyclerView).visibility = visibility
     }
 
-
     private fun fetchProducts() {
         val request = Request.Builder()
             .url("http://192.168.1.12/backend/fetch_product.php")
             .build()
 
-        // Use the declared OkHttp client
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
@@ -317,7 +380,6 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    // Logout function
     private fun doLogout() {
         val sharedPrefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         sharedPrefs.edit().clear().apply()
