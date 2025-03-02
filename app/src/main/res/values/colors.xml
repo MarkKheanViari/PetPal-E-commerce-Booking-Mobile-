@@ -19,4 +19,5 @@
     <color name="red">#FF0000</color>
     <color name="light_smth">#F4E0CE</color>
     <color name="darker_orange">#FF6F1D</color>
+    <color name="other_gray">#757575</color>
 </resources>

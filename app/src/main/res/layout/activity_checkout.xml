@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white">
 
     <!--
      <TextView
@@ -23,124 +24,385 @@
             android:padding="8dp"
             android:layout_marginBottom="16dp" />
 
+            @+id/placeOrderButton
 
      -->
 
+    <!-- Top Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@color/white"
+        android:elevation="4dp"
+        android:padding="8dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Back Button -->
+        <ImageView
+            android:id="@+id/backBtn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="start|center_vertical"
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/back_buttonDesc"
+            android:src="@drawable/back_button" />
+
+        <!-- (Optional) Title in center -->
+        <TextView
+            android:id="@+id/productDetailsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Order Summary"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:fontFamily="@font/alata" />
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/checkoutRecyclerView"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+
+    <!-- Product Quantity Section -->
     <LinearLayout
+        android:id="@+id/productQuantity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:layout_margin="15dp"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/checkoutRecyclerView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- User Info Section (Clickable for Address Selection) -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/rounded_background"
-            android:padding="16dp"
-            android:layout_marginBottom="16dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:onClick="navigateToAddressSelection">
+            android:text="Quantity"
+            android:textSize="17sp"
+            android:fontFamily="@font/alata"
+            android:textColor="@color/black"/>
+        <Space
+            android:layout_width="170dp"
+            android:layout_height="wrap_content"/>
+        <ImageView
+            android:id="@+id/decrease_quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/remove"
+            android:background="@drawable/add_subtract_corners"
+            android:contentDescription="@string/design_desc"/>
+        <Space
+            android:layout_width="15dp"
+            android:layout_height="wrap_content"/>
+        <!-- Product Quantity -->
+        <TextView
+            android:id="@+id/product_quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1"
+            android:textSize="20sp"
+            android:textColor="@color/black"/>
+        <Space
+            android:layout_width="15dp"
+            android:layout_height="wrap_content"/>
+        <!-- Add Quantity -->
+        <ImageView
+            android:id="@+id/add_product"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/add"
+            android:background="@drawable/add_subtract_corners"
+            android:contentDescription="@string/design_desc"/>
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/userInfoText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Mark Khean Viari (09084538768)\nAddress details here"
-                android:textSize="16sp"
-                android:lineSpacingExtra="4dp"
-                android:textColor="@android:color/black" />
+    <!-- Order Summary Info -->
+    <LinearLayout
+        android:id="@+id/order_summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/productQuantity"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="20dp">
 
-            <TextView
-                android:id="@+id/arrowIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=">"
-                android:textSize="18sp"
-                android:textColor="@android:color/darker_gray"
-                android:layout_gravity="center_vertical" />
-
-
-        </LinearLayout>
-
-        <!-- Order Summary Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Order Summary"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
-
-        <!-- RecyclerView for Cart Items -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/checkoutRecyclerView"
+            android:textSize="17sp"
+            android:fontFamily="@font/alata"
+            android:textColor="@color/black"/>
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="15dp"/>
+        <!-- Subtotal -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:layout_marginBottom="16dp" />
+            android:orientation="horizontal"
+            android:gravity="center">
 
-        <!-- Payment Method Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Subtotal"
+                android:textSize="15sp"
+                android:textColor="@color/black"/>
+            <Space
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$ 50"
+                android:textSize="15sp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/alata"/>
+        </LinearLayout>
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="10dp"/>
+        <!-- Total -->
+
+        <!-- Subtotal -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Shipping"
+                android:textSize="15sp"
+                android:textColor="@color/black"/>
+            <Space
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$ 50"
+                android:textSize="15sp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/alata"/>
+        </LinearLayout>
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="10dp"/>
+
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="370dp"
+            android:layout_height="wrap_content"
+            android:background="@color/black"/>
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="10dp"/>
+
+        <!-- Total -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total"
+                android:textSize="15sp"
+                android:textColor="@color/black"/>
+            <Space
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$ 50"
+                android:textSize="15sp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/alata"/>
+        </LinearLayout>
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="10dp"/>
+        <!-- Payment Method -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Payment Method"
-            android:textSize="16sp"
+            android:textSize="17sp"
+            android:fontFamily="@font/alata"
+            android:textColor="@color/black"/>
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="15dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cash on Delivery (COD)"
+                android:textSize="15sp"
+                android:textColor="@color/black"/>
+            <Space
+                android:layout_width="188dp"
+                android:layout_height="wrap_content"/>
+            <CheckBox
+                android:layout_width="25dp"
+                android:layout_height="25dp"/>
+        </LinearLayout>
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="10dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gcash"
+                android:textSize="15sp"
+                android:textColor="@color/black"/>
+            <Space
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"/>
+            <CheckBox
+                android:layout_width="25dp"
+                android:layout_height="25dp"/>
+        </LinearLayout>
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Terms / Privacy, etc. -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="By placing an order, you agree to "
+                android:textSize="15sp"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PetPal's Terms of"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="5dp"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Service "
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="and acknowledge that you have read the"
+                android:textSize="15sp"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="5dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Privacy Policy."
+            android:textSize="15sp"
             android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/rounded_background"
-            android:padding="16dp"
-            android:layout_marginBottom="16dp">
-
-            <TextView
-                android:id="@+id/paymentMethodText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Select Payment Method"
-                android:textSize="14sp"
-                android:layout_marginEnd="16dp" />
-
-            <Button
-                android:id="@+id/selectPaymentButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Select"
-                android:backgroundTint="@android:color/holo_orange_dark"
-                android:textColor="@android:color/white" />
-        </LinearLayout>
-
-        <!-- Total and Place Order Button -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/totalTextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Total: ₱$$$"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/placeOrderButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Place Order"
-                android:backgroundTint="@android:color/holo_orange_dark"
-                android:textColor="@android:color/white" />
-        </LinearLayout>
+            android:textColor="@color/black"/>
 
     </LinearLayout>
-</ScrollView>
+
+
+
+    <!-- Bottom Container for Confirm Payment -->
+    <LinearLayout
+        android:id="@+id/bottom_container"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="end|center_vertical"
+        android:background="@color/light_orange"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total (1 Item)"
+                android:textSize="17sp"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/orderTotalPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$ 50"
+                android:textSize="17sp"
+                android:fontFamily="@font/alata"
+                android:layout_gravity="end"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+
+        <Space
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"/>
+
+        <ImageView
+            android:id="@+id/checkoutBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/checkout"
+            android:contentDescription="@string/design_desc"/>
+
+        <Space
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
