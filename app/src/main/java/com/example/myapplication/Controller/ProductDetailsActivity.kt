@@ -7,7 +7,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.squareup.picasso.Picasso
+import com.bumptech.glide.Glide
+import com.google.android.material.button.MaterialButton
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -16,35 +17,46 @@ import java.io.IOException
 
 class ProductDetailsActivity : AppCompatActivity() {
 
-    // Using a default quantity of 1 (since the XML does not include quantity controls)
     private var quantity = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_product_details)
 
-        // Retrieve product data passed via Intent
+        // Retrieve product data from Intent
         val productId = intent.getIntExtra("productId", -1)
         val productName = intent.getStringExtra("productName")
         val productImage = intent.getStringExtra("productImage")
         val productDescription = intent.getStringExtra("productDescription")
         val productPrice = intent.getStringExtra("productPrice")?.toDoubleOrNull() ?: 0.0
 
-        // Bind UI elements (IDs updated to match XML)
+        // UI Elements
         val productNameTextView = findViewById<TextView>(R.id.productName)
         val productImageView = findViewById<ImageView>(R.id.productImageView)
         val productDescriptionTextView = findViewById<TextView>(R.id.productDescription)
         val productPriceTextView = findViewById<TextView>(R.id.prduct_price)
+        val backBtn = findViewById<ImageView>(R.id.backBtn)
 
-        // Set product details into views
-        productNameTextView.text = productName
-        productDescriptionTextView.text = productDescription
+        // Display product details
+        productNameTextView.text = productName ?: "N/A"
+        productDescriptionTextView.text = productDescription ?: "No description available."
         productPriceTextView.text = "₱$productPrice"
-        Picasso.get().load(productImage).into(productImageView)
 
-        // Set up click listener for the Add to Cart container
-        val addToCartContainer = findViewById<LinearLayout>(R.id.addtocart_container)
-        addToCartContainer.setOnClickListener {
+        // Load product image
+        if (!productImage.isNullOrEmpty()) {
+            Glide.with(this)
+                .load(productImage)
+                .into(productImageView)
+        }
+
+        // Back button functionality
+        backBtn.setOnClickListener {
+            finish()
+        }
+
+        // Add to Cart functionality
+        val addToCartButton = findViewById<MaterialButton>(R.id.addtocart_container)
+        addToCartButton.setOnClickListener {
             if (productId != -1) {
                 addToCart(productId, quantity)
             } else {
@@ -52,9 +64,9 @@ class ProductDetailsActivity : AppCompatActivity() {
             }
         }
 
-        // Set up click listener for the Buy Now container
-        val buyNowContainer = findViewById<LinearLayout>(R.id.buynow_container)
-        buyNowContainer.setOnClickListener {
+        // Buy Now functionality
+        val buyNowButton = findViewById<MaterialButton>(R.id.buynow_container)
+        buyNowButton.setOnClickListener {
             if (productId != -1) {
                 goToCheckout(productId, productName, productPrice, quantity)
             } else {
@@ -83,7 +95,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/add_to_cart.php")
+            .url("http://192.168.1.65/backend/add_to_cart.php")
             .post(requestBody)
             .build()
 

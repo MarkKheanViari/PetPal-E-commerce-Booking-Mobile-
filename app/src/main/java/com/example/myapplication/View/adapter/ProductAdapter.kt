@@ -10,10 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import okhttp3.*
@@ -24,15 +21,17 @@ import java.io.IOException
 
 class ProductAdapter(
     private val context: Context,
-    private var products: MutableList<Product>
+    private var products: MutableList<Product>,
+    private val wishlistListener: (Product) -> Unit
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
-    inner class ProductViewHolder(view: View): RecyclerView.ViewHolder(view) {
+    inner class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val itemName: TextView = view.findViewById(R.id.productName)
         val itemPrice: TextView = view.findViewById(R.id.productPrice)
         val itemStock: TextView = view.findViewById(R.id.productStock)
         val itemImage: ImageView = view.findViewById(R.id.productImage)
         val addToCartButton: Button = view.findViewById(R.id.addToCartButton)
+        val wishlistButton: ImageButton = view.findViewById(R.id.wishlistButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
@@ -41,13 +40,11 @@ class ProductAdapter(
     }
 
     override fun getItemCount(): Int {
-        Log.d("DEBUG:ProductAdapter", "getItemCount() returns ${products.size}")
         return products.size
     }
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = products[position]
-        Log.d("DEBUG:ProductAdapter", "onBindViewHolder() for position $position: ${product.name}")
 
         // Set product details
         holder.itemName.text = product.name
@@ -59,22 +56,26 @@ class ProductAdapter(
             .load(product.imageUrl)
             .into(holder.itemImage)
 
-        // Setup add-to-cart button state
-        if (product.quantity > 0) {
-            holder.addToCartButton.isEnabled = true
-            holder.addToCartButton.text = "Add to Cart"
-            holder.addToCartButton.setBackgroundColor(Color.parseColor("#FF9800"))
-            holder.addToCartButton.setOnClickListener {
-                addToCart(product, position)
-            }
-        } else {
+        // Show "Out of Stock" when quantity is 0
+        if (product.quantity == 0) {
+            holder.itemStock.text = "Out of Stock"
+            holder.itemStock.setTextColor(Color.RED)
             holder.addToCartButton.isEnabled = false
             holder.addToCartButton.text = "Out of Stock"
             holder.addToCartButton.setBackgroundColor(Color.GRAY)
+        } else {
+            holder.itemStock.setTextColor(Color.BLACK)
+            holder.addToCartButton.isEnabled = true
+            holder.addToCartButton.text = "Add to Cart"
+            holder.addToCartButton.setBackgroundColor(Color.parseColor("#FF9800"))
+
+            holder.addToCartButton.setOnClickListener {
+                addToCart(product, position)
+            }
         }
 
-        // Clicking the image opens details
-        holder.itemImage.setOnClickListener {
+        // Open Product Details when clicking the item
+        holder.itemView.setOnClickListener {
             val intent = Intent(context, ProductDetailsActivity::class.java).apply {
                 putExtra("productId", product.id)
                 putExtra("productName", product.name)
@@ -84,6 +85,18 @@ class ProductAdapter(
             }
             context.startActivity(intent)
         }
+
+        // Wishlist functionality
+        holder.wishlistButton.setOnClickListener {
+            wishlistListener(product)
+            Toast.makeText(context, "Added to Wishlist", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun updateProducts(newProducts: List<Product>) {
+        products.clear()
+        products.addAll(newProducts)
+        notifyDataSetChanged()
     }
 
     private fun addToCart(product: Product, position: Int) {
@@ -106,7 +119,7 @@ class ProductAdapter(
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/add_to_cart.php")
+            .url("http://192.168.1.65/backend/add_to_cart.php")
             .post(requestBody)
             .build()
 
@@ -125,7 +138,6 @@ class ProductAdapter(
                         val success = jsonResponse.optBoolean("success", false)
                         if (success) {
                             Toast.makeText(context, "✅ Added to Cart!", Toast.LENGTH_SHORT).show()
-                            // Decrement stock and update only this item
                             product.quantity--
                             notifyItemChanged(position)
                         } else {
@@ -140,17 +152,4 @@ class ProductAdapter(
             }
         })
     }
-
-    /**
-     * Update the adapter's products list and notify changes.
-     */
-    fun updateProducts(newProducts: List<Product>) {
-        Log.d("DEBUG:ProductAdapter", "updateProducts() called with ${newProducts.size} items")
-        products.clear()
-        products.addAll(newProducts)
-        Log.d("DEBUG:ProductAdapter", "After update, getItemCount() returns ${getItemCount()}")
-        notifyDataSetChanged()
-    }
-
-    fun getProducts(): List<Product> = products
 }
