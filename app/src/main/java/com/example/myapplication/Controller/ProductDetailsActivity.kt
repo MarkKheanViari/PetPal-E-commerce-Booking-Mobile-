@@ -68,11 +68,12 @@ class ProductDetailsActivity : AppCompatActivity() {
         val buyNowButton = findViewById<MaterialButton>(R.id.buynow_container)
         buyNowButton.setOnClickListener {
             if (productId != -1) {
-                goToCheckout(productId, productName, productPrice, quantity)
+                goToCheckout(productId, productName, productDescription, productPrice, quantity)
             } else {
                 Toast.makeText(this, "❌ Failed to proceed to checkout", Toast.LENGTH_SHORT).show()
             }
         }
+
     }
 
     // Function to add product to cart
@@ -95,7 +96,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.1.65/backend/add_to_cart.php")
+            .url("http://192.168.1.12/backend/add_to_cart.php")
             .post(requestBody)
             .build()
 
@@ -136,19 +137,21 @@ class ProductDetailsActivity : AppCompatActivity() {
         })
     }
 
-    // Function to navigate to checkout
     private fun goToCheckout(
         productId: Int,
         productName: String?,
+        productDescription: String?, // Add productDescription parameter
         productPrice: Double,
         quantity: Int
     ) {
         val intent = Intent(this, CheckoutActivity::class.java).apply {
             putExtra("productId", productId)
             putExtra("productName", productName)
+            putExtra("productDescription", productDescription) // Pass description along
             putExtra("productPrice", productPrice)
             putExtra("quantity", quantity)
         }
         startActivity(intent)
     }
+
 }
