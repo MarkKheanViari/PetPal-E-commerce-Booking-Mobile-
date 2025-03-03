@@ -46,6 +46,8 @@ android {
 }
 
 dependencies {
+
+    implementation ("com.android.volley:volley:1.2.1")
     implementation ("com.github.bumptech.glide:glide:4.12.0")
     // Core Libraries
     implementation ("com.squareup.picasso:picasso:2.71828")

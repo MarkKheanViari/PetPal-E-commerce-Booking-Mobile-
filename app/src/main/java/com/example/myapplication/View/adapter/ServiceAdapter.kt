@@ -1,115 +1,33 @@
 package com.example.myapplication
 
-import Service
-import android.app.DatePickerDialog
-import android.content.Context
-import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
-import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
+import androidx.recyclerview.widget.RecyclerView
+import com.example.myapplication.R
 
-class ServiceAdapter(
-    private val context: Context, // ✅ Fix: Use Context instead of MainActivity
-    private var services: MutableList<Service>, // ✅ Fix: Ensure services is properly initialized
-    private val onAvailClick: (Service, String) -> Unit
-) : BaseAdapter() {
+class ServiceAdapter(private val serviceList: List<ServiceModel>) : RecyclerView.Adapter<ServiceAdapter.ServiceViewHolder>() {
 
-    override fun getCount(): Int = services.size
-
-    override fun getItem(position: Int): Any = services[position]
-
-    override fun getItemId(position: Int): Long = position.toLong()
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view = convertView ?: LayoutInflater.from(context)
-            .inflate(R.layout.service_item, parent, false)
-
-        try {
-            val service = services[position]
-
-            val serviceName = view.findViewById<TextView>(R.id.serviceName)
-            val serviceDescription = view.findViewById<TextView>(R.id.serviceDescription)
-            val statusText = view.findViewById<TextView>(R.id.statusText)
-            val availButton = view.findViewById<Button>(R.id.availButton)
-            val selectDateButton = view.findViewById<Button>(R.id.selectDateButton)
-            val selectedDateText = view.findViewById<TextView>(R.id.selectedDateText)
-
-            serviceName.text = service.serviceName
-            serviceDescription.text = service.description
-            statusText.text = "Status: ${service.status}"
-
-            // Hide select date options initially
-            selectDateButton.visibility = View.GONE
-            selectedDateText.visibility = View.GONE
-
-            availButton.setOnClickListener {
-                val selectedDate = selectedDateText.text.toString().removePrefix("Selected Date: ").trim()
-                if (selectedDate.isEmpty()) {
-                    Toast.makeText(context, "❌ Please select a date first.", Toast.LENGTH_SHORT).show()
-                } else {
-                    onAvailClick(service, selectedDate) // Pass the service and selected date
-                }
-            }
-
-
-
-
-
-
-
-
-            selectDateButton.setOnClickListener {
-                showDatePicker(service, selectedDateText)
-            }
-
-        } catch (e: Exception) {
-            Log.e("ServiceAdapter", "Error setting up view", e)
-            Toast.makeText(context, "Error displaying service: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-
-        return view
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ServiceViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_service, parent, false)
+        return ServiceViewHolder(view)
     }
 
-    private fun showDatePicker(service: Service, selectedDateText: TextView) {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_MONTH, 0) // Start from today
-
-        DatePickerDialog(
-            context,
-            { _, year, month, dayOfMonth ->
-                calendar.set(year, month, dayOfMonth)
-                val selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
-                selectedDateText.text = "Selected Date: $selectedDate"
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        ).apply {
-            datePicker.minDate = System.currentTimeMillis() - 1000
-            show()
-        }
+    override fun onBindViewHolder(holder: ServiceViewHolder, position: Int) {
+        val service = serviceList[position]
+        holder.serviceName.text = service.serviceName
+        holder.servicePrice.text = "₱${service.servicePrice}"
+        holder.serviceDescription.text = service.serviceDescription
     }
 
-    fun clear() {
-        services.clear()
-        notifyDataSetChanged()
+    override fun getItemCount(): Int {
+        return serviceList.size
     }
 
-    fun updateServices(newServices: List<Service>) {
-        services.clear()
-        services.addAll(newServices)
-        notifyDataSetChanged()
+    class ServiceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val serviceName: TextView = itemView.findViewById(R.id.serviceName)
+        val servicePrice: TextView = itemView.findViewById(R.id.servicePrice)
+        val serviceDescription: TextView = itemView.findViewById(R.id.serviceDescription)
     }
 }
