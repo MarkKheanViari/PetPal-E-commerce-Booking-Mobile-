@@ -3,8 +3,9 @@ package com.example.myapplication
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.widget.*
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,7 +20,7 @@ class CartActivity : AppCompatActivity(), CartActionListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyText: TextView
-    // Updated type: use ImageView instead of Button
+    private lateinit var backBtn: ImageView
     private lateinit var checkoutButton: ImageView
     private lateinit var totalPriceTextView: TextView
     private val client = OkHttpClient()
@@ -28,33 +29,42 @@ class CartActivity : AppCompatActivity(), CartActionListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Make sure the layout file name matches your resource (e.g. activity_cart.xml)
         setContentView(R.layout.activity_cart)
 
+        // Find views from the layout
         recyclerView = findViewById(R.id.cartRecyclerView)
         emptyText = findViewById(R.id.emptyText)
+        backBtn = findViewById(R.id.backBtn)
         checkoutButton = findViewById(R.id.checkoutButton)
         totalPriceTextView = findViewById(R.id.totalPriceTextView)
 
-        // Initialize RecyclerView
+        // Setup RecyclerView and adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
         cartAdapter = CartAdapter(this, cartItems, this)
         recyclerView.adapter = cartAdapter
 
-        fetchCartItems()
+        // Custom back button functionality
+        backBtn.setOnClickListener {
+            finish()
+        }
 
+        // Checkout button functionality: pass all cart items to CheckoutActivity
         checkoutButton.setOnClickListener {
             if (cartItems.isNotEmpty()) {
                 val intent = Intent(this, CheckoutActivity::class.java)
-                intent.putExtra("cartItems", ArrayList(cartItems)) // Pass cart items to CheckoutActivity
+                intent.putExtra("cartItems", ArrayList(cartItems))
                 startActivity(intent)
             } else {
                 Toast.makeText(this, "❌ Your cart is empty.", Toast.LENGTH_SHORT).show()
             }
         }
+
+        fetchCartItems()
     }
 
     override fun updateCartQuantity(cartId: Int, newQuantity: Int) {
-        val url = "http://192.168.1.65/backend/update_cart.php"
+        val url = "http://192.168.1.12/backend/update_cart.php"
         val json = JSONObject().apply {
             put("cart_id", cartId)
             put("quantity", newQuantity)
@@ -80,7 +90,7 @@ class CartActivity : AppCompatActivity(), CartActionListener {
     }
 
     override fun removeItemFromCart(cartId: Int) {
-        val url = "http://192.168.1.65/backend/remove_from_cart.php"
+        val url = "http://192.168.1.12/backend/remove_from_cart.php"
         val json = JSONObject().apply { put("cart_id", cartId) }
         val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = Request.Builder().url(url).post(requestBody).build()
@@ -101,6 +111,21 @@ class CartActivity : AppCompatActivity(), CartActionListener {
         })
     }
 
+    // When a product is clicked, open the ProductDetailsActivity with the product's details.
+    override fun onProductClick(cartItem: HashMap<String, String>) {
+        val intent = Intent(this, ProductDetailsActivity::class.java)
+        // Assuming the cartItem contains these keys
+        val productId = cartItem["product_id"]?.toIntOrNull() ?: -1
+        intent.putExtra("productId", productId)
+        intent.putExtra("productName", cartItem["name"])
+        intent.putExtra("productImage", cartItem["image"])
+        // If your API doesn't send a description, you can use a default value
+        intent.putExtra("productDescription", cartItem["description"] ?: "No description available.")
+        val productPrice = cartItem["price"]?.toDoubleOrNull() ?: 0.0
+        intent.putExtra("productPrice", productPrice)
+        startActivity(intent)
+    }
+
     private fun fetchCartItems() {
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
         val mobileUserId = sharedPreferences.getInt("user_id", -1)
@@ -111,7 +136,7 @@ class CartActivity : AppCompatActivity(), CartActionListener {
             return
         }
 
-        val url = "http://192.168.1.65/backend/fetch_cart.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.12/backend/fetch_cart.php?mobile_user_id=$mobileUserId"
         val request = Request.Builder().url(url).get().build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -123,7 +148,6 @@ class CartActivity : AppCompatActivity(), CartActionListener {
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
-
                 if (!responseBody.isNullOrEmpty()) {
                     val jsonResponse = JSONObject(responseBody)
                     val cartArray = jsonResponse.optJSONArray("cart") ?: JSONArray()
@@ -143,7 +167,8 @@ class CartActivity : AppCompatActivity(), CartActionListener {
                             "name" to item.getString("name"),
                             "price" to price.toString(),
                             "quantity" to quantity.toString(),
-                            "image" to item.getString("image")
+                            "image" to item.getString("image"),
+                            "description" to item.optString("description", "No description available")
                         )
                         cartItems.add(cartItem)
                     }
