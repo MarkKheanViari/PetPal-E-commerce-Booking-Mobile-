@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
@@ -20,6 +21,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
     private lateinit var etPhone: EditText
     private lateinit var etPetName: EditText
     private lateinit var etPetBreed: EditText
+    private lateinit var etNotes: EditText            // Example "notes" field
     private lateinit var btnPickDate: Button
     private lateinit var spinnerPaymentMethod: Spinner
     private lateinit var groomTypeField: EditText
@@ -29,18 +31,19 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_grooming_appointment)
 
-        // ✅ Initialize views
+        // Initialize views
         groomTypeField = findViewById(R.id.groomTypeField)
         etName = findViewById(R.id.etName)
         etAddress = findViewById(R.id.etAddress)
         etPhone = findViewById(R.id.etPhone)
         etPetName = findViewById(R.id.etPetName)
         etPetBreed = findViewById(R.id.etPetBreed)
+        etNotes = findViewById(R.id.etNotes)        // Example "notes" field
         btnPickDate = findViewById(R.id.btnPickDate)
         spinnerPaymentMethod = findViewById(R.id.spinnerPaymentMethod)
         val scheduleButton: Button = findViewById(R.id.btnScheduleAppointment)
 
-        // ✅ Get service name from intent and display it as non-editable, bold, and centered
+        // Get service name from intent and display it as non-editable, bold, and centered
         val serviceName = intent.getStringExtra("SERVICE_NAME")
         serviceName?.let {
             groomTypeField.setText(it)
@@ -49,7 +52,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
             groomTypeField.setTextAppearance(android.R.style.TextAppearance_Medium)
         }
 
-        // ✅ Handle date picker
+        // Handle date picker
         btnPickDate.setOnClickListener {
             val calendar = Calendar.getInstance()
             val year = calendar.get(Calendar.YEAR)
@@ -64,37 +67,37 @@ class GroomingAppointmentActivity : AppCompatActivity() {
             datePickerDialog.show()
         }
 
-        // ✅ Handle appointment submission
+        // Handle appointment submission
         scheduleButton.setOnClickListener {
-            Log.d("Appointment", "✅ Schedule Appointment clicked")
+            Log.d("Appointment", "Schedule Appointment clicked")
             submitAppointment()
         }
     }
 
     private fun submitAppointment() {
-        val url = "http://192.168.1.65/backend/schedule_appointment.php"
+        val url = "http://192.168.1.12/backend/schedule_appointment.php"
 
-        // ✅ Get user details from SharedPreferences
+        // Get user details from SharedPreferences
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
         val mobileUserId = sharedPreferences.getInt("user_id", -1).toString()
         val savedLocation = sharedPreferences.getString("location", "")
         val savedPhoneNumber = sharedPreferences.getString("contact_number", "")
 
         if (mobileUserId == "-1") {
-            Toast.makeText(this, "❌ User not logged in!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "User not logged in!", Toast.LENGTH_SHORT).show()
             return
         }
 
         if (selectedDate.isNullOrEmpty()) {
-            Toast.makeText(this, "❌ Please select a date!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please select a date!", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // ✅ Auto-fill address & phone number if blank
+        // Auto-fill address & phone number if blank
         val address = if (etAddress.text.toString().trim().isEmpty()) savedLocation else etAddress.text.toString().trim()
         val phoneNumber = if (etPhone.text.toString().trim().isEmpty()) savedPhoneNumber else etPhone.text.toString().trim()
 
-        // ✅ Prepare data with `service_name`
+        // Prepare data with service_name
         val params = mapOf(
             "mobile_user_id" to mobileUserId,
             "service_type" to "Grooming",
@@ -105,7 +108,8 @@ class GroomingAppointmentActivity : AppCompatActivity() {
             "pet_name" to etPetName.text.toString().trim(),
             "pet_breed" to etPetBreed.text.toString().trim(),
             "appointment_date" to selectedDate!!,
-            "payment_method" to spinnerPaymentMethod.selectedItem.toString().trim()
+            "payment_method" to spinnerPaymentMethod.selectedItem.toString().trim(),
+            "notes" to etNotes.text.toString().trim()           // Example "notes" param
         )
 
         val jsonObject = JSONObject(params)
@@ -113,14 +117,41 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         val request = JsonObjectRequest(
             Request.Method.POST, url, jsonObject,
             { response ->
-                Log.d("Appointment", "✅ Appointment scheduled: $response")
+                Log.d("Appointment", "Appointment scheduled: $response")
                 Toast.makeText(this, "Appointment Scheduled!", Toast.LENGTH_SHORT).show()
+                clearFields()  // Clear fields on success
             },
             { error ->
-                Log.e("Appointment", "❌ Error scheduling: ${error.message}")
+                // Print detailed error info for debugging
+                error.printStackTrace()
+
+                val statusCode = error.networkResponse?.statusCode
+                Log.e("Appointment", "Error scheduling (status code $statusCode): ${error.message}")
+
+                val data = error.networkResponse?.data
+                if (data != null) {
+                    val body = String(data, Charsets.UTF_8)
+                    Log.e("Appointment", "Error body: $body")
+                }
+
                 Toast.makeText(this, "Failed to schedule appointment", Toast.LENGTH_SHORT).show()
-            })
+                clearFields()  // Also clear fields on error if desired
+            }
+        )
 
         Volley.newRequestQueue(this).add(request)
+    }
+
+    // Helper function to clear all user-input fields
+    private fun clearFields() {
+        etName.text.clear()
+        etAddress.text.clear()
+        etPhone.text.clear()
+        etPetName.text.clear()
+        etPetBreed.text.clear()
+        etNotes.text.clear()             // Clear notes
+        btnPickDate.text = "Pick Date"
+        spinnerPaymentMethod.setSelection(0)
+        selectedDate = null
     }
 }
