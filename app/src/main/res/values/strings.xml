@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">My Application</string>
+    <string-array name="payment_methods">
+        <item>Cash</item>
+        <item>Gcash</item>
+    </string-array>
     <string name="price_format">Price: $%s</string>
     <string name="quantity_format">Quantity: %d</string>
     <string name="open_nav">Open Navigation Drawer</string>
