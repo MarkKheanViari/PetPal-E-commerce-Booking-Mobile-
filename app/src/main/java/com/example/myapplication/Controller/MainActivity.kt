@@ -234,7 +234,6 @@ class MainActivity : AppCompatActivity() {
             button.setTextColor(Color.BLACK)
         }
     }
-
     private fun setupBottomNavigation() {
         bottomNavigation = findViewById(R.id.bottomNavigation)
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
@@ -242,17 +241,22 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_products -> {
                     showMainUI(true)
                     supportFragmentManager.popBackStack()
+                    // Change toolbar title back to "Catalog" when products are shown
+                    findViewById<TextView>(R.id.toolbarTitle).text = "Catalog"
                     true
                 }
                 R.id.menu_service -> {
                     showMainUI(false)
                     loadFragment(ServiceFragment())
+                    // Update toolbar title to "Service" when service fragment is clicked
+                    findViewById<TextView>(R.id.toolbarTitle).text = "Service"
                     true
                 }
                 else -> false
             }
         }
     }
+
 
     private fun showMainUI(show: Boolean) {
         val visibility = if (show) View.VISIBLE else View.GONE
