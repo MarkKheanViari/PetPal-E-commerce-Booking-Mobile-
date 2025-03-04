@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
@@ -39,9 +40,14 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
         spinnerPaymentMethod = findViewById(R.id.spinnerPaymentMethod)
         val scheduleButton: Button = findViewById(R.id.btnScheduleAppointment)
 
-        // ✅ Set selected service name
+        // ✅ Get service name from intent and display it as non-editable, bold, and centered
         val serviceName = intent.getStringExtra("SERVICE_NAME")
-        serviceName?.let { checkupTypeField.setText(it) }
+        serviceName?.let {
+            checkupTypeField.setText(it)
+            checkupTypeField.isFocusable = false
+            checkupTypeField.gravity = Gravity.CENTER
+            checkupTypeField.setTextAppearance(android.R.style.TextAppearance_Medium)
+        }
 
         // ✅ Handle date picker
         btnPickDate.setOnClickListener {
@@ -68,8 +74,11 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
     private fun submitAppointment() {
         val url = "http://192.168.1.65/backend/schedule_appointment.php"
 
+        // ✅ Get user details from SharedPreferences
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
         val mobileUserId = sharedPreferences.getInt("user_id", -1).toString()
+        val savedLocation = sharedPreferences.getString("location", "")
+        val savedPhoneNumber = sharedPreferences.getString("contact_number", "")
 
         if (mobileUserId == "-1") {
             Toast.makeText(this, "❌ User not logged in!", Toast.LENGTH_SHORT).show()
@@ -81,14 +90,18 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
             return
         }
 
-        // ✅ Prepare data (Add service_name)
+        // ✅ Auto-fill address & phone number if blank
+        val address = if (etAddress.text.toString().trim().isEmpty()) savedLocation else etAddress.text.toString().trim()
+        val phoneNumber = if (etPhone.text.toString().trim().isEmpty()) savedPhoneNumber else etPhone.text.toString().trim()
+
+        // ✅ Prepare data with `service_name`
         val params = mapOf(
             "mobile_user_id" to mobileUserId,
             "service_type" to "Veterinary",
-            "service_name" to checkupTypeField.text.toString().trim(),  // ✅ Add service_name
+            "service_name" to checkupTypeField.text.toString().trim(),
             "name" to etName.text.toString().trim(),
-            "address" to etAddress.text.toString().trim(),
-            "phone_number" to etPhone.text.toString().trim(),
+            "address" to address,
+            "phone_number" to phoneNumber,
             "pet_name" to etPetName.text.toString().trim(),
             "pet_breed" to etPetBreed.text.toString().trim(),
             "appointment_date" to selectedDate!!,
@@ -108,7 +121,6 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
                 Toast.makeText(this, "Failed to schedule appointment", Toast.LENGTH_SHORT).show()
             })
 
-        // ✅ Add request to queue
         Volley.newRequestQueue(this).add(request)
     }
 }

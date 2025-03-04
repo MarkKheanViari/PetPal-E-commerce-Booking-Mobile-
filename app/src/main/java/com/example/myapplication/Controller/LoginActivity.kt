@@ -81,7 +81,7 @@ class LoginActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/mobile_login.php")
+            .url("http://192.168.1.65/backend/mobile_login.php")
             .post(requestBody)
             .build()
 
@@ -108,12 +108,14 @@ class LoginActivity : AppCompatActivity() {
                                 // Also store the "remember_me" flag based on the checkbox.
                                 sharedPreferences.edit().apply {
                                     putInt("user_id", userId)
-                                    putString("mobile_user_id", userId.toString())  // ✅ Save mobile_user_id as String
                                     putString("username", jsonResponse.getString("username"))
                                     putString("user_email", jsonResponse.optString("email", "user@example.com"))
+                                    putString("location", jsonResponse.optString("location", "")) // ✅ Store location
+                                    putString("contact_number", jsonResponse.optString("contact_number", "")) // ✅ Store contact number
                                     putBoolean("remember_me", rememberMeCheckBox.isChecked)
                                     apply()
                                 }
+
 
 
                                 Log.d("LoginActivity", "Stored user_id: ${sharedPreferences.getInt("user_id", -1)}")
