@@ -1,7 +1,8 @@
 package com.example.myapplication
 
 data class ServiceModel(
-    val serviceName: String,
-    val servicePrice: String,
-    val serviceDescription: String
+    val name: String,
+    val price: String,
+    val description: String,
+    val type: String // "Grooming" or "Veterinary"
 )
