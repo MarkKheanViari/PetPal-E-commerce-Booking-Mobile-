@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Schedule an Appointment!"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_gravity="center_horizontal"/>
+
+        <ImageView
+            android:id="@+id/serviceImage"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/grooming_image"/>
+
+        <EditText
+            android:id="@+id/checkupTypeField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Checkup Type"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:focusable="false"
+            android:clickable="false"
+            android:background="@android:color/transparent"/>
+
+        
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter your name"/>
+
+        <EditText
+            android:id="@+id/etAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter your Address"/>
+
+        <EditText
+            android:id="@+id/etPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter your phone number"
+            android:inputType="phone"/>
+
+        <EditText
+            android:id="@+id/etPetName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter your pet’s name"/>
+
+        <EditText
+            android:id="@+id/etPetBreed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter your pet’s breed"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pet Type:"/>
+
+        <RadioGroup
+            android:id="@+id/radioPetType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbCat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cat"/>
+
+            <RadioButton
+                android:id="@+id/rbDog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dog"/>
+        </RadioGroup>
+
+        <EditText
+            android:id="@+id/etNotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Notes"
+            android:minHeight="80dp"/>
+
+        <Button
+            android:id="@+id/btnPickDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pick Date"/>
+
+        <Spinner
+            android:id="@+id/spinnerPaymentMethod"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/payment_methods"/>
+
+        <Button
+            android:id="@+id/btnScheduleAppointment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Schedule Appointment"
+            android:backgroundTint="@color/orange"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="10dp"/>
+
+    </LinearLayout>
+</ScrollView>

@@ -35,7 +35,7 @@ class ServiceFragment : Fragment(R.layout.fragment_service) {
         recyclerView = view.findViewById(R.id.recyclerViewServices)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        serviceAdapter = ServiceAdapter(serviceList)
+        serviceAdapter = ServiceAdapter(requireContext(), serviceList)
         recyclerView.adapter = serviceAdapter
 
         // Default load Grooming services
@@ -56,9 +56,9 @@ class ServiceFragment : Fragment(R.layout.fragment_service) {
 
     private fun fetchServices(serviceType: String) {
         val url = if (serviceType == "Grooming") {
-            "http://192.168.1.12/backend/fetch_grooming_services.php"
+            "http://192.168.1.65/backend/fetch_grooming_services.php"
         } else {
-            "http://192.168.1.12/backend/fetch_veterinary_services.php"
+            "http://192.168.1.65/backend/fetch_veterinary_services.php"
         }
 
         val queue: RequestQueue = Volley.newRequestQueue(requireContext())
@@ -80,7 +80,8 @@ class ServiceFragment : Fragment(R.layout.fragment_service) {
                             val service = ServiceModel(
                                 jsonObject.getString("service_name"),
                                 jsonObject.getString("price"),
-                                jsonObject.getString("description")
+                                jsonObject.getString("description"),
+                                jsonObject.getString("type") // ✅ Ensure type is passed
                             )
                             serviceList.add(service)
                         }
