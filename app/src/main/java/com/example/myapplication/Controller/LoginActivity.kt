@@ -7,7 +7,6 @@ import android.util.Log
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -18,7 +17,6 @@ import org.json.JSONObject
 import java.io.IOException
 
 class LoginActivity : AppCompatActivity() {
-    private lateinit var backBtn : ImageView
     private lateinit var usernameInput: EditText
     private lateinit var passwordInput: EditText
     private lateinit var loginButton: Button
@@ -46,7 +44,6 @@ class LoginActivity : AppCompatActivity() {
         }
 
         // Initialize views
-        backBtn = findViewById(R.id.backBtn)
         usernameInput = findViewById(R.id.usernameInput)
         passwordInput = findViewById(R.id.passwordInput)
         loginButton = findViewById(R.id.loginButton)
