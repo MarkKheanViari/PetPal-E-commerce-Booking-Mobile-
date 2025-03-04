@@ -31,7 +31,7 @@ class ServiceFragment : Fragment(R.layout.fragment_service) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Common views used in both layouts
+        // Common views used in the fragment layout
         val cardGrooming: MaterialCardView? = view.findViewById(R.id.cardGrooming)
         val cardVet: MaterialCardView? = view.findViewById(R.id.cardVet)
         val serviceTitle: TextView? = view.findViewById(R.id.serviceTitle)
@@ -56,35 +56,31 @@ class ServiceFragment : Fragment(R.layout.fragment_service) {
             fetchServices("Veterinary")
         }
 
-        // Try to find the schedule button by checking both possible IDs.
-        val scheduleAppointmentButton: Button? =
-            view.findViewById(R.id.scheduleButton)
-                ?: view.findViewById(R.id.btnScheduleAppointment)
-
+        // Get schedule appointment button from the activity's layout
+        val scheduleAppointmentButton: Button? = requireActivity().findViewById(R.id.btnScheduleAppointment)
         scheduleAppointmentButton?.setOnClickListener {
-            clearUserInput(view)
-        } ?: Log.e("ServiceFragment", "No schedule appointment button found in the layout!")
+            clearUserInput()
+        } ?: Log.e("ServiceFragment", "No schedule appointment button found in the activity layout!")
     }
 
     // Clears the text (and any formatting) from the appointment input fields.
-    private fun clearUserInput(view: View) {
-        // Check for both grooming and checkup fields since each layout has its own
-        val groomTypeField: EditText? = view.findViewById(R.id.groomTypeField)
-        val checkupTypeField: EditText? = view.findViewById(R.id.checkupTypeField)
+    // Using requireActivity().findViewById ensures the correct views are found if they're part of the activity layout.
+    private fun clearUserInput() {
+        val groomTypeField: EditText? = requireActivity().findViewById(R.id.groomTypeField)
+        val checkupTypeField: EditText? = requireActivity().findViewById(R.id.checkupTypeField)
         groomTypeField?.setText("")
         checkupTypeField?.setText("")
 
-        // Clear the rest of the common fields
-        view.findViewById<EditText>(R.id.etName)?.setText("")
-        view.findViewById<EditText>(R.id.etAddress)?.setText("")
-        view.findViewById<EditText>(R.id.etPhone)?.setText("")
-        view.findViewById<EditText>(R.id.etPetName)?.setText("")
-        view.findViewById<EditText>(R.id.etPetBreed)?.setText("")
-        view.findViewById<EditText>(R.id.etNotes)?.setText("")
+        requireActivity().findViewById<EditText>(R.id.etName)?.setText("")
+        requireActivity().findViewById<EditText>(R.id.etAddress)?.setText("")
+        requireActivity().findViewById<EditText>(R.id.etPhone)?.setText("")
+        requireActivity().findViewById<EditText>(R.id.etPetName)?.setText("")
+        requireActivity().findViewById<EditText>(R.id.etPetBreed)?.setText("")
+        requireActivity().findViewById<EditText>(R.id.etNotes)?.setText("")
 
         // Optionally reset other inputs (e.g., RadioGroup, Spinner)
-        view.findViewById<RadioGroup>(R.id.radioPetType)?.clearCheck()
-        view.findViewById<Spinner>(R.id.spinnerPaymentMethod)?.setSelection(0)
+        requireActivity().findViewById<RadioGroup>(R.id.radioPetType)?.clearCheck()
+        requireActivity().findViewById<Spinner>(R.id.spinnerPaymentMethod)?.setSelection(0)
     }
 
     private fun fetchServices(serviceType: String) {

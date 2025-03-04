@@ -19,7 +19,6 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.ServiceFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
@@ -78,6 +77,19 @@ class MainActivity : AppCompatActivity() {
                     startActivity(Intent(this, ProfileActivity::class.java))
                     true
                 }
+                R.id.nav_settings -> {
+                    // Launch your Settings activity if you have one
+                    //startActivity(Intent(this, SettingsActivity::class.java))
+                    true
+                }
+                R.id.nav_likedProducts -> {
+                    startActivity(Intent(this, LikedProductsActivity::class.java))
+                    true
+                }
+                R.id.nav_notif -> {
+                    //startActivity(Intent(this, NotificationActivity::class.java))
+                    true
+                }
                 R.id.nav_logout -> {
                     doLogout()
                     true
@@ -101,6 +113,7 @@ class MainActivity : AppCompatActivity() {
         productsRecyclerView = findViewById(R.id.productsRecyclerView)
         productsRecyclerView.layoutManager = GridLayoutManager(this, 2)
         productAdapter = ProductAdapter(this, displayedProducts) { product ->
+            // When the user likes a product, add it to the liked products and launch the liked products screen.
             addToWishlist(product)
         }
         productsRecyclerView.adapter = productAdapter
@@ -125,15 +138,10 @@ class MainActivity : AppCompatActivity() {
         // Add TextWatcher to automatically filter products as the user types
         searchBar.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                // Filter products using the current text in the search bar
                 filterProducts(s.toString())
             }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // No action needed here
-            }
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // No action needed here
-            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { }
         })
 
         // Optionally, tap outside to clear focus
@@ -159,7 +167,6 @@ class MainActivity : AppCompatActivity() {
         val searchBar = findViewById<EditText>(R.id.search_bar)
         if (searchBar.hasFocus()) {
             hideKeyboardAndClearFocus(searchBar)
-            // Post a delay to ensure keyboard is hidden and then force bottom nav visible
             searchBar.postDelayed({
                 bottomNavigation.visibility = View.VISIBLE
             }, 300)
@@ -176,10 +183,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addToWishlist(product: Product) {
+        // Add the product to our global liked products store
+        LikedProductsStore.addProduct(product)
         Toast.makeText(this, "Added ${product.name} to Wishlist!", Toast.LENGTH_SHORT).show()
-        // TODO: Implement logic to store the wishlist item (e.g., save to database or SharedPreferences)
+        // Launch the liked products screen so the user can see their liked items
+        startActivity(Intent(this, LikedProductsActivity::class.java))
     }
-    // This function filters allProducts by the query and updates the adapter
+
     private fun filterProducts(query: String) {
         val filteredList = allProducts.filter { product ->
             product.name.contains(query, ignoreCase = true)
@@ -234,6 +244,7 @@ class MainActivity : AppCompatActivity() {
             button.setTextColor(Color.BLACK)
         }
     }
+
     private fun setupBottomNavigation() {
         bottomNavigation = findViewById(R.id.bottomNavigation)
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
@@ -241,14 +252,12 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_products -> {
                     showMainUI(true)
                     supportFragmentManager.popBackStack()
-                    // Change toolbar title back to "Catalog" when products are shown
                     findViewById<TextView>(R.id.toolbarTitle).text = "Catalog"
                     true
                 }
                 R.id.menu_service -> {
                     showMainUI(false)
                     loadFragment(ServiceFragment())
-                    // Update toolbar title to "Service" when service fragment is clicked
                     findViewById<TextView>(R.id.toolbarTitle).text = "Service"
                     true
                 }
@@ -256,7 +265,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 
     private fun showMainUI(show: Boolean) {
         val visibility = if (show) View.VISIBLE else View.GONE
