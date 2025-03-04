@@ -30,6 +30,9 @@
             <!-- ... -->
         </activity>
 
+        <activity android:name=".ScheduledServicesActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <activity android:name=".RegisterActivity" android:exported="false" />
         <activity android:name=".ServiceAvailActivity" android:exported="false" />
