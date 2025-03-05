@@ -16,8 +16,8 @@
     <string name="register">Register</string>
     <string name="create_Txt">Create your New Account</string>
     <string name="login_suggestion">Already have and account?</string>
-    <string name="design_desc"/>
-    <string name="back_buttonDesc"/>
-    <string name="button_desc"/>
+    <string name="design_desc" />
+    <string name="back_buttonDesc" />
+    <string name="button_desc" />
 
 </resources>

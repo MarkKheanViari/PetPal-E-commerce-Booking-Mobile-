@@ -11,6 +11,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -19,13 +21,17 @@ import java.io.IOException
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var backBtn : ImageView
-    private lateinit var usernameInput: EditText
-    private lateinit var passwordInput: EditText
+    private lateinit var usernameInput: TextInputEditText
+    private lateinit var passwordInput: TextInputEditText
     private lateinit var loginButton: Button
     private lateinit var registerLink: TextView
     private lateinit var rememberMeCheckBox: CheckBox
     private lateinit var sharedPreferences: SharedPreferences
     private val client = OkHttpClient()
+
+    private lateinit var username_container : TextInputLayout
+    private lateinit var password_container : TextInputLayout
+    private lateinit var forgotBtn : TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,13 +59,22 @@ class LoginActivity : AppCompatActivity() {
         registerLink = findViewById(R.id.registerLink)
         rememberMeCheckBox = findViewById(R.id.rememberMe)
 
+        username_container = findViewById(R.id.username_container)
+        password_container = findViewById(R.id.password_container)
+        forgotBtn = findViewById(R.id.forgotBtn)
+
+        forgotBtn.paintFlags = forgotBtn.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
+        forgotBtn.setTextColor(getColor(R.color.smth_orange))
+
         // Set up click listeners
         loginButton.setOnClickListener {
             val username = usernameInput.text.toString()
             val password = passwordInput.text.toString()
 
             if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                username_container.error = "Username is required"
+                password_container.error = "Password is required"
+                Toast.makeText(this, "Fields cannot be empty", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
