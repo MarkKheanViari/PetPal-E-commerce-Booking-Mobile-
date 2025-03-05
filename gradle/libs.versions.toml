@@ -1,5 +1,6 @@
 [versions]
-agp = "8.8.0"
+agp = "8.7.3"
+circleindicator = "2.1.4"
 kotlin = "1.9.24"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -10,9 +11,15 @@ material = "1.12.0"
 activity = "1.10.0"
 constraintlayout = "2.2.0"
 playServicesAnalyticsImpl = "18.2.0"
+viewpag2 = "1.0.0"
+navigationFragmentKtx = "2.8.8"
+viewpag2Version = "1.0.0."
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-viewpag2 = { module = "androidx.viewpage2:viewpag2", version.ref = "viewpag2" }
+androidx-viewpag2-v100 = { module = "androidx.viewpage2:viewpag2", version.ref = "viewpag2Version" }
+circleindicator = { module = "me.relex:circleindicator", version.ref = "circleindicator" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -21,6 +28,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 play-services-analytics-impl = { group = "com.google.android.gms", name = "play-services-analytics-impl", version.ref = "playServicesAnalyticsImpl" }
+androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.example.myapplication"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.myapplication"
@@ -66,7 +66,8 @@ dependencies {
 
     // Image Loading
     implementation("com.github.bumptech.glide:glide:4.15.0")
-    implementation(libs.play.services.analytics.impl) // Updated Glide
+    implementation(libs.play.services.analytics.impl)
+    implementation(libs.androidx.activity) // Updated Glide
     kapt("com.github.bumptech.glide:compiler:4.15.0")
 
     // Testing Libraries
