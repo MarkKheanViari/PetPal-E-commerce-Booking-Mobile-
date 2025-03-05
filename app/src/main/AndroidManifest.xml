@@ -14,6 +14,9 @@
         android:theme="@style/Theme.MyApplication"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".Controller.Welcome"
+            android:exported="false" />
+        <activity
             android:name=".Controller.IntroActivity"
             android:exported="true">
             <intent-filter>
@@ -24,7 +27,7 @@
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

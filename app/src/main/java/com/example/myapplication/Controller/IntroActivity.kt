@@ -57,7 +57,7 @@ class IntroActivity : AppCompatActivity() {
                 viewPager.currentItem = nextPage
             } else {
                 // Navigate to Login/Register screen
-                startActivity(Intent(this, LoginActivity::class.java))
+                startActivity(Intent(this, Welcome::class.java))
                 finish()
             }
         }
