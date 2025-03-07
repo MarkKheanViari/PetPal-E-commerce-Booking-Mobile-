@@ -66,7 +66,7 @@ class CartActivity : AppCompatActivity(), CartActionListener {
     }
 
     override fun updateCartQuantity(cartId: Int, newQuantity: Int) {
-        val url = "http://192.168.43.215/backend/update_cart.php"
+        val url = "http://192.168.1.12/backend/update_cart.php"
         val json = JSONObject().apply {
             put("cart_id", cartId)
             put("quantity", newQuantity)
@@ -92,7 +92,7 @@ class CartActivity : AppCompatActivity(), CartActionListener {
     }
 
     override fun removeItemFromCart(cartId: Int) {
-        val url = "http://192.168.43.215/backend/remove_from_cart.php"
+        val url = "http://192.168.1.12/backend/remove_from_cart.php"
         val json = JSONObject().apply { put("cart_id", cartId) }
         val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = Request.Builder().url(url).post(requestBody).build()
@@ -138,7 +138,7 @@ class CartActivity : AppCompatActivity(), CartActionListener {
             return
         }
 
-        val url = "http://192.168.43.215/backend/fetch_cart.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.12/backend/fetch_cart.php?mobile_user_id=$mobileUserId"
         val request = Request.Builder().url(url).get().build()
 
         client.newCall(request).enqueue(object : Callback {
