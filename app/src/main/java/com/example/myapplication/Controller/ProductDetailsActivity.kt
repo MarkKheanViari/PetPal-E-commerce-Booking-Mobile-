@@ -2,19 +2,12 @@ package com.example.myapplication
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Gravity
-import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.google.android.material.button.MaterialButton
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
-import java.io.IOException
 
 class ProductDetailsActivity : AppCompatActivity() {
 
@@ -24,7 +17,7 @@ class ProductDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_product_details)
 
-        // Retrieve product data from Intent
+        // Retrieve product data from the Intent
         val productId = intent.getIntExtra("productId", -1)
         val productName = intent.getStringExtra("productName")
         val productImage = intent.getStringExtra("productImage")
@@ -43,7 +36,7 @@ class ProductDetailsActivity : AppCompatActivity() {
         productDescriptionTextView.text = productDescription ?: "No description available."
         productPriceTextView.text = "₱$productPrice"
 
-        // Load product image (if available)
+        // Load product image using Glide if available
         if (!productImage.isNullOrEmpty()) {
             Glide.with(this)
                 .load(productImage)
@@ -51,21 +44,9 @@ class ProductDetailsActivity : AppCompatActivity() {
         }
 
         // Back button functionality
-        backBtn.setOnClickListener {
-            finish()
-        }
+        backBtn.setOnClickListener { finish() }
 
-        // Add to Cart functionality
-        val addToCartButton = findViewById<MaterialButton>(R.id.addtocart_container)
-        addToCartButton.setOnClickListener {
-            if (productId != -1) {
-                addToCart(productId, quantity)
-            } else {
-                Toast.makeText(this, "❌ Failed to add product to cart", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        // Buy Now functionality
+        // Buy Now functionality passes details to CheckoutActivity
         val buyNowButton = findViewById<MaterialButton>(R.id.buynow_container)
         buyNowButton.setOnClickListener {
             if (productId != -1) {
@@ -76,86 +57,6 @@ class ProductDetailsActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Show the custom "Added to cart" layout as a Toast at the top right corner.
-     */
-    private fun showAddedToCartToast() {
-        // Inflate the custom layout
-        val inflater = layoutInflater
-        val layout = inflater.inflate(R.layout.added_to_cart, null)
-
-        // Build and show the Toast
-        val toast = Toast(applicationContext)
-        toast.duration = Toast.LENGTH_SHORT
-        toast.view = layout
-        // Set the gravity to top right (using Gravity.TOP | Gravity.END) with offsets (in pixels)
-        toast.setGravity(Gravity.TOP or Gravity.END, 16, 16)
-        toast.show()
-    }
-
-    /**
-     * Function to add product to cart
-     */
-    private fun addToCart(productId: Int, quantity: Int) {
-        val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
-        val mobileUserId = sharedPreferences.getInt("user_id", -1)
-
-        if (mobileUserId == -1) {
-            Toast.makeText(this, "❌ Please login to add to cart", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val jsonObject = JSONObject().apply {
-            put("mobile_user_id", mobileUserId)
-            put("product_id", productId)
-            put("quantity", quantity)
-        }
-
-        val requestBody = jsonObject.toString()
-            .toRequestBody("application/json; charset=utf-8".toMediaType())
-
-        val request = Request.Builder()
-            .url("http://192.168.1.12/backend/add_to_cart.php")
-            .post(requestBody)
-            .build()
-
-        val client = OkHttpClient()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(
-                        this@ProductDetailsActivity,
-                        "❌ Failed to connect to server",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val responseBody = response.body?.string()
-                runOnUiThread {
-                    if (responseBody != null) {
-                        val jsonResponse = JSONObject(responseBody)
-                        val success = jsonResponse.optBoolean("success", false)
-                        if (success) {
-                            // Show our custom "Added to cart" toast at the top right corner
-                            showAddedToCartToast()
-                        } else {
-                            Toast.makeText(
-                                this@ProductDetailsActivity,
-                                "❌ Error: ${jsonResponse.optString("message")}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
-            }
-        })
-    }
-
-    /**
-     * Go to Checkout screen
-     */
     private fun goToCheckout(
         productId: Int,
         productName: String?,

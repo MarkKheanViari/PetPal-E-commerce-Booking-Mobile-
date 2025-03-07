@@ -48,7 +48,11 @@
         <activity android:name=".VeterinaryAppointmentActivity"/>
         <activity android:name=".ProfileActivity" />
         <activity android:name=".LikedProductsActivity"/>
-        <activity android:name=".SettingsActivity"/>
+        <activity android:name=".Controller.SettingsActivity"/>
         <activity android:name=".OnboardingActivity"/>
+        <activity android:name=".OrderHistoryActivity"/>
+
+
+
     </application>
 </manifest>

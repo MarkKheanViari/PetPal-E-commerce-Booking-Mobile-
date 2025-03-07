@@ -66,6 +66,35 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp" />
 
+            <!-- User Info Section -->
+            <LinearLayout
+                android:id="@+id/userInfoContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/userInfoTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Your Info"
+                    android:textSize="17sp"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/alata"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- This TextView is where you set the user’s name, phone, and location. -->
+                <TextView
+                    android:id="@+id/userInfoText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="(Name) (Phone)\nLocation"
+                    android:textSize="16sp"
+                    android:textColor="@color/black"
+                    android:visibility="gone" />
+            </LinearLayout>
+
             <!-- Example quantity section (optional) -->
             <LinearLayout
                 android:id="@+id/productQuantity"
@@ -143,6 +172,7 @@
                     android:layout_marginBottom="8dp"
                     android:orientation="horizontal">
                     <TextView
+                        android:id="@+id/subtotalLabel"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -150,10 +180,11 @@
                         android:textColor="@color/black"
                         android:textSize="15sp" />
                     <TextView
+                        android:id="@+id/subtotalText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/alata"
-                        android:text="$ 50"
+                        android:text="₱0.00"
                         android:textColor="@color/black"
                         android:textSize="15sp" />
                 </LinearLayout>
@@ -165,6 +196,7 @@
                     android:layout_marginBottom="8dp"
                     android:orientation="horizontal">
                     <TextView
+                        android:id="@+id/shippingLabel"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -172,10 +204,11 @@
                         android:textColor="@color/black"
                         android:textSize="15sp" />
                     <TextView
+                        android:id="@+id/shippingCostText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/alata"
-                        android:text="$ 50"
+                        android:text="₱50.00"
                         android:textColor="@color/black"
                         android:textSize="15sp" />
                 </LinearLayout>
@@ -205,7 +238,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/alata"
-                        android:text="$ 50"
+                        android:text="₱0.00"
                         android:textColor="@color/black"
                         android:textSize="15sp" />
                 </LinearLayout>
@@ -237,15 +270,6 @@
                 android:layout_height="wrap_content"
                 android:text="Total: ₱0.00"
                 android:textSize="17sp"
-                android:textColor="@color/black"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/userInfoText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="User info here"
-                android:textSize="16sp"
                 android:textColor="@color/black"
                 android:visibility="gone" />
 

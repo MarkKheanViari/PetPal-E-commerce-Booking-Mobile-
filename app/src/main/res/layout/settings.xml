@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="@color/white">
 
+    <!-- Toolbar at the top -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="15dp"
+        android:background="#EFAD72"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -19,22 +22,24 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="30dp"
-            android:src="@drawable/back_button"/>
+            android:src="@drawable/back_button"
+            android:contentDescription="@string/back_buttonDesc"/>
 
         <Space
             android:layout_width="30dp"
             android:layout_height="wrap_content"/>
 
         <TextView
+            android:id="@+id/toolbarTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Settings"
             android:textSize="30sp"
             android:fontFamily="@font/alata"
             android:textColor="@color/black"/>
-
     </androidx.appcompat.widget.Toolbar>
-    
+
+    <!-- Profile Section -->
     <LinearLayout
         android:id="@+id/profile_container"
         android:layout_width="match_parent"
@@ -42,10 +47,10 @@
         android:background="#EFAD72"
         android:padding="20dp"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- User Profile -->
+        <!-- User Profile Image -->
         <ImageView
             android:id="@+id/user_profile"
             android:layout_width="wrap_content"
@@ -54,13 +59,13 @@
             android:layout_gravity="center_vertical"
             android:contentDescription="@string/design_desc"/>
 
+        <!-- User Name & Email -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="15dp"
             android:orientation="vertical">
 
-            <!-- User Name -->
             <TextView
                 android:id="@+id/user_name"
                 android:layout_width="wrap_content"
@@ -74,7 +79,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="5dp"/>
 
-            <!-- User Email -->
             <TextView
                 android:id="@+id/user_email"
                 android:layout_width="wrap_content"
@@ -82,107 +86,91 @@
                 android:text="contact@androidknowledge.com"
                 android:textColor="@color/white"
                 android:textSize="17sp"/>
-
         </LinearLayout>
-
     </LinearLayout>
 
-    <LinearLayout
+    <!-- Main Settings Content -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="25dp"
-        app:layout_constraintTop_toBottomOf="@+id/profile_container"
+        app:layout_constraintTop_toBottomOf="@id/profile_container"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="25dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Profile"
-            android:textSize="23sp"
-            android:fontFamily="@font/alata"
-            android:textColor="@color/black"
-            android:layout_gravity="start"/>
-
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="20dp"/>
-
-        <!-- Edit Profile -->
-        <TextView
-            android:id="@+id/profile_details"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/add_subtract_corners"
-            android:text="    Edit Profile"
-            android:textSize="18sp"
-            android:gravity="center_vertical"
-            android:textColor="@color/black"
-            android:drawableEnd="@drawable/profile"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"/>
-
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="20dp"/>
-
-        <!-- Order History -->
-        <TextView
-            android:id="@+id/order_history"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/add_subtract_corners"
-            android:text="    Order History"
-            android:textSize="18sp"
-            android:gravity="center_vertical"
-            android:textColor="@color/black"
-            android:drawableEnd="@drawable/profile"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"/>
-
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="20dp"/>
-
-        <!-- Shipping History -->
-        <TextView
-            android:id="@+id/shipping_history"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/add_subtract_corners"
-            android:text="    Shipping History"
-            android:textSize="18sp"
-            android:gravity="center_vertical"
-            android:textColor="@color/black"
-            android:drawableEnd="@drawable/profile"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"/>
-
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="20dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Notifications"
-            android:textSize="23sp"
-            android:fontFamily="@font/alata"
-            android:textColor="@color/black"
-            android:layout_gravity="start"/>
+            android:orientation="vertical">
 
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="20dp"/>
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center">
-
+            <!-- Profile Section -->
             <TextView
-                android:id="@+id/email_notifications"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Profile"
+                android:textSize="23sp"
+                android:fontFamily="@font/alata"
+                android:textColor="@color/black"
+                android:layout_gravity="start"/>
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"/>
+
+            <!-- Edit Profile -->
+            <TextView
+                android:id="@+id/profile_details"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/add_subtract_corners"
+                android:text="    Edit Profile"
+                android:textSize="18sp"
+                android:gravity="center_vertical"
+                android:textColor="@color/black"
+                android:drawableEnd="@drawable/profile"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"/>
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"/>
+
+            <!-- Order Settings Section Header -->
+            <TextView
+                android:id="@+id/order_settings_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Order Settings"
+                android:textSize="23sp"
+                android:fontFamily="@font/alata"
+                android:textColor="@color/black"
+                android:layout_gravity="start"/>
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"/>
+
+            <!-- Order History -->
+            <TextView
+                android:id="@+id/order_history"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/add_subtract_corners"
+                android:text="    Order History"
+                android:textSize="18sp"
+                android:gravity="center_vertical"
+                android:textColor="@color/black"
+                android:drawableEnd="@drawable/profile"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"/>
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"/>
+
+            <!-- Shipping History -->
+            <TextView
+                android:id="@+id/shipping_history"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:background="@drawable/add_subtract_corners"
@@ -190,70 +178,154 @@
                 android:textSize="18sp"
                 android:gravity="center_vertical"
                 android:textColor="@color/black"
+                android:drawableEnd="@drawable/profile"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"/>
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/on_emailnotif"
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"/>
+
+            <!-- Notifications Section -->
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="300dp"/>
+                android:text="Notifications"
+                android:textSize="23sp"
+                android:fontFamily="@font/alata"
+                android:textColor="@color/black"
+                android:layout_gravity="start"/>
 
-        </RelativeLayout>
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"/>
 
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="20dp"/>
+            <!-- Notifications settings (e.g., toggle) -->
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center">
 
-        <TextView
+                <TextView
+                    android:id="@+id/email_notifications"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/add_subtract_corners"
+                    android:text="    Email Notifications"
+                    android:textSize="18sp"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/black"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"/>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/on_emailnotif"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"/>
+            </RelativeLayout>
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"/>
+
+            <!-- Info & Support Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Info &amp; Support"
+                android:textSize="23sp"
+                android:fontFamily="@font/alata"
+                android:textColor="@color/black"
+                android:layout_gravity="start"/>
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="20sp"/>
+
+            <!-- Help -->
+            <TextView
+                android:id="@+id/help"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/add_subtract_corners"
+                android:text="    Help"
+                android:textSize="18sp"
+                android:gravity="center_vertical"
+                android:textColor="@color/black"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                app:drawableStartCompat="@drawable/help" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="15dp"/>
+
+            <!-- About -->
+            <TextView
+                android:id="@+id/about"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/add_subtract_corners"
+                android:text="   About"
+                android:textSize="18sp"
+                android:gravity="center_vertical"
+                android:textColor="@color/black"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                app:drawableStartCompat="@drawable/info" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Bottom Container -->
+    <LinearLayout
+        android:id="@+id/bottom_container"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/light_orange"
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Total Items & Price -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total (1 Item)"
+                android:textSize="16sp"
+                android:textColor="@color/black" />
+            <TextView
+                android:id="@+id/orderTotalPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱ 50"
+                android:textSize="17sp"
+                android:fontFamily="@font/alata"
+                android:textColor="@color/black" />
+        </LinearLayout>
+
+        <!-- Checkout Button -->
+        <ImageView
+            android:id="@+id/checkoutBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Info &amp; Support"
-            android:textSize="23sp"
-            android:fontFamily="@font/alata"
-            android:textColor="@color/black"
-            android:layout_gravity="start"/>
-
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="20sp"/>
-
-        <!-- Help -->
-        <TextView
-            android:id="@+id/help"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/add_subtract_corners"
-            android:text="    Help"
-            android:textSize="18sp"
-            android:gravity="center_vertical"
-            android:textColor="@color/black"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            app:drawableStartCompat="@drawable/help" />
-
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="15dp"/>
-
-        <!-- About -->
-        <TextView
-            android:id="@+id/about"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/add_subtract_corners"
-            android:text="   About"
-            android:textSize="18sp"
-            android:gravity="center_vertical"
-            android:textColor="@color/black"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            app:drawableStartCompat="@drawable/info" />
-
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="20dp"/>
-
+            android:contentDescription="Checkout Button"
+            android:src="@drawable/checkout"
+            android:layout_marginStart="16dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
