@@ -23,5 +23,11 @@
     <string name="design_desc"/>
     <string name="back_buttonDesc"/>
     <string name="button_desc"/>
+    <string name="intro1_text">Your one-stop shop for all your pet\'s needs. Buy pet food, toys, accessories, and book essential services-all in one place!</string>
+    <string name="intro2_text">Find high-quality pet food, treats, and accessories tailored to your pet\'s needs. Get everything delivered to your door-step hassle free.</string>
+    <string name="intro3_text">Need grooming or a vet check-up? Easily book trusted pet care services near you with just a few taps.</string>
+    <string name="intro4_text">Personalized recommendations based on your pet\'s breed, age, and preferences—because every pet deserves the best!</string>
+    <string name="intro5_text">Shop, book, and care for your pets with PetPal. Start exploring now!</string>
+    <string name="get_started"/>
 
 </resources>

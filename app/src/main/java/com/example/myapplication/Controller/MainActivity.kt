@@ -79,7 +79,8 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_settings -> {
-                    //startActivity(Intent(this, SettingsActivity::class.java))
+                    // When the settings item is clicked, navigate to the SettingsActivity.
+                    startActivity(Intent(this, SettingsActivity::class.java))
                     true
                 }
                 R.id.nav_likedProducts -> {
@@ -87,7 +88,7 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_notif -> {
-                    //startActivity(Intent(this, NotificationActivity::class.java))
+                    // startActivity(Intent(this, NotificationActivity::class.java))
                     true
                 }
                 R.id.nav_logout -> {

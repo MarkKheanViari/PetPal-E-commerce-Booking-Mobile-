@@ -22,6 +22,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var contactInput: EditText
     private lateinit var termsCheckbox: CheckBox
     private lateinit var registerButton: Button
+    private lateinit var loginSugg: TextView  // Login suggestion TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,9 +38,16 @@ class RegisterActivity : AppCompatActivity() {
         contactInput = findViewById(R.id.contactInput)
         termsCheckbox = findViewById(R.id.termsCheckbox)
         registerButton = findViewById(R.id.registerButton)
+        loginSugg = findViewById(R.id.login_sugg)
 
         registerButton.setOnClickListener {
             validateAndRegister()
+        }
+
+        // When login suggestion is clicked, navigate to LoginActivity
+        loginSugg.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
         }
     }
 
@@ -86,7 +94,7 @@ class RegisterActivity : AppCompatActivity() {
             put("password", password)
             put("location", location)
             put("age", age)
-            put("contact_number", contact)  // Change this to "contact_number"
+            put("contact_number", contact)
         }
 
         val requestBody = jsonObject.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
@@ -118,5 +126,4 @@ class RegisterActivity : AppCompatActivity() {
             }
         })
     }
-
 }

@@ -217,9 +217,7 @@ class CheckoutActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Inflate the custom "Order Placed" layout and show it as a Toast in the top right corner.
-     */
+
     private fun showOrderPlacedToast() {
         val inflater: LayoutInflater = layoutInflater
         val layout = inflater.inflate(R.layout.order_placed, null)
