@@ -16,12 +16,7 @@
 
         <activity
             android:name=".LoginActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="true"/>
 
         <activity
             android:name=".MainActivity"
@@ -31,6 +26,16 @@
         </activity>
 
 
+        <activity
+            android:name=".Controller.IntroActivity"
+            android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
+
+        <activity android:name=".Controller.Welcome" android:exported="false"/>
         <activity android:name=".RegisterActivity" android:exported="false" />
         <activity android:name=".ServiceAvailActivity" android:exported="false" />
         <activity android:name=".ServiceHistoryActivity" android:exported="false" />
