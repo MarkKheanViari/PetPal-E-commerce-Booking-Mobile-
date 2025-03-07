@@ -30,7 +30,7 @@ class ProductAdapter(
         val itemPrice: TextView = view.findViewById(R.id.productPrice)
         val itemStock: TextView = view.findViewById(R.id.productStock)
         val itemImage: ImageView = view.findViewById(R.id.productImage)
-        val addToCartButton: Button = view.findViewById(R.id.addToCartButton)
+        //val addToCartButton: Button = view.findViewById(R.id.addToCartButton)
         val wishlistButton: ImageButton = view.findViewById(R.id.wishlistButton)
     }
 
@@ -56,7 +56,7 @@ class ProductAdapter(
             .load(product.imageUrl)
             .into(holder.itemImage)
 
-        // Show "Out of Stock" when quantity is 0
+        /*/ Show "Out of Stock" when quantity is 0
         if (product.quantity == 0) {
             holder.itemStock.text = "Out of Stock"
             holder.itemStock.setTextColor(Color.RED)
@@ -72,7 +72,7 @@ class ProductAdapter(
             holder.addToCartButton.setOnClickListener {
                 addToCart(product, position)
             }
-        }
+        } */
 
         // Open Product Details when clicking the item
         holder.itemView.setOnClickListener {
@@ -80,6 +80,7 @@ class ProductAdapter(
                 putExtra("productId", product.id)
                 putExtra("productName", product.name)
                 putExtra("productImage", product.imageUrl)
+                Log.d("ProductAdapter", "Image URL: ${product.imageUrl}")
                 putExtra("productDescription", product.description)
                 putExtra("productPrice", product.price)
             }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/addedToCartLayout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="8dp"
+    android:background="@drawable/bg_added_to_cart">
+
+    <!-- Checkmark Icon -->
+    <ImageView
+        android:id="@+id/checkIcon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/check"
+        android:tint="@android:color/white" />
+
+    <!-- Text: "Added to cart" -->
+    <TextView
+        android:id="@+id/orderplace"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Order Placed"
+        android:textSize="14sp"
+        android:textColor="@android:color/white"
+        android:textStyle="bold" />
+</LinearLayout>

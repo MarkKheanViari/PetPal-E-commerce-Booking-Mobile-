@@ -3,6 +3,8 @@ package com.example.myapplication
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button  // Remove if not needed
 import android.widget.ImageView
@@ -17,8 +19,6 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
-
-
 
 class CheckoutActivity : AppCompatActivity() {
 
@@ -187,7 +187,8 @@ class CheckoutActivity : AppCompatActivity() {
                 Log.d("CheckoutActivity", "📦 API Response: $responseBody")
                 runOnUiThread {
                     if (response.isSuccessful && responseBody?.contains("success") == true) {
-                        Toast.makeText(this@CheckoutActivity, "✅ Order Placed Successfully!", Toast.LENGTH_SHORT).show()
+                        // Show the custom "Order Placed" toast in the top right corner
+                        showOrderPlacedToast()
                         finish()
                     } else {
                         Toast.makeText(this@CheckoutActivity, "❌ Failed to place order.", Toast.LENGTH_SHORT).show()
@@ -214,6 +215,20 @@ class CheckoutActivity : AppCompatActivity() {
             val selectedAddress = data?.getStringExtra("selectedAddress")
             userInfoText.text = selectedAddress
         }
+    }
+
+    /**
+     * Inflate the custom "Order Placed" layout and show it as a Toast in the top right corner.
+     */
+    private fun showOrderPlacedToast() {
+        val inflater: LayoutInflater = layoutInflater
+        val layout = inflater.inflate(R.layout.order_placed, null)
+        val toast = Toast(applicationContext)
+        toast.duration = Toast.LENGTH_SHORT
+        toast.view = layout
+        // Set the gravity to top-right with 16-pixel offsets (adjust as needed)
+        toast.setGravity(Gravity.TOP or Gravity.END, 16, 16)
+        toast.show()
     }
 
     companion object {

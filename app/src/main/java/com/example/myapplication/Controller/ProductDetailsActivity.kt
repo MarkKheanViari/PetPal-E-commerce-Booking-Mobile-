@@ -2,8 +2,9 @@ package com.example.myapplication
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -42,7 +43,7 @@ class ProductDetailsActivity : AppCompatActivity() {
         productDescriptionTextView.text = productDescription ?: "No description available."
         productPriceTextView.text = "₱$productPrice"
 
-        // Load product image
+        // Load product image (if available)
         if (!productImage.isNullOrEmpty()) {
             Glide.with(this)
                 .load(productImage)
@@ -73,10 +74,28 @@ class ProductDetailsActivity : AppCompatActivity() {
                 Toast.makeText(this, "❌ Failed to proceed to checkout", Toast.LENGTH_SHORT).show()
             }
         }
-
     }
 
-    // Function to add product to cart
+    /**
+     * Show the custom "Added to cart" layout as a Toast at the top right corner.
+     */
+    private fun showAddedToCartToast() {
+        // Inflate the custom layout
+        val inflater = layoutInflater
+        val layout = inflater.inflate(R.layout.added_to_cart, null)
+
+        // Build and show the Toast
+        val toast = Toast(applicationContext)
+        toast.duration = Toast.LENGTH_SHORT
+        toast.view = layout
+        // Set the gravity to top right (using Gravity.TOP | Gravity.END) with offsets (in pixels)
+        toast.setGravity(Gravity.TOP or Gravity.END, 16, 16)
+        toast.show()
+    }
+
+    /**
+     * Function to add product to cart
+     */
     private fun addToCart(productId: Int, quantity: Int) {
         val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         val mobileUserId = sharedPreferences.getInt("user_id", -1)
@@ -119,11 +138,8 @@ class ProductDetailsActivity : AppCompatActivity() {
                         val jsonResponse = JSONObject(responseBody)
                         val success = jsonResponse.optBoolean("success", false)
                         if (success) {
-                            Toast.makeText(
-                                this@ProductDetailsActivity,
-                                "✅ Added $quantity item(s) to Cart!",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            // Show our custom "Added to cart" toast at the top right corner
+                            showAddedToCartToast()
                         } else {
                             Toast.makeText(
                                 this@ProductDetailsActivity,
@@ -137,21 +153,23 @@ class ProductDetailsActivity : AppCompatActivity() {
         })
     }
 
+    /**
+     * Go to Checkout screen
+     */
     private fun goToCheckout(
         productId: Int,
         productName: String?,
-        productDescription: String?, // Add productDescription parameter
+        productDescription: String?,
         productPrice: Double,
         quantity: Int
     ) {
         val intent = Intent(this, CheckoutActivity::class.java).apply {
             putExtra("productId", productId)
             putExtra("productName", productName)
-            putExtra("productDescription", productDescription) // Pass description along
+            putExtra("productDescription", productDescription)
             putExtra("productPrice", productPrice)
             putExtra("quantity", quantity)
         }
         startActivity(intent)
     }
-
 }
