@@ -67,7 +67,8 @@ dependencies {
     // Image Loading
     implementation("com.github.bumptech.glide:glide:4.15.0")
     implementation(libs.play.services.analytics.impl)
-    implementation(libs.androidx.tools.core) // Updated Glide
+    implementation(libs.androidx.tools.core)
+    implementation(libs.espresso.core) // Updated Glide
     kapt("com.github.bumptech.glide:compiler:4.15.0")
 
     // Testing Libraries

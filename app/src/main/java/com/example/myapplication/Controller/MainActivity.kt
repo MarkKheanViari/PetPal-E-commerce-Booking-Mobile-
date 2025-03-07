@@ -20,13 +20,21 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import com.example.myapplication.ServiceFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
+import okhttp3.Request
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import com.android.volley.RequestQueue
+import com.android.volley.toolbox.StringRequest
+import androidx.appcompat.app.AlertDialog  // ✅ Ensure this is imported!
+
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,11 +45,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var rootLayout: ConstraintLayout
     private var currentUserId: Int = -1
+    private lateinit var sharedPreferences: SharedPreferences  // ✅ Declare it
     private val allProducts = mutableListOf<Product>()
     private val displayedProducts = mutableListOf<Product>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+
         // Ensure the window resizes when keyboard appears
         window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         setContentView(R.layout.activity_main)
@@ -144,6 +156,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         fetchProducts()
+
+        val mobileUserId = sharedPreferences.getInt("user_id", -1)
+
+        if (mobileUserId == -1) {
+            Toast.makeText(this, "❌ User not logged in!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // ✅ Fetch notifications after login
+        checkForApprovedAppointments(mobileUserId)
     }
 
     // Force bottom navigation visible when the window regains focus
@@ -325,6 +347,47 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
+
+    private fun checkForApprovedAppointments(userId: Int) {
+        val url = "http://192.168.1.65/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
+
+        val request = JsonObjectRequest(com.android.volley.Request.Method.GET, url, null,
+            { response ->
+                if (response.getBoolean("success")) {
+                    val appointmentsArray = response.getJSONArray("appointments")
+
+                    if (appointmentsArray.length() > 0) {
+                        showNotificationDialog(appointmentsArray)
+                    }
+                }
+            },
+            { error ->
+                Toast.makeText(this, "❌ Error fetching notifications: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        Volley.newRequestQueue(this).add(request)
+    }
+
+    private fun showNotificationDialog(appointments: JSONArray) {
+        val builder = AlertDialog.Builder(this) // ✅ Now it works!
+
+        builder.setTitle("Appointment Approved ✅")
+
+        var message = "Your appointment has been approved:\n\n"
+
+        for (i in 0 until appointments.length()) {
+            val appointment = appointments.getJSONObject(i)
+            val serviceName = appointment.getString("service_name")
+            val appointmentDate = appointment.getString("appointment_date")
+            message += "📅 $serviceName on $appointmentDate\n"
+        }
+
+        builder.setMessage(message)
+        builder.setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+        builder.show()
+    }
+
 
     private fun fetchProductsByCategory(category: String) {
         if (category == "all") {
