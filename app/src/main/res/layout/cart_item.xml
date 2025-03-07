@@ -16,9 +16,13 @@
         android:scaleType="centerCrop"
         android:layout_marginEnd="8dp" />
 
+    <!-- Middle layout: Use 0dp width + weight so it expands just enough -->
+
+    <!-- Remove button: wrap_content and optional marginStart -->
+
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="229dp"
+        android:layout_height="105dp"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -27,31 +31,31 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Product Name"
+            android:textColor="@android:color/black"
             android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/productPriceTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
             android:text="₱ 150.00"
-            android:textSize="14sp"
             android:textColor="@android:color/holo_red_dark"
-            android:layout_marginTop="2dp" />
+            android:textSize="14sp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="4dp">
+            android:layout_marginTop="4dp"
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/minusButton"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:text="-"
                 android:backgroundTint="@android:color/darker_gray"
+                android:text="-"
                 android:textColor="@android:color/white"
                 android:textSize="12sp" />
 
@@ -59,17 +63,17 @@
                 android:id="@+id/quantityTextView"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
+                android:layout_marginHorizontal="4dp"
                 android:gravity="center"
                 android:text="2"
-                android:textSize="14sp"
-                android:layout_marginHorizontal="4dp" />
+                android:textSize="14sp" />
 
             <Button
                 android:id="@+id/plusButton"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:text="+"
                 android:backgroundTint="@android:color/holo_green_dark"
+                android:text="+"
                 android:textColor="@android:color/white"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -77,11 +81,12 @@
 
     <Button
         android:id="@+id/removeItemButton"
-        android:layout_width="80dp"
+        android:layout_width="wrap_content"
         android:layout_height="32dp"
-        android:text="Remove"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="8dp"
         android:backgroundTint="@android:color/holo_orange_dark"
+        android:text="Remove"
         android:textColor="@android:color/white"
-        android:textSize="12sp"
-        android:layout_gravity="center_vertical" />
+        android:textSize="12sp" />
 </LinearLayout>

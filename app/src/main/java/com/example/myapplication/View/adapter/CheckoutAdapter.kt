@@ -25,7 +25,7 @@ class CheckoutAdapter(
         holder.quantityTextView.text = "Quantity: ${item["quantity"]}"
         holder.priceTextView.text = "₱ ${item["price"]}"
 
-        // Load product image using Glide. Ensure the key "image" contains a valid image URL.
+        // Load product image using Glide.
         Glide.with(context).load(item["image"]).into(holder.productImageView)
     }
 

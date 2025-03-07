@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
+import android.widget.Button  // Remove if not needed
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -18,6 +18,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 
+
+
 class CheckoutActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
@@ -25,11 +27,12 @@ class CheckoutActivity : AppCompatActivity() {
     private lateinit var userInfoText: TextView
     private lateinit var selectPaymentButton: Button
     private lateinit var paymentMethodText: TextView
-    private lateinit var placeOrderButton: Button
+    // This ImageView serves as the Place Order/Checkout button.
+    private lateinit var placeOrderButton: ImageView
 
-    // This holds the raw cart items passed from the previous activity
+    // Raw cart items passed from the previous activity
     private lateinit var cartItems: ArrayList<HashMap<String, String>>
-    // This list will be converted into a list of CartItem objects
+    // List converted into CartItem objects for calculations
     private lateinit var cartList: ArrayList<CartItem>
     private var cartTotal: Double = 0.0
 
@@ -39,12 +42,9 @@ class CheckoutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_checkout)
 
-        // Hook up the back button to finish the activity
+        // Back button listener
         val backBtn = findViewById<ImageView>(R.id.backBtn)
-        backBtn.setOnClickListener {
-            // Close the current activity and go back
-            finish()
-        }
+        backBtn.setOnClickListener { finish() }
 
         // Initialize UI elements
         recyclerView = findViewById(R.id.checkoutRecyclerView)
@@ -52,49 +52,44 @@ class CheckoutActivity : AppCompatActivity() {
         userInfoText = findViewById(R.id.userInfoText)
         selectPaymentButton = findViewById(R.id.selectPaymentButton)
         paymentMethodText = findViewById(R.id.paymentMethodText)
-        placeOrderButton = findViewById(R.id.placeOrderButton)
+        placeOrderButton = findViewById(R.id.checkoutBtn)
 
-        // Retrieve cart items from intent extras (if none, use an empty list)
+        // Retrieve cart items from intent extras (or use an empty list)
         cartItems = intent.getSerializableExtra("cartItems") as? ArrayList<HashMap<String, String>> ?: arrayListOf()
         cartList = arrayListOf()
 
-        // Set up place order button click listener
+        // Set up Place Order button listener
         placeOrderButton.setOnClickListener {
             Log.d("CheckoutActivity", "✅ Place Order Button Clicked!")
             submitOrder()
         }
 
-        // Add click listener for the checkout ImageView in bottom container
+        // Optional: Additional click listener for the same checkout button
         val checkoutBtn = findViewById<ImageView>(R.id.checkoutBtn)
-        checkoutBtn.setOnClickListener {
-            submitOrder()
-        }
+        checkoutBtn.setOnClickListener { submitOrder() }
 
-        // Convert raw cart items to CartItem objects
+        // Convert raw cart items into CartItem objects for calculation
         cartList.addAll(cartItems.map {
             CartItem(
                 productId = it["product_id"]?.toInt() ?: 0,
                 productName = it["product_name"] ?: "Unknown",
                 quantity = it["quantity"]?.toInt() ?: 1,
                 price = it["price"]?.toDouble() ?: 0.0
-                // If you also store image in CartItem, you'd add it here, e.g.:
-                // imageUrl = it["product_image"] ?: ""
             )
         })
 
-        // Fetch user info from your backend
+        // Fetch user info from backend
         fetchUserInfo()
 
-        // Calculate total price and update totalTextView
+        // Calculate total price and update UI
         calculateTotal()
 
-        // Initialize RecyclerView with a CheckoutAdapter
-        // Make sure your CheckoutAdapter loads the image from "product_image" key
+        // Initialize RecyclerView with CheckoutAdapter
         recyclerView.layoutManager = LinearLayoutManager(this)
         val checkoutAdapter = CheckoutAdapter(this, cartItems)
         recyclerView.adapter = checkoutAdapter
 
-        // Payment Method Selection
+        // Payment Method Selection dialog
         selectPaymentButton.setOnClickListener {
             val paymentOptions = arrayOf("COD (Cash on Delivery)", "GCASH")
             val builder = android.app.AlertDialog.Builder(this)
@@ -116,7 +111,7 @@ class CheckoutActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.168.55/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.12/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
         val request = Request.Builder().url(url).get().build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -154,6 +149,7 @@ class CheckoutActivity : AppCompatActivity() {
             return
         }
 
+        // Build JSON request body
         val jsonObject = JSONObject().apply {
             put("mobile_user_id", userId)
             put("total_price", cartTotal)
@@ -174,7 +170,7 @@ class CheckoutActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.168.55/backend/submit_order.php")
+            .url("http://192.168.1.12/backend/submit_order.php")
             .post(requestBody)
             .build()
 
@@ -206,7 +202,7 @@ class CheckoutActivity : AppCompatActivity() {
         totalTextView.text = "Total: ₱%.2f".format(cartTotal)
     }
 
-    // Method for address selection (if needed)
+    // Optional: Navigate to address selection if needed.
     fun navigateToAddressSelection(view: View) {
         val intent = Intent(this, AddressSelectionActivity::class.java)
         startActivityForResult(intent, REQUEST_CODE_ADDRESS)
