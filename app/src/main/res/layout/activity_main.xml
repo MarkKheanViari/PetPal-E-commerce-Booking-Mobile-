@@ -48,20 +48,20 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="Catalog"
-                android:textSize="25sp"
+                android:textSize="20sp"
                 android:textColor="@color/black"
                 android:fontFamily="@font/alata" />
 
             <Space
-                android:layout_width="20dp"
+                android:layout_width="30dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"/>
 
             <!-- Cart Icon (viewCartButton) -->
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/viewCartButton"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:layout_gravity="end"
                 android:src="@drawable/cart" />
 
@@ -72,8 +72,8 @@
 
             <ImageView
                 android:id="@+id/notif_button"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_gravity="end"
                 android:src="@drawable/notif"
                 android:contentDescription="@string/design_desc"/>
@@ -90,7 +90,7 @@
         <EditText
             android:id="@+id/search_bar"
             android:layout_width="350dp"
-            android:layout_height="60dp"
+            android:layout_height="40dp"
             android:hint="      Search"
             android:textSize="18sp"
             android:fontFamily="@font/alata"
@@ -201,13 +201,15 @@
             android:id="@+id/bottomNavigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:itemIconSize="25dp"
+            app:itemTextAppearanceActive="@style/BottomNavTextActive"
             android:background="@android:color/white"
             app:menu="@menu/bottom_nav_menu"
             app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Navigation Drawer -->
+    <!-- Navigation Drawer  -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="250dp"

@@ -54,7 +54,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             finish()
         }
 
-        // Add to Cart functionality
+        /* Add to Cart functionality
         val addToCartButton = findViewById<MaterialButton>(R.id.addtocart_container)
         addToCartButton.setOnClickListener {
             if (productId != -1) {
@@ -62,7 +62,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "❌ Failed to add product to cart", Toast.LENGTH_SHORT).show()
             }
-        }
+        } */
 
         // Buy Now functionality
         val buyNowButton = findViewById<MaterialButton>(R.id.buynow_container)
@@ -96,7 +96,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/add_to_cart.php")
+            .url("http://192.168.43.215/backend/add_to_cart.php")
             .post(requestBody)
             .build()
 

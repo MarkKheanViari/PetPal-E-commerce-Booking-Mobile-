@@ -1,87 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="8dp"
-    android:background="@android:color/white"
-    android:layout_marginBottom="4dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@android:color/white">
 
-    <ImageView
-        android:id="@+id/productImageView"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_gravity="center_vertical"
-        android:scaleType="centerCrop"
-        android:layout_marginEnd="8dp" />
+    <!--
+    @+id/productImageView
+    @+id/productNameTextView
+    @+id/productPriceTextView
+    @+id/minusButton
+    @+id/quantityTextView
+    @+id/plusButton
+    @+id/removeItemButton
+
+    -->
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:id="@+id/containers"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <CheckBox
+            android:id="@+id/markBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <ImageView
+            android:id="@+id/productImageView"
+            android:layout_width="120dp"
+            android:layout_height="150dp"
+            android:src="@drawable/cat"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/design_desc"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/productName_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintStart_toEndOf="@+id/containers"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="10dp">
 
         <TextView
             android:id="@+id/productNameTextView"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Product Name"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black" />
+            android:textSize="20sp"
+            android:textColor="@color/black"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="10dp"
+        app:layout_constraintStart_toEndOf="@id/containers"
+        app:layout_constraintTop_toBottomOf="@+id/productName_container">
 
         <TextView
             android:id="@+id/productPriceTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="₱100"
+            android:textSize="20sp"
+            android:textColor="@color/black"/>
+
+        <Space
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"/>
+
+        <ImageView
+            android:id="@+id/minusButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="₱ 150.00"
-            android:textSize="14sp"
-            android:textColor="@android:color/holo_red_dark"
-            android:layout_marginTop="2dp" />
+            android:src="@drawable/remove"
+            android:background="@drawable/add_subtract_corners"
+            android:contentDescription="@string/design_desc"/>
 
-        <LinearLayout
+        <Space
+            android:layout_width="15dp"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/quantityTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="10"
+            android:textSize="20sp"
+            android:textColor="@color/black"/>
+
+        <Space
+            android:layout_width="15dp"
+            android:layout_height="wrap_content"/>
+
+        <ImageView
+            android:id="@+id/plusButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="4dp">
+            android:src="@drawable/add"
+            android:background="@drawable/add_subtract_corners"
+            android:contentDescription="@string/design_desc"/>
 
-            <Button
-                android:id="@+id/minusButton"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:text="-"
-                android:backgroundTint="@android:color/darker_gray"
-                android:textColor="@android:color/white"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/quantityTextView"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:gravity="center"
-                android:text="2"
-                android:textSize="14sp"
-                android:layout_marginHorizontal="4dp" />
-
-            <Button
-                android:id="@+id/plusButton"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:text="+"
-                android:backgroundTint="@android:color/holo_green_dark"
-                android:textColor="@android:color/white"
-                android:textSize="12sp" />
-        </LinearLayout>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/removeItemButton"
-        android:layout_width="80dp"
-        android:layout_height="32dp"
-        android:text="Remove"
-        android:backgroundTint="@android:color/holo_orange_dark"
-        android:textColor="@android:color/white"
-        android:textSize="12sp"
-        android:layout_gravity="center_vertical" />
-</LinearLayout>
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        app:layout_constraintTop_toBottomOf="@+id/containers"/>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

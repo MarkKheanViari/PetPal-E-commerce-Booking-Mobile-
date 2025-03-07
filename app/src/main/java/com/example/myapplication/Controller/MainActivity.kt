@@ -276,7 +276,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun fetchProducts() {
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/fetch_product.php")
+            .url("http://192.168.43.215/backend/fetch_product.php")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -298,7 +298,7 @@ class MainActivity : AppCompatActivity() {
                     if (json.optBoolean("success", false)) {
                         val productsArray = json.optJSONArray("products") ?: JSONArray()
                         val fetchedProducts = mutableListOf<Product>()
-                        val baseImageUrl = "http://192.168.1.12/backend/images/"
+                        val baseImageUrl = "http://192.168.43.215/backend/images/"
                         for (i in 0 until productsArray.length()) {
                             val productJson = productsArray.getJSONObject(i)
                             val rawImage = productJson.optString("image", "")
@@ -342,7 +342,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.12/backend/fetch_product.php?category=$category"
+        val url = "http://192.168.43.215/backend/fetch_product.php?category=$category"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -368,7 +368,7 @@ class MainActivity : AppCompatActivity() {
                         return
                     }
                     val productsArray = jsonResponse.optJSONArray("products") ?: JSONArray()
-                    val baseImageUrl = "http://192.168.1.12/backend/images/"
+                    val baseImageUrl = "http://192.168.43.215/backend/images/"
                     val categoryProducts = mutableListOf<Product>()
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)

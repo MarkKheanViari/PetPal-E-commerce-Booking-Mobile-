@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -21,7 +22,7 @@ class CartActivity : AppCompatActivity(), CartActionListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyText: TextView
     private lateinit var backBtn: ImageView
-    private lateinit var checkoutButton: ImageView
+    private lateinit var checkoutButton: Button
     private lateinit var totalPriceTextView: TextView
     private val client = OkHttpClient()
     private val cartItems = mutableListOf<HashMap<String, String>>()
@@ -46,6 +47,7 @@ class CartActivity : AppCompatActivity(), CartActionListener {
 
         // Custom back button functionality
         backBtn.setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
 
@@ -64,7 +66,7 @@ class CartActivity : AppCompatActivity(), CartActionListener {
     }
 
     override fun updateCartQuantity(cartId: Int, newQuantity: Int) {
-        val url = "http://192.168.1.12/backend/update_cart.php"
+        val url = "http://192.168.43.215/backend/update_cart.php"
         val json = JSONObject().apply {
             put("cart_id", cartId)
             put("quantity", newQuantity)
@@ -90,7 +92,7 @@ class CartActivity : AppCompatActivity(), CartActionListener {
     }
 
     override fun removeItemFromCart(cartId: Int) {
-        val url = "http://192.168.1.12/backend/remove_from_cart.php"
+        val url = "http://192.168.43.215/backend/remove_from_cart.php"
         val json = JSONObject().apply { put("cart_id", cartId) }
         val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = Request.Builder().url(url).post(requestBody).build()
@@ -136,7 +138,7 @@ class CartActivity : AppCompatActivity(), CartActionListener {
             return
         }
 
-        val url = "http://192.168.1.12/backend/fetch_cart.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.43.215/backend/fetch_cart.php?mobile_user_id=$mobileUserId"
         val request = Request.Builder().url(url).get().build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -148,8 +150,22 @@ class CartActivity : AppCompatActivity(), CartActionListener {
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
-                if (!responseBody.isNullOrEmpty()) {
+                if (responseBody.isNullOrEmpty()) {
+                    runOnUiThread {
+                        Toast.makeText(this@CartActivity, "❌ Empty cart response", Toast.LENGTH_SHORT).show()
+                    }
+                    return
+                }
+
+                try {
                     val jsonResponse = JSONObject(responseBody)
+                    if (!jsonResponse.has("cart")) {
+                        runOnUiThread {
+                            Toast.makeText(this@CartActivity, "❌ Invalid cart data", Toast.LENGTH_SHORT).show()
+                        }
+                        return
+                    }
+
                     val cartArray = jsonResponse.optJSONArray("cart") ?: JSONArray()
 
                     cartItems.clear()
@@ -157,17 +173,17 @@ class CartActivity : AppCompatActivity(), CartActionListener {
 
                     for (i in 0 until cartArray.length()) {
                         val item = cartArray.getJSONObject(i)
-                        val price = item.getDouble("price")
-                        val quantity = item.getInt("quantity")
+                        val price = item.optDouble("price", 0.0)
+                        val quantity = item.optInt("quantity", 1)
                         totalPrice += price * quantity
 
                         val cartItem = hashMapOf(
-                            "cart_id" to item.getString("cart_id"),
-                            "product_id" to item.getString("product_id"),
-                            "name" to item.getString("name"),
+                            "cart_id" to item.optString("cart_id", ""),
+                            "product_id" to item.optString("product_id", ""),
+                            "name" to item.optString("name", "Unknown Product"),
                             "price" to price.toString(),
                             "quantity" to quantity.toString(),
-                            "image" to item.getString("image"),
+                            "image" to item.optString("image", ""),
                             "description" to item.optString("description", "No description available")
                         )
                         cartItems.add(cartItem)
@@ -178,8 +194,14 @@ class CartActivity : AppCompatActivity(), CartActionListener {
                         emptyText.visibility = if (cartItems.isEmpty()) TextView.VISIBLE else TextView.GONE
                         totalPriceTextView.text = "₱ %.2f".format(totalPrice)
                     }
+
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        Toast.makeText(this@CartActivity, "❌ JSON Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         })
     }
+
 }
