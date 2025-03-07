@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.myapplication.ServiceFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -56,7 +57,7 @@ class MainActivity : AppCompatActivity() {
             drawerLayout.openDrawer(GravityCompat.START)
         }
 
-        // NavigationView setup using the menu XML you provided
+        // NavigationView setup using the menu XML
         val navView = findViewById<NavigationView>(R.id.nav_view)
         val headerView = navView.getHeaderView(0)
         val headerName = headerView.findViewById<TextView>(R.id.headerName)
@@ -65,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         headerName.text = sharedPrefs.getString("username", "User Name")
         headerEmail.text = sharedPrefs.getString("user_email", "user@example.com")
 
-        // Set click listener on the header if you want the whole header to launch profile
+        // Header click launches ProfileActivity
         headerView.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
             drawerLayout.closeDrawer(GravityCompat.START)
@@ -78,7 +79,6 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_settings -> {
-                    // Launch your Settings activity if you have one
                     //startActivity(Intent(this, SettingsActivity::class.java))
                     true
                 }
@@ -113,7 +113,7 @@ class MainActivity : AppCompatActivity() {
         productsRecyclerView = findViewById(R.id.productsRecyclerView)
         productsRecyclerView.layoutManager = GridLayoutManager(this, 2)
         productAdapter = ProductAdapter(this, displayedProducts) { product ->
-            // When the user likes a product, add it to the liked products and launch the liked products screen.
+            // When the user likes a product, add it to the wishlist and launch the liked products screen.
             addToWishlist(product)
         }
         productsRecyclerView.adapter = productAdapter
@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Add TextWatcher to automatically filter products as the user types
+        // Automatically filter products as the user types
         searchBar.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 filterProducts(s.toString())
@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { }
         })
 
-        // Optionally, tap outside to clear focus
+        // Tap outside the search bar to clear focus
         rootLayout.setOnClickListener {
             if (searchBar.hasFocus()) {
                 hideKeyboardAndClearFocus(searchBar)
@@ -152,9 +152,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         fetchProducts()
+
+        // Listen for backstack changes to update bottom navigation selection
+        supportFragmentManager.addOnBackStackChangedListener {
+            val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+            when (currentFragment) {
+                is ServiceFragment -> bottomNavigation.selectedItemId = R.id.menu_service
+                else -> bottomNavigation.selectedItemId = R.id.nav_products
+            }
+        }
     }
 
-    // Force bottom navigation visible when the window regains focus
+    // Ensure bottom navigation is visible when the window regains focus
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
@@ -162,7 +171,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Clear focus and force bottom nav visible on back press
+    // Handle back press: if the search bar is focused, clear it;
+    // otherwise, pop from the fragment backstack if available.
     override fun onBackPressed() {
         val searchBar = findViewById<EditText>(R.id.search_bar)
         if (searchBar.hasFocus()) {
@@ -171,7 +181,11 @@ class MainActivity : AppCompatActivity() {
                 bottomNavigation.visibility = View.VISIBLE
             }, 300)
         } else {
-            super.onBackPressed()
+            if (supportFragmentManager.backStackEntryCount > 0) {
+                supportFragmentManager.popBackStack()
+            } else {
+                super.onBackPressed()
+            }
         }
     }
 
@@ -183,10 +197,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addToWishlist(product: Product) {
-        // Add the product to our global liked products store
+        // Add product to the global liked products store
         LikedProductsStore.addProduct(product)
         Toast.makeText(this, "Added ${product.name} to Wishlist!", Toast.LENGTH_SHORT).show()
-        // Launch the liked products screen so the user can see their liked items
         startActivity(Intent(this, LikedProductsActivity::class.java))
     }
 
@@ -199,11 +212,21 @@ class MainActivity : AppCompatActivity() {
         productAdapter.updateProducts(ArrayList(displayedProducts))
     }
 
+    // Updated loadFragment function that adds the fragment to the backstack with a unique tag.
     private fun loadFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        val fragmentTag = fragment.javaClass.simpleName
+
+        // Check if the fragment already exists in the backstack.
+        val existingFragment = fragmentManager.findFragmentByTag(fragmentTag)
+        if (existingFragment != null) {
+            fragmentTransaction.replace(R.id.fragment_container, existingFragment, fragmentTag)
+        } else {
+            fragmentTransaction.replace(R.id.fragment_container, fragment, fragmentTag)
+            fragmentTransaction.addToBackStack(fragmentTag)
+        }
+        fragmentTransaction.commit()
     }
 
     private fun checkUserAndResetIfNeeded() {
@@ -251,7 +274,8 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.nav_products -> {
                     showMainUI(true)
-                    supportFragmentManager.popBackStack()
+                    // Clear the fragment backstack when returning to the main UI
+                    supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                     findViewById<TextView>(R.id.toolbarTitle).text = "Catalog"
                     true
                 }
