@@ -290,7 +290,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun fetchProducts() {
         val request = Request.Builder()
-            .url("http://192.168.1.65/backend/fetch_product.php")
+            .url("http://192.168.168.55/backend/fetch_product.php")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -312,7 +312,7 @@ class MainActivity : AppCompatActivity() {
                     if (json.optBoolean("success", false)) {
                         val productsArray = json.optJSONArray("products") ?: JSONArray()
                         val fetchedProducts = mutableListOf<Product>()
-                        val baseImageUrl = "http://192.168.1.65/backend/images/"
+                        val baseImageUrl = "http://192.168.168.55/backend/images/"
                         for (i in 0 until productsArray.length()) {
                             val productJson = productsArray.getJSONObject(i)
                             val rawImage = productJson.optString("image", "")
@@ -349,9 +349,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkForApprovedAppointments(userId: Int) {
-        val url = "http://192.168.1.65/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
+        val url = "http://192.168.168.55/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
 
-        val request = JsonObjectRequest(com.android.volley.Request.Method.GET, url, null,
+        val request = JsonObjectRequest(
+            com.android.volley.Request.Method.GET, url, null, // ✅ Ensure `com.android.volley.Request.Method.GET` is used
             { response ->
                 if (response.getBoolean("success")) {
                     val appointmentsArray = response.getJSONArray("appointments")
@@ -370,25 +371,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showNotificationDialog(appointments: JSONArray) {
-        val builder = AlertDialog.Builder(this) // ✅ Now it works!
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Appointment Update 📅")
 
-        builder.setTitle("Appointment Approved ✅")
-
-        var message = "Your appointment has been approved:\n\n"
+        var message = ""
 
         for (i in 0 until appointments.length()) {
             val appointment = appointments.getJSONObject(i)
             val serviceName = appointment.getString("service_name")
             val appointmentDate = appointment.getString("appointment_date")
-            message += "📅 $serviceName on $appointmentDate\n"
+            val status = appointment.getString("status")
+
+            if (status == "Approved") {
+                message += "✅ Your appointment for $serviceName on $appointmentDate has been APPROVED.\n\n"
+            } else if (status == "Declined") {
+                message += "❌ Your appointment for $serviceName on $appointmentDate has been DECLINED.\n\n"
+            }
+        }
+
+        if (message.isEmpty()) {
+            message = "No new appointment updates."
         }
 
         builder.setMessage(message)
         builder.setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
         builder.show()
     }
-
-
     private fun fetchProductsByCategory(category: String) {
         if (category == "all") {
             displayedProducts.clear()
@@ -397,7 +405,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.65/backend/fetch_product.php?category=$category"
+        val url = "http://192.168.168.55/backend/fetch_product.php?category=$category"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -423,7 +431,7 @@ class MainActivity : AppCompatActivity() {
                         return
                     }
                     val productsArray = jsonResponse.optJSONArray("products") ?: JSONArray()
-                    val baseImageUrl = "http://192.168.1.65/backend/images/"
+                    val baseImageUrl = "http://192.168.168.55/backend/images/"
                     val categoryProducts = mutableListOf<Product>()
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)
