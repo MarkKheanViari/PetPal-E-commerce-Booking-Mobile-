@@ -16,7 +16,7 @@
             android:title="Settings"/>
         <item
             android:id="@+id/nav_likedProducts"
-            android:icon="@drawable/heart_logo"
+            android:icon="@drawable/ic_favorite_border"
             android:title="Liked Products"/>
         <item
             android:id="@+id/nav_notif"

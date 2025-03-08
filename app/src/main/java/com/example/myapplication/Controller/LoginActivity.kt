@@ -114,6 +114,10 @@ class LoginActivity : AppCompatActivity() {
                                     putString("location", jsonResponse.optString("location", "")) // ✅ Store location
                                     putString("contact_number", jsonResponse.optString("contact_number", "")) // ✅ Store contact number
                                     putBoolean("remember_me", rememberMeCheckBox.isChecked)
+                                    putBoolean("isLoggedIn", true)
+                                    putBoolean("hasSeenIntro", true)
+                                    putBoolean("remember_me", rememberMeCheckBox.isChecked)
+                                    apply()
                                     apply()
                                 }
 
