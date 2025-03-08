@@ -33,6 +33,7 @@ class LoginActivity : AppCompatActivity() {
 
         // Initialize SharedPreferences
         sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+
         // If the user did not choose "Remember Me" previously, clear stored login data.
         if (!sharedPreferences.getBoolean("remember_me", false)) {
             sharedPreferences.edit().clear().apply()
@@ -81,7 +82,7 @@ class LoginActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/mobile_login.php")
+            .url("http://192.168.58.55/backend/mobile_login.php")
             .post(requestBody)
             .build()
 

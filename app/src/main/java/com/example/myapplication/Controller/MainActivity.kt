@@ -12,6 +12,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -20,6 +21,8 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.GridLayoutManager
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import com.example.myapplication.ServiceFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
@@ -37,11 +40,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var rootLayout: ConstraintLayout
     private var currentUserId: Int = -1
+    private lateinit var sharedPreferences: SharedPreferences // ✅ Add this line!
     private val allProducts = mutableListOf<Product>()
     private val displayedProducts = mutableListOf<Product>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // ✅ Initialize sharedPreferences at the very beginning!
+        sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+
         // Ensure the window resizes when keyboard appears
         window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         setContentView(R.layout.activity_main)
@@ -162,6 +170,16 @@ class MainActivity : AppCompatActivity() {
                 else -> bottomNavigation.selectedItemId = R.id.nav_products
             }
         }
+        val mobileUserId = sharedPreferences.getInt("user_id", -1)
+
+        if (mobileUserId == -1) {
+            Toast.makeText(this, "❌ User not logged in!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+// ✅ Fetch notifications for Approved & Declined appointments
+        checkForApprovedAppointments(mobileUserId)
+
     }
 
     // Ensure bottom navigation is visible when the window regains focus
@@ -231,6 +249,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkUserAndResetIfNeeded() {
+
         val sharedPreferences: SharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         val userId = sharedPreferences.getInt("user_id", -1)
         if (userId == -1) {
@@ -258,6 +277,55 @@ class MainActivity : AppCompatActivity() {
             fetchProductsByCategory("dog")
             updateButtonStyles(dogButton, allButton, catButton)
         }
+    }
+
+    private fun checkForApprovedAppointments(userId: Int) {
+        val url = "http://192.168.58.55/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
+
+        val request = JsonObjectRequest(
+            com.android.volley.Request.Method.GET, url, null,
+            { response ->
+                if (response.getBoolean("success")) {
+                    val appointmentsArray = response.getJSONArray("appointments")
+                    if (appointmentsArray.length() > 0) {
+                        showNotificationDialog(appointmentsArray)
+                    }
+                }
+            },
+            { error ->
+                Toast.makeText(this, "❌ Error fetching notifications: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        Volley.newRequestQueue(this).add(request)
+    }
+
+    private fun showNotificationDialog(appointments: JSONArray) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Appointment Update 📅")
+
+        var message = ""
+
+        for (i in 0 until appointments.length()) {
+            val appointment = appointments.getJSONObject(i)
+            val serviceName = appointment.getString("service_name")
+            val appointmentDate = appointment.getString("appointment_date")
+            val status = appointment.getString("status")
+
+            if (status == "Approved") {
+                message += "✅ Your appointment for $serviceName on $appointmentDate has been **APPROVED**.\n\n"
+            } else if (status == "Declined") {
+                message += "❌ Your appointment for $serviceName on $appointmentDate has been **DECLINED**.\n\n"
+            }
+        }
+
+        if (message.isEmpty()) {
+            message = "No new appointment updates."
+        }
+
+        builder.setMessage(message)
+        builder.setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+        builder.show()
     }
 
     private fun updateButtonStyles(selectedButton: Button, vararg otherButtons: Button) {
@@ -301,7 +369,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun fetchProducts() {
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/fetch_product.php")
+            .url("http://192.168.58.55/backend/fetch_product.php")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -323,7 +391,7 @@ class MainActivity : AppCompatActivity() {
                     if (json.optBoolean("success", false)) {
                         val productsArray = json.optJSONArray("products") ?: JSONArray()
                         val fetchedProducts = mutableListOf<Product>()
-                        val baseImageUrl = "http://192.168.1.12/backend/images/"
+                        val baseImageUrl = "http://192.168.58.55/backend/images/"
                         for (i in 0 until productsArray.length()) {
                             val productJson = productsArray.getJSONObject(i)
                             val rawImage = productJson.optString("image", "")
@@ -367,7 +435,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.12/backend/fetch_product.php?category=$category"
+        val url = "http://192.168.58.55/backend/fetch_product.php?category=$category"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -393,7 +461,7 @@ class MainActivity : AppCompatActivity() {
                         return
                     }
                     val productsArray = jsonResponse.optJSONArray("products") ?: JSONArray()
-                    val baseImageUrl = "http://192.168.1.12/backend/images/"
+                    val baseImageUrl = "http://192.168.58.55/backend/images/"
                     val categoryProducts = mutableListOf<Product>()
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)

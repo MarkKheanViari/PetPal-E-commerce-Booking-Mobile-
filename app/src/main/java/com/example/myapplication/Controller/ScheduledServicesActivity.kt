@@ -46,7 +46,7 @@ class ScheduledServicesActivity : AppCompatActivity() {
         // ✅ Debug: Log user_id to ensure correct data is being sent
         println("DEBUG: Fetching appointments for user_id: $mobileUserId")
 
-        val url = "http://192.168.1.12/backend/fetch_appointments.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.58.55/backend/fetch_appointments.php?mobile_user_id=$mobileUserId"
 
         val request = JsonObjectRequest(
             Request.Method.GET, url, null,
