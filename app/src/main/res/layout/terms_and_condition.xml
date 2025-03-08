@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/termsToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:title="Terms and Conditions"
+        app:titleTextColor="@android:color/white"
+        app:navigationIcon="@drawable/back_button"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <ScrollView
+        android:id="@+id/termsScrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/termsToolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/termsText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:text="Welcome to PetPal. These Terms and Conditions govern your use of our application. By accessing and using our app, you agree to be bound by these terms.
+
+1. **Acceptance of Terms:** By using the app, you agree to these terms and any future modifications.
+
+2. **Use of the App:** You agree to use the app only for lawful purposes and in a manner that does not infringe the rights of others.
+
+3. **User Responsibilities:** You are responsible for maintaining the confidentiality of your account and password and for restricting access to your device.
+
+4. **Limitation of Liability:** [Your App Name] shall not be liable for any damages arising from your use or inability to use the app.
+
+5. **Changes to Terms:** We reserve the right to modify these terms at any time. Continued use of the app constitutes acceptance of any changes.
+
+6. **Governing Law:** These terms shall be governed by the laws of [Your Jurisdiction].
+
+Please review these terms carefully. If you do not agree with any part of these terms, please do not use our app.
+
+Thank you for choosing [Your App Name]." />
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -111,17 +111,13 @@ class LoginActivity : AppCompatActivity() {
                                     putInt("user_id", userId)
                                     putString("username", jsonResponse.getString("username"))
                                     putString("user_email", jsonResponse.optString("email", "user@example.com"))
-                                    putString("location", jsonResponse.optString("location", "")) // ✅ Store location
-                                    putString("contact_number", jsonResponse.optString("contact_number", "")) // ✅ Store contact number
+                                    putString("location", jsonResponse.optString("location", ""))
+                                    putString("contact_number", jsonResponse.optString("contact_number", ""))
                                     putBoolean("remember_me", rememberMeCheckBox.isChecked)
                                     putBoolean("isLoggedIn", true)
                                     putBoolean("hasSeenIntro", true)
-                                    putBoolean("remember_me", rememberMeCheckBox.isChecked)
-                                    apply()
                                     apply()
                                 }
-
-
 
                                 Log.d("LoginActivity", "Stored user_id: ${sharedPreferences.getInt("user_id", -1)}")
                                 startMainActivity()
@@ -130,7 +126,14 @@ class LoginActivity : AppCompatActivity() {
                                 Toast.makeText(this@LoginActivity, "Error: User ID is missing!", Toast.LENGTH_LONG).show()
                             }
                         } else {
-                            Toast.makeText(this@LoginActivity, jsonResponse.optString("message", "Login failed"), Toast.LENGTH_LONG).show()
+                            // If login fails, check if the error message indicates a wrong password.
+                            val errorMessage = jsonResponse.optString("message", "Login failed")
+                            if (errorMessage.contains("wrong password", ignoreCase = true)) {
+                                // Set an error on the password field so the hint displays "Wrong password"
+                                passwordInput.error = "Wrong password"
+                            } else {
+                                Toast.makeText(this@LoginActivity, errorMessage, Toast.LENGTH_LONG).show()
+                            }
                         }
                     }
                 } catch (e: Exception) {

@@ -50,5 +50,7 @@
         <activity android:name=".LikedProductsActivity"/>
         <activity android:name=".SettingsActivity"/>
         <activity android:name=".OnboardingActivity"/>
+        <activity android:name=".TermsActivity" />
+        <activity android:name=".PrivacyPolicyActivity" />
     </application>
 </manifest>

@@ -2,7 +2,6 @@ package com.example.myapplication
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import okhttp3.*
@@ -23,12 +22,14 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var termsCheckbox: CheckBox
     private lateinit var registerButton: Button
     private lateinit var loginSugg: TextView  // Login suggestion TextView
+    private lateinit var termsLink: TextView  // Terms and Conditions link
+    private lateinit var privacyLink: TextView  // Privacy Policy link
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        // Initialize fields
+        // Initialize views
         usernameInput = findViewById(R.id.usernameInput)
         emailInput = findViewById(R.id.emailInput)
         passwordInput = findViewById(R.id.passwordInput)
@@ -39,12 +40,24 @@ class RegisterActivity : AppCompatActivity() {
         termsCheckbox = findViewById(R.id.termsCheckbox)
         registerButton = findViewById(R.id.registerButton)
         loginSugg = findViewById(R.id.login_sugg)
+        termsLink = findViewById(R.id.terms)
+        privacyLink = findViewById(R.id.privacyPolicy)
 
+        // Set click listeners for Terms and Privacy Policy
+        termsLink.setOnClickListener {
+            startActivity(Intent(this, TermsActivity::class.java))
+        }
+
+        privacyLink.setOnClickListener {
+            startActivity(Intent(this, PrivacyPolicyActivity::class.java))
+        }
+
+        // Register button listener
         registerButton.setOnClickListener {
             validateAndRegister()
         }
 
-        // When login suggestion is clicked, navigate to LoginActivity
+        // Login suggestion click listener
         loginSugg.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
@@ -61,7 +74,8 @@ class RegisterActivity : AppCompatActivity() {
         val contact = contactInput.text.toString().trim()
 
         // Validate fields
-        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || location.isEmpty() || age.isEmpty() || contact.isEmpty()) {
+        if (username.isEmpty() || email.isEmpty() || password.isEmpty() ||
+            confirmPassword.isEmpty() || location.isEmpty() || age.isEmpty() || contact.isEmpty()) {
             Toast.makeText(this, "❌ Please fill in all fields.", Toast.LENGTH_SHORT).show()
             return
         }
@@ -97,7 +111,8 @@ class RegisterActivity : AppCompatActivity() {
             put("contact_number", contact)
         }
 
-        val requestBody = jsonObject.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+        val mediaType = "application/json; charset=utf-8".toMediaType()
+        val requestBody = jsonObject.toString().toRequestBody(mediaType)
         val request = Request.Builder().url(url).post(requestBody).build()
 
         val client = OkHttpClient()
@@ -111,7 +126,6 @@ class RegisterActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
                 runOnUiThread {
-                    Log.d("RegisterActivity", "📦 Response: $responseBody")
                     if (responseBody != null) {
                         val jsonResponse = JSONObject(responseBody)
                         if (jsonResponse.optBoolean("success", false)) {

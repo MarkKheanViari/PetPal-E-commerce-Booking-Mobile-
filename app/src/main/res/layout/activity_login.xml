@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Welcome Back!"
-            android:textSize="35dp"
+            android:textSize="35sp"
             android:textColor="#AD570B"/>
 
         <TextView
@@ -58,6 +58,7 @@
         android:paddingStart="30dp"
         android:paddingEnd="30dp">
 
+        <!-- Username Label -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -74,7 +75,8 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/username_container"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
+            app:boxBackgroundMode="none"
             app:helperText=""
             app:helperTextTextColor="@color/red">
 
@@ -83,20 +85,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:background="@drawable/login_design"
-                android:hint="   Enter your username"
                 android:fontFamily="@font/alata"
-                android:textSize="15sp"
+                android:hint="   Enter your username"
+                android:inputType="text"
                 android:lines="1"
                 android:maxLength="20"
-                android:inputType="text"
+                android:textColor="@color/black"
                 android:textColorHint="@color/black"
-                android:textColor="@color/black"/>
+                android:textSize="15sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Space
             android:layout_width="wrap_content"
             android:layout_height="25dp"/>
 
+        <!-- Password Label -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -113,7 +116,8 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/password_container"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
+            app:boxBackgroundMode="none"
             app:helperText=""
             app:helperTextTextColor="@color/red"
             app:endIconMode="password_toggle"
@@ -151,17 +155,17 @@
                 android:fontFamily="@font/alata"/>
 
             <Space
-                android:layout_width="100dp"
+                android:layout_width="90dp"
                 android:layout_height="wrap_content"/>
 
             <TextView
                 android:id="@+id/forgotBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/forgot"
                 android:fontFamily="@font/alata"
-                android:textSize="15sp"
-                android:textColor="@color/smth_orange"/>
+                android:text="@string/forgot"
+                android:textColor="@color/smth_orange"
+                android:textSize="15sp" />
         </LinearLayout>
 
         <Space
