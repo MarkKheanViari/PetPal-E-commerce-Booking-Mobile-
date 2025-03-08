@@ -1,5 +1,6 @@
 package com.example.myapplication.Model.fragments
 
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -51,16 +52,18 @@ class IntroFragment : Fragment() {
 
         val isLast = arguments?.getBoolean(ARG_IS_LAST, false) ?: false
         if (isLast) {
-            // If this is the last intro screen, make the Get Started button visible.
-            // In your IntroFragment's onViewCreated()
             val getStartedButton = view.findViewById<Button>(R.id.getStartedButton)
             getStartedButton.setOnClickListener {
+                // Set that user has finished seeing the intro
+                val sharedPrefs = requireActivity().getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+                sharedPrefs.edit().putBoolean("hasSeenIntro", true).apply()
+
                 // Navigate to RegisterActivity
                 startActivity(Intent(requireContext(), RegisterActivity::class.java))
                 requireActivity().finish() // Close onboarding so user can't go back
             }
-
         }
+
     }
 
     /**
