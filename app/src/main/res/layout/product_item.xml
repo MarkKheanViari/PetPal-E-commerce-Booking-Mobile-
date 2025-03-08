@@ -60,29 +60,27 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
             android:background="@color/light_orange"
             android:padding="8dp">
 
             <TextView
                 android:id="@+id/productPrice"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="$60"
-                android:textSize="18sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
+                android:layout_weight="1"
                 android:textColor="@android:color/black" />
 
-            <Space
-                android:layout_width="10dp"
-                android:layout_height="wrap_content" />
 
             <TextView
                 android:id="@+id/productStock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="100k sold"
+                android:text="Stock: 5"
                 android:textSize="14sp"
+                android:gravity="end"
                 android:textColor="@android:color/black"/>
         </LinearLayout>
     </LinearLayout>
