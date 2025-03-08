@@ -28,9 +28,9 @@
             android:elevation="4dp"
             android:gravity="center"
             android:padding="8dp"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toTopOf="parent">
 
             <!-- Menu Icon -->
             <androidx.appcompat.widget.AppCompatImageView
@@ -47,36 +47,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:fontFamily="@font/alata"
                 android:text="Catalog"
-                android:textSize="25sp"
                 android:textColor="@color/black"
-                android:fontFamily="@font/alata" />
+                android:textSize="25sp" />
 
             <Space
                 android:layout_width="20dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"/>
+                android:layout_gravity="end" />
 
-            <!-- Cart Icon (viewCartButton) -->
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/viewCartButton"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_gravity="end"
-                android:src="@drawable/cart" />
-
-            <Space
-                android:layout_width="10dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"/>
-
+            <!-- View Cart Button -->
             <ImageView
-                android:id="@+id/notif_button"
+                android:id="@+id/viewCartButton"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_gravity="end"
-                android:src="@drawable/notif"
-                android:contentDescription="@string/design_desc"/>
+                android:src="@drawable/notif"/>
+
         </androidx.appcompat.widget.Toolbar>
 
         <Space
@@ -177,7 +165,7 @@
             app:layout_constraintTop_toBottomOf="@id/categoryScrollView"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <!-- FrameLayout Container for Fragments (and the default Product list) -->
+        <!-- Fragment Container for Products/Fragments -->
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"

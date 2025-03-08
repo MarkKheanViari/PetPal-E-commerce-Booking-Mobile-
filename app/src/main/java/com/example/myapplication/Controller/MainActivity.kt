@@ -40,32 +40,43 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var rootLayout: ConstraintLayout
     private var currentUserId: Int = -1
-    private lateinit var sharedPreferences: SharedPreferences // ✅ Add this line!
+    private lateinit var sharedPreferences: SharedPreferences
     private val allProducts = mutableListOf<Product>()
     private val displayedProducts = mutableListOf<Product>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // ✅ Initialize sharedPreferences at the very beginning!
-        sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
-
-        // Ensure the window resizes when keyboard appears
-        window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        // Inflate the layout once
         setContentView(R.layout.activity_main)
 
-        // Get a reference to the root layout for tapping outside the search bar
-        rootLayout = findViewById(R.id.rootLayout)
+        // Initialize bottomNavigation as soon as possible
+        bottomNavigation = findViewById(R.id.bottomNavigation)
 
+        // Now you can safely access bottomNavigation in your listeners
+        val searchBar = findViewById<EditText>(R.id.search_bar)
+        searchBar.setOnFocusChangeListener { _, hasFocus ->
+            bottomNavigation.visibility = if (hasFocus) View.GONE else View.VISIBLE
+        }
+
+        // Initialize shared preferences
+        sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        // Ensure the window resizes when the keyboard appears
+        window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+
+        // Do not call setContentView again!
+
+        // Get a reference to the root layout
+        rootLayout = findViewById(R.id.rootLayout)
         checkUserAndResetIfNeeded()
 
+        // Drawer layout and menu icon
         drawerLayout = findViewById(R.id.drawer_layout)
         val menuIcon = findViewById<ImageView>(R.id.menuIcon)
         menuIcon.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
 
-        // NavigationView setup using the menu XML
+        // NavigationView header
         val navView = findViewById<NavigationView>(R.id.nav_view)
         val headerView = navView.getHeaderView(0)
         val headerName = headerView.findViewById<TextView>(R.id.headerName)
@@ -73,13 +84,12 @@ class MainActivity : AppCompatActivity() {
         val sharedPrefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         headerName.text = sharedPrefs.getString("username", "User Name")
         headerEmail.text = sharedPrefs.getString("user_email", "user@example.com")
-
-        // Header click launches ProfileActivity
         headerView.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
             drawerLayout.closeDrawer(GravityCompat.START)
         }
 
+        // NavigationView item selections
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_profile -> {
@@ -87,7 +97,6 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_settings -> {
-                    // When the settings item is clicked, navigate to the SettingsActivity.
                     startActivity(Intent(this, SettingsActivity::class.java))
                     true
                 }
@@ -114,15 +123,17 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
+        // Using the dedicated ImageView for the cart button in the toolbar
         val viewCartButton = findViewById<ImageView>(R.id.viewCartButton)
         viewCartButton.setOnClickListener {
             startActivity(Intent(this, CartActivity::class.java))
         }
 
+        // Setup products RecyclerView and adapter
         productsRecyclerView = findViewById(R.id.productsRecyclerView)
         productsRecyclerView.layoutManager = GridLayoutManager(this, 2)
         productAdapter = ProductAdapter(this, displayedProducts) { product ->
-            // When the user likes a product, add it to the wishlist and launch the liked products screen.
+            // Add product to wishlist when user likes a product.
             addToWishlist(product)
         }
         productsRecyclerView.adapter = productAdapter
@@ -130,11 +141,7 @@ class MainActivity : AppCompatActivity() {
         setupCategoryButtons()
         setupBottomNavigation()
 
-        // Handle search bar focus and text changes
-        val searchBar = findViewById<EditText>(R.id.search_bar)
-        searchBar.setOnFocusChangeListener { _, hasFocus ->
-            bottomNavigation.visibility = if (hasFocus) View.GONE else View.VISIBLE
-        }
+        // Search bar behavior
         searchBar.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
                 hideKeyboardAndClearFocus(searchBar)
@@ -143,8 +150,6 @@ class MainActivity : AppCompatActivity() {
                 false
             }
         }
-
-        // Automatically filter products as the user types
         searchBar.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 filterProducts(s.toString())
@@ -153,7 +158,7 @@ class MainActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { }
         })
 
-        // Tap outside the search bar to clear focus
+        // Clear focus when tapping outside the search bar
         rootLayout.setOnClickListener {
             if (searchBar.hasFocus()) {
                 hideKeyboardAndClearFocus(searchBar)
@@ -162,27 +167,26 @@ class MainActivity : AppCompatActivity() {
 
         fetchProducts()
 
-        // Listen for backstack changes to update bottom navigation selection
         supportFragmentManager.addOnBackStackChangedListener {
             val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
             when (currentFragment) {
                 is ServiceFragment -> bottomNavigation.selectedItemId = R.id.menu_service
+                is CartFragment -> bottomNavigation.selectedItemId = R.id.nav_cart
                 else -> bottomNavigation.selectedItemId = R.id.nav_products
             }
         }
-        val mobileUserId = sharedPreferences.getInt("user_id", -1)
 
+
+        val mobileUserId = sharedPreferences.getInt("user_id", -1)
         if (mobileUserId == -1) {
             Toast.makeText(this, "❌ User not logged in!", Toast.LENGTH_SHORT).show()
             return
         }
-
-// ✅ Fetch notifications for Approved & Declined appointments
+        // Fetch notifications for approved appointments
         checkForApprovedAppointments(mobileUserId)
-
     }
 
-    // Ensure bottom navigation is visible when the window regains focus
+
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
@@ -190,8 +194,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Handle back press: if the search bar is focused, clear it;
-    // otherwise, pop from the fragment backstack if available.
     override fun onBackPressed() {
         val searchBar = findViewById<EditText>(R.id.search_bar)
         if (searchBar.hasFocus()) {
@@ -216,7 +218,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addToWishlist(product: Product) {
-        // Add product to the global liked products store
         LikedProductsStore.addProduct(product)
         Toast.makeText(this, "Added ${product.name} to Wishlist!", Toast.LENGTH_SHORT).show()
         startActivity(Intent(this, LikedProductsActivity::class.java))
@@ -231,13 +232,10 @@ class MainActivity : AppCompatActivity() {
         productAdapter.updateProducts(ArrayList(displayedProducts))
     }
 
-    // Updated loadFragment function that adds the fragment to the backstack with a unique tag.
     private fun loadFragment(fragment: Fragment) {
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
         val fragmentTag = fragment.javaClass.simpleName
-
-        // Check if the fragment already exists in the backstack.
         val existingFragment = fragmentManager.findFragmentByTag(fragmentTag)
         if (existingFragment != null) {
             fragmentTransaction.replace(R.id.fragment_container, existingFragment, fragmentTag)
@@ -249,7 +247,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkUserAndResetIfNeeded() {
-
         val sharedPreferences: SharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         val userId = sharedPreferences.getInt("user_id", -1)
         if (userId == -1) {
@@ -264,7 +261,6 @@ class MainActivity : AppCompatActivity() {
         val allButton: Button = findViewById(R.id.allButton)
         val catButton: Button = findViewById(R.id.catButton)
         val dogButton: Button = findViewById(R.id.dogButton)
-
         allButton.setOnClickListener {
             fetchProductsByCategory("all")
             updateButtonStyles(allButton, catButton, dogButton)
@@ -280,8 +276,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkForApprovedAppointments(userId: Int) {
-        val url = "http://192.168.58.55/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
-
+        val url = "http://192.168.1.12/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
         val request = JsonObjectRequest(
             com.android.volley.Request.Method.GET, url, null,
             { response ->
@@ -296,33 +291,27 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "❌ Error fetching notifications: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         )
-
         Volley.newRequestQueue(this).add(request)
     }
 
     private fun showNotificationDialog(appointments: JSONArray) {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Appointment Update 📅")
-
         var message = ""
-
         for (i in 0 until appointments.length()) {
             val appointment = appointments.getJSONObject(i)
             val serviceName = appointment.getString("service_name")
             val appointmentDate = appointment.getString("appointment_date")
             val status = appointment.getString("status")
-
             if (status == "Approved") {
                 message += "✅ Your appointment for $serviceName on $appointmentDate has been **APPROVED**.\n\n"
             } else if (status == "Declined") {
                 message += "❌ Your appointment for $serviceName on $appointmentDate has been **DECLINED**.\n\n"
             }
         }
-
         if (message.isEmpty()) {
             message = "No new appointment updates."
         }
-
         builder.setMessage(message)
         builder.setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
         builder.show()
@@ -338,12 +327,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupBottomNavigation() {
-        bottomNavigation = findViewById(R.id.bottomNavigation)
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_products -> {
                     showMainUI(true)
-                    // Clear the fragment backstack when returning to the main UI
                     supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                     findViewById<TextView>(R.id.toolbarTitle).text = "Catalog"
                     true
@@ -354,24 +341,45 @@ class MainActivity : AppCompatActivity() {
                     findViewById<TextView>(R.id.toolbarTitle).text = "Service"
                     true
                 }
+                R.id.nav_cart -> {
+                    // Hide the main UI
+                    showMainUI(false)
+                    // Then load the cart
+                    loadFragment(CartFragment())
+                    findViewById<TextView>(R.id.toolbarTitle).text = "Shopping Cart"
+                    true
+                }
                 else -> false
             }
         }
+
     }
+
 
     private fun showMainUI(show: Boolean) {
         val visibility = if (show) View.VISIBLE else View.GONE
+
+        // Hide the search bar
+        findViewById<EditText>(R.id.search_bar).visibility = visibility
+
+        // Hide “Browse Through” text
         findViewById<TextView>(R.id.browseText).visibility = visibility
+
+        // Hide the category buttons
         findViewById<View>(R.id.categoryScrollView).visibility = visibility
+
+        // Hide “Recommended Items” text
         findViewById<TextView>(R.id.recommendTxt).visibility = visibility
+
+        // Hide the product RecyclerView
         findViewById<View>(R.id.productsRecyclerView).visibility = visibility
     }
 
+
     private fun fetchProducts() {
         val request = Request.Builder()
-            .url("http://192.168.58.55/backend/fetch_product.php")
+            .url("http://192.168.1.12/backend/fetch_product.php")
             .build()
-
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
@@ -391,7 +399,7 @@ class MainActivity : AppCompatActivity() {
                     if (json.optBoolean("success", false)) {
                         val productsArray = json.optJSONArray("products") ?: JSONArray()
                         val fetchedProducts = mutableListOf<Product>()
-                        val baseImageUrl = "http://192.168.58.55/backend/images/"
+                        val baseImageUrl = "http://192.168.1.12/backend/images/"
                         for (i in 0 until productsArray.length()) {
                             val productJson = productsArray.getJSONObject(i)
                             val rawImage = productJson.optString("image", "")
@@ -434,10 +442,8 @@ class MainActivity : AppCompatActivity() {
             productAdapter.updateProducts(ArrayList(displayedProducts))
             return
         }
-
-        val url = "http://192.168.58.55/backend/fetch_product.php?category=$category"
+        val url = "http://192.168.1.12/backend/fetch_product.php?category=$category"
         val request = Request.Builder().url(url).build()
-
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
@@ -461,7 +467,7 @@ class MainActivity : AppCompatActivity() {
                         return
                     }
                     val productsArray = jsonResponse.optJSONArray("products") ?: JSONArray()
-                    val baseImageUrl = "http://192.168.58.55/backend/images/"
+                    val baseImageUrl = "http://192.168.1.12/backend/images/"
                     val categoryProducts = mutableListOf<Product>()
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)

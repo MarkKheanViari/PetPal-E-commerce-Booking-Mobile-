@@ -1,12 +1,12 @@
 package com.example.myapplication
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.*
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import okhttp3.*
@@ -16,79 +16,80 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 
-class CartActivity : AppCompatActivity(), CartActionListener {
+class CartFragment : Fragment(), CartActionListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyText: TextView
-    private lateinit var backBtn: ImageView
+    // Removed backBtn property since it's no longer used in the layout
     private lateinit var checkoutButton: ImageView
     private lateinit var totalPriceTextView: TextView
     private val client = OkHttpClient()
     private val cartItems = mutableListOf<HashMap<String, String>>()
     private lateinit var cartAdapter: CartAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Make sure the layout file name matches your resource (e.g. activity_cart.xml)
-        setContentView(R.layout.activity_cart)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment (ensure this resource name matches your XML file)
+        return inflater.inflate(R.layout.activity_cart, container, false)
+    }
 
-        // Find views from the layout
-        recyclerView = findViewById(R.id.cartRecyclerView)
-        emptyText = findViewById(R.id.emptyText)
-        backBtn = findViewById(R.id.backBtn)
-        checkoutButton = findViewById(R.id.checkoutButton)
-        totalPriceTextView = findViewById(R.id.totalPriceTextView)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Find views in the fragment layout
+        recyclerView = view.findViewById(R.id.cartRecyclerView)
+        emptyText = view.findViewById(R.id.emptyText)
+        checkoutButton = view.findViewById(R.id.checkoutButton)
+        totalPriceTextView = view.findViewById(R.id.totalPriceTextView)
 
         // Setup RecyclerView and adapter
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        cartAdapter = CartAdapter(this, cartItems, this)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        cartAdapter = CartAdapter(requireContext(), cartItems, this)
         recyclerView.adapter = cartAdapter
 
-        // Custom back button functionality
-        backBtn.setOnClickListener {
-            finish()
-        }
+        // Removed back button functionality since there's no backBtn in the layout
 
-        // Checkout button functionality: pass all cart items to CheckoutActivity
+        // Checkout button functionality
         checkoutButton.setOnClickListener {
             if (cartItems.isNotEmpty()) {
-                val intent = Intent(this, CheckoutActivity::class.java)
-                intent.putExtra("cartItems", ArrayList(cartItems))
-                startActivity(intent)
+                Toast.makeText(requireContext(), "Proceed to checkout", Toast.LENGTH_SHORT).show()
+                // Here you can load a CheckoutFragment or start CheckoutActivity if preferred.
             } else {
-                Toast.makeText(this, "❌ Your cart is empty.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "❌ Your cart is empty.", Toast.LENGTH_SHORT).show()
             }
         }
 
         fetchCartItems()
     }
 
+    // Update the cart quantity on the server
     override fun updateCartQuantity(cartId: Int, newQuantity: Int) {
         val url = "http://192.168.1.12/backend/update_cart.php"
         val json = JSONObject().apply {
             put("cart_id", cartId)
             put("quantity", newQuantity)
         }
-
         val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = Request.Builder().url(url).post(requestBody).build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(this@CartActivity, "❌ Failed to update quantity", Toast.LENGTH_SHORT).show()
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), "❌ Failed to update quantity", Toast.LENGTH_SHORT).show()
                 }
             }
-
             override fun onResponse(call: Call, response: Response) {
-                runOnUiThread {
-                    Toast.makeText(this@CartActivity, "✅ Quantity updated", Toast.LENGTH_SHORT).show()
-                    fetchCartItems() // Refresh cart
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), "✅ Quantity updated", Toast.LENGTH_SHORT).show()
+                    fetchCartItems() // Refresh cart items
                 }
             }
         })
     }
 
+    // Remove an item from the cart on the server
     override fun removeItemFromCart(cartId: Int) {
         val url = "http://192.168.1.12/backend/remove_from_cart.php"
         val json = JSONObject().apply { put("cart_id", cartId) }
@@ -97,42 +98,33 @@ class CartActivity : AppCompatActivity(), CartActionListener {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(this@CartActivity, "❌ Failed to remove item", Toast.LENGTH_SHORT).show()
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), "❌ Failed to remove item", Toast.LENGTH_SHORT).show()
                 }
             }
-
             override fun onResponse(call: Call, response: Response) {
-                runOnUiThread {
-                    Toast.makeText(this@CartActivity, "✅ Item removed", Toast.LENGTH_SHORT).show()
-                    fetchCartItems() // Refresh cart
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), "✅ Item removed", Toast.LENGTH_SHORT).show()
+                    fetchCartItems() // Refresh cart items
                 }
             }
         })
     }
 
-    // When a product is clicked, open the ProductDetailsActivity with the product's details.
+    // Handle click on a product item (e.g. open product details)
     override fun onProductClick(cartItem: HashMap<String, String>) {
-        val intent = Intent(this, ProductDetailsActivity::class.java)
-        // Assuming the cartItem contains these keys
-        val productId = cartItem["product_id"]?.toIntOrNull() ?: -1
-        intent.putExtra("productId", productId)
-        intent.putExtra("productName", cartItem["name"])
-        intent.putExtra("productImage", cartItem["image"])
-        // If your API doesn't send a description, you can use a default value
-        intent.putExtra("productDescription", cartItem["description"] ?: "No description available.")
-        val productPrice = cartItem["price"]?.toDoubleOrNull() ?: 0.0
-        intent.putExtra("productPrice", productPrice)
-        startActivity(intent)
+        Toast.makeText(requireContext(), "Clicked on ${cartItem["name"]}", Toast.LENGTH_SHORT).show()
+        // Implement navigation to a ProductDetailsFragment or start ProductDetailsActivity as needed
     }
 
+    // Fetch cart items from the server
     private fun fetchCartItems() {
-        val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        val sharedPreferences = requireContext().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
         val mobileUserId = sharedPreferences.getInt("user_id", -1)
 
         if (mobileUserId == -1) {
-            Toast.makeText(this, "❌ Please login to view cart", Toast.LENGTH_SHORT).show()
-            finish()
+            Toast.makeText(requireContext(), "❌ Please login to view cart", Toast.LENGTH_SHORT).show()
+            requireActivity().supportFragmentManager.popBackStack()
             return
         }
 
@@ -141,17 +133,15 @@ class CartActivity : AppCompatActivity(), CartActionListener {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(this@CartActivity, "❌ Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), "❌ Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
-
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
                 if (!responseBody.isNullOrEmpty()) {
                     val jsonResponse = JSONObject(responseBody)
                     val cartArray = jsonResponse.optJSONArray("cart") ?: JSONArray()
-
                     cartItems.clear()
                     var totalPrice = 0.0
 
@@ -173,9 +163,9 @@ class CartActivity : AppCompatActivity(), CartActionListener {
                         cartItems.add(cartItem)
                     }
 
-                    runOnUiThread {
+                    activity?.runOnUiThread {
                         cartAdapter.notifyDataSetChanged()
-                        emptyText.visibility = if (cartItems.isEmpty()) TextView.VISIBLE else TextView.GONE
+                        emptyText.visibility = if (cartItems.isEmpty()) View.VISIBLE else View.GONE
                         totalPriceTextView.text = "₱ %.2f".format(totalPrice)
                     }
                 }

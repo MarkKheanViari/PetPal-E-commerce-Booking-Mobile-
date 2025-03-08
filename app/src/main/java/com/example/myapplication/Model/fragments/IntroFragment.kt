@@ -55,6 +55,7 @@ class IntroFragment : Fragment() {
             val getStartedButton = view.findViewById<Button>(R.id.getStartedButton)
             getStartedButton.setOnClickListener {
                 // Set that user has finished seeing the intro
+
                 val sharedPrefs = requireActivity().getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                 sharedPrefs.edit().putBoolean("hasSeenIntro", true).apply()
 
