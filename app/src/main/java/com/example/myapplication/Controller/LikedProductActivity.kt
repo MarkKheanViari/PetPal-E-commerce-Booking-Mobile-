@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.MaterialToolbar
 
 class LikedProductsActivity : AppCompatActivity() {
 
@@ -14,6 +15,20 @@ class LikedProductsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_liked_products)
 
+        setupToolbar()
+        setupRecyclerView()
+    }
+
+    private fun setupToolbar() {
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        toolbar.setNavigationOnClickListener {
+            // Handle the back action
+            onBackPressed()
+        }
+    }
+
+    private fun setupRecyclerView() {
         likedProductsRecyclerView = findViewById(R.id.likedProductsRecyclerView)
         likedProductsRecyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -27,6 +42,3 @@ class LikedProductsActivity : AppCompatActivity() {
         likedProductAdapter.updateProducts(ArrayList(LikedProductsStore.likedProducts))
     }
 }
-
-
-
