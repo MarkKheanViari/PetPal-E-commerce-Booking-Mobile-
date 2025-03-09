@@ -4,9 +4,10 @@
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
+    app:cardElevation="6dp"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    android:background="@android:color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,56 +24,42 @@
             android:layout_height="150dp"
             android:scaleType="centerCrop"
             android:contentDescription="Product Image"
-            android:src="@drawable/cat" />
+            android:background="@drawable/rounded_corners"
+            android:clipToOutline="true"
+            />
 
-        <!-- Product Name and Wishlist Button -->
-        <LinearLayout
+        <!-- Product Name -->
+        <TextView
+            android:id="@+id/productName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="@color/light_orange"
-            android:paddingTop="5dp">
-
-            <TextView
-                android:id="@+id/productName"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Cat Food"
-                android:textSize="16sp"
-                android:layout_marginStart="7dp"
-                android:textColor="@android:color/black"
-                android:textStyle="bold" />
-
-            <ImageButton
-                android:id="@+id/wishlistButton"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:background="?attr/selectableItemBackground"
-                android:src="@drawable/ic_favorite_border"
-                android:contentDescription="Add to Wishlist"
-                android:padding="4dp"/>
-        </LinearLayout>
+            android:text="Cat Food"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginTop="5dp"
+            android:maxLines="2"
+            android:ellipsize="end"/>
 
         <!-- Price and Stock Info -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:background="@color/light_orange"
-            android:padding="8dp">
+            android:padding="8dp"
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/productPrice"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="$60"
+                android:text="₱60"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:layout_weight="1"
-                android:textColor="@android:color/black" />
-
+                android:textColor="@android:color/black"
+                android:gravity="start" />
 
             <TextView
                 android:id="@+id/productStock"
@@ -80,8 +67,21 @@
                 android:layout_height="wrap_content"
                 android:text="Stock: 5"
                 android:textSize="14sp"
-                android:gravity="end"
-                android:textColor="@android:color/black"/>
+                android:textColor="@android:color/darker_gray"
+                android:gravity="end"/>
         </LinearLayout>
+
+        <!-- Buy Now Button -->
+        <Button
+            android:id="@+id/buyNowButton"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="Buy Now"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:backgroundTint="@color/orange"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/button_rounded"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
