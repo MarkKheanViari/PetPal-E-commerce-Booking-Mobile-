@@ -85,6 +85,8 @@ class CartActivity : AppCompatActivity(), CartActionListener {
                     Toast.makeText(this@CartActivity, "✅ Quantity updated", Toast.LENGTH_SHORT).show()
                     fetchCartItems() // Refresh cart
                 }
+
+
             }
         })
     }
