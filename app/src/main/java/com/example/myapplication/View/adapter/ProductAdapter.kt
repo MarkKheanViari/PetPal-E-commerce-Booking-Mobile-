@@ -30,9 +30,9 @@ class ProductAdapter(
         val itemPrice: TextView = view.findViewById(R.id.productPrice)
         val itemStock: TextView = view.findViewById(R.id.productStock)
         val itemImage: ImageView = view.findViewById(R.id.productImage)
-        //val addToCartButton: Button = view.findViewById(R.id.addToCartButton)
-        val wishlistButton: ImageButton = view.findViewById(R.id.wishlistButton)
+        val buyNowButton: Button = view.findViewById(R.id.buyNowButton) // ✅ Corrected reference
     }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.product_item, parent, false)
@@ -56,44 +56,29 @@ class ProductAdapter(
             .load(product.imageUrl)
             .into(holder.itemImage)
 
-        /*/ Show "Out of Stock" when quantity is 0
-        if (product.quantity == 0) {
-            holder.itemStock.text = "Out of Stock"
-            holder.itemStock.setTextColor(Color.RED)
-            holder.addToCartButton.isEnabled = false
-            holder.addToCartButton.text = "Out of Stock"
-            holder.addToCartButton.setBackgroundColor(Color.GRAY)
-        } else {
-            holder.itemStock.setTextColor(Color.BLACK)
-            holder.addToCartButton.isEnabled = true
-            holder.addToCartButton.text = "Add to Cart"
-            holder.addToCartButton.setBackgroundColor(Color.parseColor("#FF9800"))
-
-            holder.addToCartButton.setOnClickListener {
-                addToCart(product, position)
-            }
-        } */
-
         // Open Product Details when clicking the item
         holder.itemView.setOnClickListener {
             val intent = Intent(context, ProductDetailsActivity::class.java).apply {
                 putExtra("productId", product.id)
                 putExtra("productName", product.name)
                 putExtra("productImage", product.imageUrl)
-                Log.d("ProductAdapter", "Image URL: ${product.imageUrl}")
                 putExtra("productDescription", product.description)
                 putExtra("productPrice", product.price)
             }
             context.startActivity(intent)
         }
 
-        // Wishlist functionality
-        holder.wishlistButton.setOnClickListener {
-            wishlistListener(product)
-            Toast.makeText(context, "Added to Wishlist", Toast.LENGTH_SHORT).show()
+        // Handle Buy Now Button Click
+        holder.buyNowButton.setOnClickListener {
+            val intent = Intent(context, CheckoutActivity::class.java).apply {
+                putExtra("productId", product.id)
+                putExtra("productName", product.name)
+                putExtra("productImage", product.imageUrl)
+                putExtra("productPrice", product.price)
+            }
+            context.startActivity(intent)
         }
     }
-
     fun updateProducts(newProducts: List<Product>) {
         products.clear()
         products.addAll(newProducts)
@@ -120,7 +105,7 @@ class ProductAdapter(
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/add_to_cart.php")
+            .url("http://192.168.1.65/backend/add_to_cart.php")
             .post(requestBody)
             .build()
 

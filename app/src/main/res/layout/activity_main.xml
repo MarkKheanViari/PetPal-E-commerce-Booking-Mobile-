@@ -130,27 +130,122 @@
                     android:layout_height="40dp"
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/orange"
-                    android:text="ALL ITEMS"
-                    android:textColor="@android:color/white" />
+                    android:text="All"
+                    android:textColor="@android:color/white"
+                    android:onClick="onCategorySelected"/>
 
                 <Button
-                    android:id="@+id/catButton"
+                    android:id="@+id/foodButton"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/light_smth"
-                    android:text="CAT ITEMS"
-                    android:textColor="@color/black" />
+                    android:text="Food"
+                    android:textColor="@color/black"
+                    android:onClick="onCategorySelected"/>
 
                 <Button
-                    android:id="@+id/dogButton"
+                    android:id="@+id/treatsButton"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/light_smth"
-                    android:text="DOG ITEMS"
-                    android:textColor="@color/black" />
+                    android:text="Treats"
+                    android:textColor="@color/black"
+                    android:onClick="onCategorySelected"/>
+
+                <Button
+                    android:id="@+id/essentialsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/light_smth"
+                    android:text="Essentials"
+                    android:textColor="@color/black"
+                    android:onClick="onCategorySelected"/>
+
+                <Button
+                    android:id="@+id/suppliesButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/light_smth"
+                    android:text="Supplies"
+                    android:textColor="@color/black"
+                    android:onClick="onCategorySelected"/>
+
+                <Button
+                    android:id="@+id/accessoriesButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/light_smth"
+                    android:text="Accessories"
+                    android:textColor="@color/black"
+                    android:onClick="onCategorySelected"/>
+
+                <Button
+                    android:id="@+id/groomingButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/light_smth"
+                    android:text="Grooming"
+                    android:textColor="@color/black"
+                    android:onClick="onCategorySelected"/>
+
+                <Button
+                    android:id="@+id/hygieneButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/light_smth"
+                    android:text="Hygiene"
+                    android:textColor="@color/black"
+                    android:onClick="onCategorySelected"/>
+
+                <Button
+                    android:id="@+id/toysButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/light_smth"
+                    android:text="Toys"
+                    android:textColor="@color/black"
+                    android:onClick="onCategorySelected"/>
+
+                <Button
+                    android:id="@+id/enrichmentButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/light_smth"
+                    android:text="Enrichment"
+                    android:textColor="@color/black"
+                    android:onClick="onCategorySelected"/>
+
+                <Button
+                    android:id="@+id/healthcareButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/light_smth"
+                    android:text="Healthcare"
+                    android:textColor="@color/black"
+                    android:onClick="onCategorySelected"/>
+
+                <Button
+                    android:id="@+id/trainingButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/light_smth"
+                    android:text="Training"
+                    android:textColor="@color/black"
+                    android:onClick="onCategorySelected"/>
             </LinearLayout>
         </HorizontalScrollView>
+
 
         <!-- "Recommended Items" Text -->
         <TextView

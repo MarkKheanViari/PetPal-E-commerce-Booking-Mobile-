@@ -52,6 +52,13 @@ class MainActivity : AppCompatActivity() {
         // Initialize bottomNavigation as soon as possible
         bottomNavigation = findViewById(R.id.bottomNavigation)
 
+        // Set default selection to 'nav_products' (Catalog)
+        bottomNavigation.selectedItemId = R.id.nav_products
+
+        // Load the Catalog UI by default
+        showMainUI(true)
+        findViewById<TextView>(R.id.toolbarTitle).text = "Catalog"
+
         // Now you can safely access bottomNavigation in your listeners
         val searchBar = findViewById<EditText>(R.id.search_bar)
         searchBar.setOnFocusChangeListener { _, hasFocus ->
@@ -186,6 +193,30 @@ class MainActivity : AppCompatActivity() {
         checkForApprovedAppointments(mobileUserId)
     }
 
+    private fun setupCategoryButtons() {
+        val categories = listOf(
+            Pair(R.id.allButton, "all"),
+            Pair(R.id.foodButton, "Food"),
+            Pair(R.id.treatsButton, "Treats"),
+            Pair(R.id.essentialsButton, "Essentials"),
+            Pair(R.id.suppliesButton, "Supplies"),
+            Pair(R.id.accessoriesButton, "Accessories"),
+            Pair(R.id.groomingButton, "Grooming"),
+            Pair(R.id.hygieneButton, "Hygiene"),
+            Pair(R.id.toysButton, "Toys"),
+            Pair(R.id.enrichmentButton, "Enrichment"),
+            Pair(R.id.healthcareButton, "Healthcare"),
+            Pair(R.id.trainingButton, "Training")
+        )
+
+        categories.forEach { (buttonId, category) ->
+            val button = findViewById<Button>(buttonId)
+            button.setOnClickListener {
+                fetchProductsByCategory(category)
+                updateButtonStyles(button, categories.map { findViewById(it.first) })
+            }
+        }
+    }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
@@ -202,13 +233,19 @@ class MainActivity : AppCompatActivity() {
                 bottomNavigation.visibility = View.VISIBLE
             }, 300)
         } else {
-            if (supportFragmentManager.backStackEntryCount > 0) {
-                supportFragmentManager.popBackStack()
+            val fragmentManager = supportFragmentManager
+            if (fragmentManager.backStackEntryCount > 0) {
+                fragmentManager.popBackStack()
             } else {
+                // When coming back from Profile, reset to "Catalog"
+                bottomNavigation.selectedItemId = R.id.nav_products
+                showMainUI(true)
+                findViewById<TextView>(R.id.toolbarTitle).text = "Catalog"
                 super.onBackPressed()
             }
         }
     }
+
 
     private fun hideKeyboardAndClearFocus(searchBar: EditText) {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -234,15 +271,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadFragment(fragment: Fragment) {
         val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
         val fragmentTag = fragment.javaClass.simpleName
+
+        // Check if the fragment is already added
         val existingFragment = fragmentManager.findFragmentByTag(fragmentTag)
-        if (existingFragment != null) {
-            fragmentTransaction.replace(R.id.fragment_container, existingFragment, fragmentTag)
-        } else {
-            fragmentTransaction.replace(R.id.fragment_container, fragment, fragmentTag)
-            fragmentTransaction.addToBackStack(fragmentTag)
+
+        if (existingFragment != null && existingFragment.isAdded) {
+            // If fragment is already added, do nothing
+            return
         }
+
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.fragment_container, fragment, fragmentTag)
+        fragmentTransaction.addToBackStack(fragmentTag)
         fragmentTransaction.commit()
     }
 
@@ -257,26 +298,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupCategoryButtons() {
-        val allButton: Button = findViewById(R.id.allButton)
-        val catButton: Button = findViewById(R.id.catButton)
-        val dogButton: Button = findViewById(R.id.dogButton)
-        allButton.setOnClickListener {
-            fetchProductsByCategory("all")
-            updateButtonStyles(allButton, catButton, dogButton)
-        }
-        catButton.setOnClickListener {
-            fetchProductsByCategory("cat")
-            updateButtonStyles(catButton, allButton, dogButton)
-        }
-        dogButton.setOnClickListener {
-            fetchProductsByCategory("dog")
-            updateButtonStyles(dogButton, allButton, catButton)
-        }
-    }
-
     private fun checkForApprovedAppointments(userId: Int) {
-        val url = "http://192.168.1.12/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
+        val url = "http://192.168.1.65/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
         val request = JsonObjectRequest(
             com.android.volley.Request.Method.GET, url, null,
             { response ->
@@ -317,10 +340,10 @@ class MainActivity : AppCompatActivity() {
         builder.show()
     }
 
-    private fun updateButtonStyles(selectedButton: Button, vararg otherButtons: Button) {
+    private fun updateButtonStyles(selectedButton: Button, allButtons: List<Button>) {
         selectedButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.orange))
         selectedButton.setTextColor(Color.WHITE)
-        for (button in otherButtons) {
+        allButtons.filter { it != selectedButton }.forEach { button ->
             button.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.light_smth))
             button.setTextColor(Color.BLACK)
         }
@@ -337,22 +360,23 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.menu_service -> {
                     showMainUI(false)
-                    loadFragment(ServiceFragment())
+                    loadFragment(ServiceFragment()) // Uses fixed method
                     findViewById<TextView>(R.id.toolbarTitle).text = "Service"
                     true
                 }
                 R.id.nav_cart -> {
-                    // Hide the main UI
                     showMainUI(false)
-                    // Then load the cart
-                    loadFragment(CartFragment())
+                    loadFragment(CartFragment()) // Uses fixed method
                     findViewById<TextView>(R.id.toolbarTitle).text = "Shopping Cart"
+                    true
+                }
+                R.id.nav_profile -> {
+                    startActivity(Intent(this, ProfileActivity::class.java))
                     true
                 }
                 else -> false
             }
         }
-
     }
 
 
@@ -377,15 +401,16 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun fetchProducts() {
-        val request = Request.Builder()
-            .url("http://192.168.1.12/backend/fetch_product.php")
-            .build()
+        val url = "http://192.168.1.65/backend/fetch_product.php"
+        val request = Request.Builder().url(url).build()
+
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
                     Toast.makeText(this@MainActivity, "❌ Network error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
+
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
                 if (responseBody.isNullOrEmpty()) {
@@ -394,38 +419,47 @@ class MainActivity : AppCompatActivity() {
                     }
                     return
                 }
+
                 try {
                     val json = JSONObject(responseBody)
-                    if (json.optBoolean("success", false)) {
-                        val productsArray = json.optJSONArray("products") ?: JSONArray()
-                        val fetchedProducts = mutableListOf<Product>()
-                        val baseImageUrl = "http://192.168.1.12/backend/images/"
-                        for (i in 0 until productsArray.length()) {
-                            val productJson = productsArray.getJSONObject(i)
-                            val rawImage = productJson.optString("image", "")
-                            val fullImageUrl = if (rawImage.startsWith("http")) rawImage else baseImageUrl + rawImage
-                            fetchedProducts.add(
-                                Product(
-                                    id = productJson.getInt("id"),
-                                    name = productJson.getString("name"),
-                                    price = productJson.getString("price"),
-                                    description = productJson.getString("description"),
-                                    quantity = productJson.getInt("quantity"),
-                                    imageUrl = fullImageUrl
-                                )
+                    if (!json.optBoolean("success", false)) return
+
+                    val productsArray = json.optJSONArray("products") ?: JSONArray()
+                    val fetchedProducts = mutableListOf<Product>()
+                    val baseImageUrl = "http://192.168.1.65/backend/uploads/"
+
+                    for (i in 0 until productsArray.length()) {
+                        val productJson = productsArray.getJSONObject(i)
+
+                        val rawImage = productJson.optString("image", "").trim()
+                        val fullImageUrl = if (rawImage.isNotEmpty() && !rawImage.startsWith("http")) {
+                            baseImageUrl + rawImage
+                        } else {
+                            rawImage
+                        }
+                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "${baseImageUrl}default.jpg"
+
+                        fetchedProducts.add(
+                            Product(
+                                id = productJson.getInt("id"),
+                                name = productJson.getString("name"),
+                                price = productJson.getString("price"),
+                                description = productJson.getString("description"),
+                                quantity = productJson.getInt("quantity"),
+                                imageUrl = finalImageUrl // ✅ Ensures correct image URL
                             )
-                        }
-                        runOnUiThread {
-                            Log.d("DEBUG:MainActivity", "Fetched ${fetchedProducts.size} products")
-                            allProducts.clear()
-                            allProducts.addAll(fetchedProducts)
-                            displayedProducts.clear()
-                            displayedProducts.addAll(fetchedProducts)
-                            productAdapter.updateProducts(ArrayList(displayedProducts))
-                        }
-                    } else {
-                        Log.e("DEBUG:MainActivity", "Server returned success=false")
+                        )
                     }
+
+                    runOnUiThread {
+                        Log.d("DEBUG:MainActivity", "Fetched ${fetchedProducts.size} products")
+                        allProducts.clear()
+                        allProducts.addAll(fetchedProducts)
+                        displayedProducts.clear()
+                        displayedProducts.addAll(fetchedProducts)
+                        productAdapter.updateProducts(ArrayList(displayedProducts))
+                    }
+
                 } catch (e: Exception) {
                     runOnUiThread {
                         Toast.makeText(this@MainActivity, "Parsing error: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -435,6 +469,7 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+
     private fun fetchProductsByCategory(category: String) {
         if (category == "all") {
             displayedProducts.clear()
@@ -442,14 +477,17 @@ class MainActivity : AppCompatActivity() {
             productAdapter.updateProducts(ArrayList(displayedProducts))
             return
         }
-        val url = "http://192.168.1.12/backend/fetch_product.php?category=$category"
+
+        val url = "http://192.168.1.65/backend/fetch_product.php?category=$category"
         val request = Request.Builder().url(url).build()
+
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
                     Toast.makeText(this@MainActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
+
             override fun onResponse(call: Call, response: Response) {
                 val responseData = response.body?.string()
                 if (responseData.isNullOrEmpty()) {
@@ -458,21 +496,26 @@ class MainActivity : AppCompatActivity() {
                     }
                     return
                 }
+
                 try {
                     val jsonResponse = JSONObject(responseData)
-                    if (!jsonResponse.optBoolean("success", false)) {
-                        runOnUiThread {
-                            Toast.makeText(this@MainActivity, "Failed to fetch products for $category", Toast.LENGTH_SHORT).show()
-                        }
-                        return
-                    }
-                    val productsArray = jsonResponse.optJSONArray("products") ?: JSONArray()
-                    val baseImageUrl = "http://192.168.1.12/backend/images/"
+                    if (!jsonResponse.optBoolean("success", false)) return
+
+                    // ✅ Declare categoryProducts before usage
                     val categoryProducts = mutableListOf<Product>()
+
+                    val productsArray = jsonResponse.optJSONArray("products") ?: JSONArray()
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)
-                        val rawImage = productJson.optString("image", "")
-                        val fullImageUrl = if (rawImage.startsWith("http")) rawImage else baseImageUrl + rawImage
+
+                        val rawImage = productJson.optString("image", "").trim()
+                        val fullImageUrl = if (rawImage.isNotEmpty() && !rawImage.startsWith("http")) {
+                            "http://192.168.1.65/backend/uploads/$rawImage"
+                        } else {
+                            rawImage // If it's already a full URL, use it as-is
+                        }
+                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.1.65/backend/uploads/default.jpg"
+
                         categoryProducts.add(
                             Product(
                                 id = productJson.getInt("id"),
@@ -480,10 +523,11 @@ class MainActivity : AppCompatActivity() {
                                 price = productJson.getString("price"),
                                 description = productJson.getString("description"),
                                 quantity = productJson.getInt("quantity"),
-                                imageUrl = fullImageUrl
+                                imageUrl = finalImageUrl // ✅ Ensures correct image URL
                             )
                         )
                     }
+
                     runOnUiThread {
                         displayedProducts.clear()
                         displayedProducts.addAll(categoryProducts)
@@ -497,6 +541,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
+
 
     private fun doLogout() {
         val sharedPrefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
