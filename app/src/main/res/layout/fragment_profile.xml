@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    android:background="@color/white">
+
+    <!-- Profile Header -->
+    <ImageView
+        android:id="@+id/user_profile"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/cat"
+        android:contentDescription="@string/design_desc"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User Name"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/user_profile"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/user_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="user@example.com"
+        android:textSize="17sp"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/user_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="5dp"/>
+
+    <!-- Example: Scheduled Services Button -->
+    <TextView
+        android:id="@+id/scheduled_services"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/add_subtract_corners"
+        android:text="   Scheduled Services"
+        android:textSize="18sp"
+        android:gravity="center_vertical"
+        android:textColor="@color/black"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        app:drawableStartCompat="@drawable/cat"
+        app:layout_constraintTop_toBottomOf="@id/user_email"
+        android:layout_marginTop="20dp"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
