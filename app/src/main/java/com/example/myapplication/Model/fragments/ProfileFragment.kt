@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.example.myapplication.ProfileActivity
 
 class ProfileFragment : Fragment() {
 
@@ -33,6 +34,13 @@ class ProfileFragment : Fragment() {
         val orderDetails = view.findViewById<TextView>(R.id.order_details)
         orderDetails?.setOnClickListener {
             val intent = Intent(requireContext(), OrderDetailsActivity::class.java)
+            startActivity(intent)
+        }
+
+        // **New**: Click listener for "Profile Details" (or any button you want to lead to the profile)
+        val profileDetails = view.findViewById<TextView>(R.id.profile_details)
+        profileDetails?.setOnClickListener {
+            val intent = Intent(requireContext(), ProfileActivity::class.java)
             startActivity(intent)
         }
     }

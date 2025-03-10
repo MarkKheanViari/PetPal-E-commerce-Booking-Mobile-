@@ -29,5 +29,7 @@
     <string name="intro4_text">Personalized recommendations based on your pet\'s breed, age, and preferences—because every pet deserves the best!</string>
     <string name="intro5_text">Shop, book, and care for your pets with PetPal. Start exploring now!</string>
     <string name="get_started"/>
+    <string name="profile_picture"/>
+    <string name="edit_photo"/>
 
 </resources>
