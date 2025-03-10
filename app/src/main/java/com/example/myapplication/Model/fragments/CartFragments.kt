@@ -101,39 +101,15 @@ class CartFragment : Fragment(), CartActionListener {
                 val responseBody = response.body?.string()
                 if (!responseBody.isNullOrEmpty()) {
                     val jsonResponse = JSONObject(responseBody)
-                    val cartArray = jsonResponse.optJSONArray("cart") ?: JSONArray()
-
-                    cartItems.clear()
-                    var totalPrice = 0.0
-
-                    for (i in 0 until cartArray.length()) {
-                        val item = cartArray.getJSONObject(i)
-                        val price = item.getDouble("price")
-                        val quantity = item.getInt("quantity")
-                        totalPrice += price * quantity
-
-                        val cartItem = hashMapOf(
-                            "cart_id" to item.getString("cart_id"),
-                            "product_id" to item.getString("product_id"),
-                            "name" to item.getString("name"),
-                            "price" to price.toString(),
-                            "quantity" to quantity.toString(),
-                            "image" to item.getString("image"),
-                            "description" to item.optString("description", "No description available")
-                        )
-                        cartItems.add(cartItem)
-                    }
+                    val success = jsonResponse.optBoolean("success", false)
+                    val message = jsonResponse.optString("message", "")
 
                     activity?.runOnUiThread {
-                        // Log data to check if cartItems are populated
-                        Log.d("CartFragment", "Cart Items: $cartItems")
-
-                        cartAdapter.notifyDataSetChanged()
-
-                        emptyText.visibility = if (cartItems.isEmpty()) View.VISIBLE else View.GONE
-                        recyclerView.visibility = if (cartItems.isNotEmpty()) View.VISIBLE else View.GONE
-
-                        totalPriceTextView.text = "₱ %.2f".format(totalPrice)
+                        if (success) {
+                            fetchCartItems() // Refresh the cart if the update was successful
+                        } else {
+                            Toast.makeText(requireContext(), "❌ $message", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
@@ -146,8 +122,7 @@ class CartFragment : Fragment(), CartActionListener {
     override fun removeItemFromCart(cartId: Int) {
         val url = "http://192.168.1.65/backend/remove_from_cart.php"
         val json = JSONObject().apply { put("cart_id", cartId) }
-        val requestBody =
-            json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+        val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = Request.Builder().url(url).post(requestBody).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -166,7 +141,6 @@ class CartFragment : Fragment(), CartActionListener {
             }
         })
     }
-
     /**
      * When a product in the cart is clicked.
      * Opens ProductDetailsActivity (or a fragment).

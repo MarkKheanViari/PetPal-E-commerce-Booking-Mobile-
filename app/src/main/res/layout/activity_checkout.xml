@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -40,12 +38,68 @@
             android:fontFamily="@font/alata" />
     </androidx.appcompat.widget.Toolbar>
 
+    <!-- Address Section at the Top -->
+    <!-- Address Section at the Top (Clickable) -->
+    <LinearLayout
+        android:id="@+id/addressSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:clickable="true"
+        android:focusable="true">
+
+    <!-- Address Details (User Name, Phone, and Address) -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <!-- User Name and Phone Number -->
+        <TextView
+            android:id="@+id/addressName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mark Khean M. Viari"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"/>
+
+        <TextView
+            android:id="@+id/addressPhone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+63 909 979 4946"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginTop="4dp"/>
+
+        <!-- User Address -->
+        <TextView
+            android:id="@+id/addressDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3rd Block, Baltazar St., Sagud-Bahley, San Fabian, Pangasinan, North Luzon, 2433"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginTop="4dp"/>
+    </LinearLayout>
+
+</LinearLayout>
+
+
     <!-- Scrollable area for main content -->
     <ScrollView
         android:id="@+id/scrollContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintTop_toBottomOf="@id/addressSection"
         app:layout_constraintBottom_toTopOf="@+id/bottom_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -65,59 +119,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp" />
-
-            <!-- Example quantity section (optional) -->
-            <LinearLayout
-                android:id="@+id/productQuantity"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Quantity"
-                    android:textSize="17sp"
-                    android:fontFamily="@font/alata"
-                    android:textColor="@color/black" />
-
-                <!-- Spacer -->
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
-
-                <!-- Decrease quantity -->
-                <ImageView
-                    android:id="@+id/decrease_quantity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/remove"
-                    android:background="@drawable/add_subtract_corners"
-                    android:contentDescription="Decrease quantity"
-                    android:layout_marginEnd="8dp" />
-
-                <!-- Current quantity -->
-                <TextView
-                    android:id="@+id/product_quantity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1"
-                    android:textSize="20sp"
-                    android:textColor="@color/black"
-                    android:layout_marginEnd="8dp" />
-
-                <!-- Increase quantity -->
-                <ImageView
-                    android:id="@+id/add_product"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/add"
-                    android:background="@drawable/add_subtract_corners"
-                    android:contentDescription="Increase quantity" />
-            </LinearLayout>
 
             <!-- Order Summary Container -->
             <LinearLayout
@@ -150,32 +151,11 @@
                         android:textColor="@color/black"
                         android:textSize="15sp" />
                     <TextView
+                        android:id="@+id/subtotalTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/alata"
-                        android:text="$ 50"
-                        android:textColor="@color/black"
-                        android:textSize="15sp" />
-                </LinearLayout>
-
-                <!-- Shipping Row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Shipping"
-                        android:textColor="@color/black"
-                        android:textSize="15sp" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/alata"
-                        android:text="$ 50"
+                        android:text="₱ 0.00"
                         android:textColor="@color/black"
                         android:textSize="15sp" />
                 </LinearLayout>
@@ -205,7 +185,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/alata"
-                        android:text="$ 50"
+                        android:text="₱ 0.00"
                         android:textColor="@color/black"
                         android:textSize="15sp" />
                 </LinearLayout>

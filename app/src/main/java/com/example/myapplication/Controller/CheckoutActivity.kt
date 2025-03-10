@@ -42,6 +42,13 @@ class CheckoutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_checkout)
 
+        // Get product details from intent
+        val productId = intent.getIntExtra("productId", -1)
+        val productName = intent.getStringExtra("productName") ?: "Unknown"
+        val productPrice = intent.getDoubleExtra("productPrice", 0.0)
+        val productImage = intent.getStringExtra("productImage") ?: ""
+        val quantity = intent.getIntExtra("quantity", 1) // Default to 1 if not passed
+
         // Back button listener
         val backBtn = findViewById<ImageView>(R.id.backBtn)
         backBtn.setOnClickListener { finish() }
@@ -54,7 +61,7 @@ class CheckoutActivity : AppCompatActivity() {
         paymentMethodText = findViewById(R.id.paymentMethodText)
         placeOrderButton = findViewById(R.id.checkoutBtn)
 
-        // Retrieve cart items from intent extras (or use an empty list)
+        // Retrieve the cart items from the previous activity
         cartItems = intent.getSerializableExtra("cartItems") as? ArrayList<HashMap<String, String>> ?: arrayListOf()
         cartList = arrayListOf()
 
@@ -68,11 +75,11 @@ class CheckoutActivity : AppCompatActivity() {
         val checkoutBtn = findViewById<ImageView>(R.id.checkoutBtn)
         checkoutBtn.setOnClickListener { submitOrder() }
 
-        // Convert raw cart items into CartItem objects for calculation
+        // Convert the raw cart data to CartItem objects for calculation
         cartList.addAll(cartItems.map {
             CartItem(
                 productId = it["product_id"]?.toInt() ?: 0,
-                productName = it["product_name"] ?: "Unknown",
+                productName = it["name"] ?: "Unknown",
                 quantity = it["quantity"]?.toInt() ?: 1,
                 price = it["price"]?.toDouble() ?: 0.0
             )
@@ -84,10 +91,14 @@ class CheckoutActivity : AppCompatActivity() {
         // Calculate total price and update UI
         calculateTotal()
 
-        // Initialize RecyclerView with CheckoutAdapter
+        // Initialize UI elements
+        recyclerView = findViewById(R.id.checkoutRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         val checkoutAdapter = CheckoutAdapter(this, cartItems)
         recyclerView.adapter = checkoutAdapter
+
+        // Call the method to calculate the summary
+        calculateOrderSummary()
 
         // Payment Method Selection dialog
         selectPaymentButton.setOnClickListener {
@@ -99,6 +110,7 @@ class CheckoutActivity : AppCompatActivity() {
             }
             builder.show()
         }
+
     }
 
     private fun fetchUserInfo() {
@@ -202,6 +214,36 @@ class CheckoutActivity : AppCompatActivity() {
         cartTotal = cartList.sumOf { it.price * it.quantity }
         totalTextView.text = "Total: ₱%.2f".format(cartTotal)
     }
+
+    // Calculate Subtotal, Shipping, and Total Price
+    private fun calculateOrderSummary() {
+        var subtotal = 0.0
+        var totalItems = 0
+
+        // Loop through cart items and calculate the subtotal
+        for (item in cartList) {
+            subtotal += item.price * item.quantity
+            totalItems += item.quantity
+        }
+
+        // Assume shipping is a fixed value. You can modify this logic if needed.
+        val shippingFee = 50.0  // Change this to dynamic if required
+        val total = subtotal + shippingFee
+
+        // Update the UI with the calculated values
+        val orderTotalPriceSummary = findViewById<TextView>(R.id.orderTotalPriceSummary)
+        orderTotalPriceSummary.text = "₱%.2f".format(total)
+
+        // Set subtotal, shipping, and total in the order summary section
+        val subtotalTextView = findViewById<TextView>(R.id.subtotalTextView)
+        subtotalTextView.text = "₱%.2f".format(subtotal)
+
+
+        // Update the "Total Items" text dynamically
+        val totalItemsTextView = findViewById<TextView>(R.id.orderTotalPriceSummary)
+        totalItemsTextView.text = "Total ($totalItems Item${if (totalItems > 1) "s" else ""})"
+    }
+
 
     // Optional: Navigate to address selection if needed.
     fun navigateToAddressSelection(view: View) {

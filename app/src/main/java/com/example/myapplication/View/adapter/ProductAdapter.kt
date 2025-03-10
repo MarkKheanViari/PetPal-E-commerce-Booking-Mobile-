@@ -73,8 +73,8 @@ class ProductAdapter(
             val intent = Intent(context, CheckoutActivity::class.java).apply {
                 putExtra("productId", product.id)
                 putExtra("productName", product.name)
-                putExtra("productImage", product.imageUrl)
                 putExtra("productPrice", product.price)
+                putExtra("productImage", product.imageUrl)  // Make sure image URL is passed too
             }
             context.startActivity(intent)
         }
