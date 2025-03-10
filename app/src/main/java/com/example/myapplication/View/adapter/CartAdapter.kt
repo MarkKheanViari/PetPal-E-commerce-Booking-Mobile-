@@ -10,7 +10,7 @@ import com.bumptech.glide.Glide
 
 class CartAdapter(
     private val context: Context,
-    private val cartItems: List<HashMap<String, String>>,
+    private val cartItems: MutableList<HashMap<String, String>>,
     private val listener: CartActionListener
 ) : RecyclerView.Adapter<CartAdapter.CartViewHolder>() {
 
@@ -55,6 +55,12 @@ class CartAdapter(
     }
 
     override fun getItemCount(): Int = cartItems.size
+
+    fun updateCartItems(newCartItems: List<HashMap<String, String>>) {
+        cartItems.clear()
+        cartItems.addAll(newCartItems)
+        notifyDataSetChanged()
+    }
 
     class CartViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val productImage: ImageView = view.findViewById(R.id.productImageView)

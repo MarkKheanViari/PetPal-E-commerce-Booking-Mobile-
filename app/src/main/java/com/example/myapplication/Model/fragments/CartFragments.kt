@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import android.content.Context
+import android.util.Log
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -76,92 +77,23 @@ class CartFragment : Fragment(), CartActionListener {
      * Called when quantity changes in the cart. Updates the server.
      */
     override fun updateCartQuantity(cartId: Int, newQuantity: Int) {
-        val url = "http://192.168.1.12/backend/update_cart.php"
+        val url = "http://192.168.1.65/backend/update_cart.php"
         val json = JSONObject().apply {
             put("cart_id", cartId)
             put("quantity", newQuantity)
         }
-        val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+        val requestBody =
+            json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = Request.Builder().url(url).post(requestBody).build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 activity?.runOnUiThread {
-                    Toast.makeText(requireContext(), "❌ Failed to update quantity", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                activity?.runOnUiThread {
-                    Toast.makeText(requireContext(), "✅ Quantity updated", Toast.LENGTH_SHORT).show()
-                    fetchCartItems() // Refresh cart
-                }
-            }
-        })
-    }
-
-    /**
-     * Called when an item is removed from the cart. Updates the server.
-     */
-    override fun removeItemFromCart(cartId: Int) {
-        val url = "http://192.168.1.12/backend/remove_from_cart.php"
-        val json = JSONObject().apply { put("cart_id", cartId) }
-        val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
-        val request = Request.Builder().url(url).post(requestBody).build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                activity?.runOnUiThread {
-                    Toast.makeText(requireContext(), "❌ Failed to remove item", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                activity?.runOnUiThread {
-                    Toast.makeText(requireContext(), "✅ Item removed", Toast.LENGTH_SHORT).show()
-                    fetchCartItems() // Refresh cart
-                }
-            }
-        })
-    }
-
-    /**
-     * When a product in the cart is clicked.
-     * Opens ProductDetailsActivity (or a fragment).
-     */
-    override fun onProductClick(cartItem: HashMap<String, String>) {
-        val intent = Intent(requireContext(), ProductDetailsActivity::class.java)
-        val productId = cartItem["product_id"]?.toIntOrNull() ?: -1
-        intent.putExtra("productId", productId)
-        intent.putExtra("productName", cartItem["name"])
-        intent.putExtra("productImage", cartItem["image"])
-        intent.putExtra("productDescription", cartItem["description"] ?: "No description available.")
-        val productPrice = cartItem["price"]?.toDoubleOrNull() ?: 0.0
-        intent.putExtra("productPrice", productPrice)
-        startActivity(intent)
-    }
-
-    /**
-     * Fetch the cart items from the server for the logged-in user.
-     */
-    private fun fetchCartItems() {
-        val sharedPreferences = requireContext().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-        val mobileUserId = sharedPreferences.getInt("user_id", -1)
-
-        if (mobileUserId == -1) {
-            Toast.makeText(requireContext(), "❌ Please login to view cart", Toast.LENGTH_SHORT).show()
-            // Optionally pop back if no user
-            requireActivity().supportFragmentManager.popBackStack()
-            return
-        }
-
-        val url = "http://192.168.1.12/backend/fetch_cart.php?mobile_user_id=$mobileUserId"
-        val request = Request.Builder().url(url).get().build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                activity?.runOnUiThread {
-                    Toast.makeText(requireContext(), "❌ Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "❌ Failed to update quantity",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
@@ -193,8 +125,133 @@ class CartFragment : Fragment(), CartActionListener {
                     }
 
                     activity?.runOnUiThread {
+                        // Log data to check if cartItems are populated
+                        Log.d("CartFragment", "Cart Items: $cartItems")
+
                         cartAdapter.notifyDataSetChanged()
+
                         emptyText.visibility = if (cartItems.isEmpty()) View.VISIBLE else View.GONE
+                        recyclerView.visibility = if (cartItems.isNotEmpty()) View.VISIBLE else View.GONE
+
+                        totalPriceTextView.text = "₱ %.2f".format(totalPrice)
+                    }
+                }
+            }
+        })
+    }
+
+    /**
+     * Called when an item is removed from the cart. Updates the server.
+     */
+    override fun removeItemFromCart(cartId: Int) {
+        val url = "http://192.168.1.65/backend/remove_from_cart.php"
+        val json = JSONObject().apply { put("cart_id", cartId) }
+        val requestBody =
+            json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+        val request = Request.Builder().url(url).post(requestBody).build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), "❌ Failed to remove item", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), "✅ Item removed", Toast.LENGTH_SHORT).show()
+                    fetchCartItems() // Refresh cart
+                }
+            }
+        })
+    }
+
+    /**
+     * When a product in the cart is clicked.
+     * Opens ProductDetailsActivity (or a fragment).
+     */
+    override fun onProductClick(cartItem: HashMap<String, String>) {
+        val intent = Intent(requireContext(), ProductDetailsActivity::class.java)
+        val productId = cartItem["product_id"]?.toIntOrNull() ?: -1
+        intent.putExtra("productId", productId)
+        intent.putExtra("productName", cartItem["name"])
+        intent.putExtra("productImage", cartItem["image"])
+        intent.putExtra(
+            "productDescription",
+            cartItem["description"] ?: "No description available."
+        )
+        val productPrice = cartItem["price"]?.toDoubleOrNull() ?: 0.0
+        intent.putExtra("productPrice", productPrice)
+        startActivity(intent)
+    }
+
+    /**
+     * Fetch the cart items from the server for the logged-in user.
+     */
+    private fun fetchCartItems() {
+        val sharedPreferences =
+            requireContext().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        val mobileUserId = sharedPreferences.getInt("user_id", -1)
+
+        if (mobileUserId == -1) {
+            Toast.makeText(requireContext(), "❌ Please login to view cart", Toast.LENGTH_SHORT)
+                .show()
+            return
+        }
+
+        val url = "http://192.168.1.65/backend/fetch_cart.php?mobile_user_id=$mobileUserId"
+        val request = Request.Builder().url(url).get().build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                activity?.runOnUiThread {
+                    Toast.makeText(
+                        requireContext(),
+                        "❌ Network Error: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                if (!responseBody.isNullOrEmpty()) {
+                    val jsonResponse = JSONObject(responseBody)
+                    val cartArray = jsonResponse.optJSONArray("cart") ?: JSONArray()
+
+                    cartItems.clear()
+                    var totalPrice = 0.0
+
+                    for (i in 0 until cartArray.length()) {
+                        val item = cartArray.getJSONObject(i)
+                        val price = item.getDouble("price")
+                        val quantity = item.getInt("quantity")
+                        totalPrice += price * quantity
+
+                        val cartItem = hashMapOf(
+                            "cart_id" to item.getString("cart_id"),
+                            "product_id" to item.getString("product_id"),
+                            "name" to item.getString("name"),
+                            "price" to price.toString(),
+                            "quantity" to quantity.toString(),
+                            "image" to item.getString("image"),
+                            "description" to item.optString(
+                                "description",
+                                "No description available"
+                            )
+                        )
+                        cartItems.add(cartItem)
+                    }
+
+                    activity?.runOnUiThread {
+                        // After data is updated, notify the adapter and update visibility
+                        cartAdapter.notifyDataSetChanged()
+
+                        emptyText.visibility = if (cartItems.isEmpty()) View.VISIBLE else View.GONE
+                        recyclerView.visibility =
+                            if (cartItems.isNotEmpty()) View.VISIBLE else View.GONE
+
                         totalPriceTextView.text = "₱ %.2f".format(totalPrice)
                     }
                 }

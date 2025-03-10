@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -8,6 +7,7 @@
     android:background="@android:color/white"
     android:layout_marginBottom="4dp">
 
+    <!-- Product Image -->
     <ImageView
         android:id="@+id/productImageView"
         android:layout_width="60dp"
@@ -16,10 +16,7 @@
         android:scaleType="centerCrop"
         android:layout_marginEnd="8dp" />
 
-    <!-- Middle layout: Use 0dp width + weight so it expands just enough -->
-
-    <!-- Remove button: wrap_content and optional marginStart -->
-
+    <!-- Product Details -->
     <LinearLayout
         android:layout_width="229dp"
         android:layout_height="105dp"
@@ -44,6 +41,7 @@
             android:textColor="@android:color/holo_red_dark"
             android:textSize="14sp" />
 
+        <!-- Quantity Controls -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -79,6 +77,7 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Remove Item Button -->
     <Button
         android:id="@+id/removeItemButton"
         android:layout_width="wrap_content"

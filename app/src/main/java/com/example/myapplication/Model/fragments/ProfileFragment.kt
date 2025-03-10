@@ -22,11 +22,17 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Example: click listener for "Scheduled Services"
+        // Click listener for "Scheduled Services"
         val scheduledServices = view.findViewById<TextView>(R.id.scheduled_services)
         scheduledServices?.setOnClickListener {
-            // If you need to open an activity from here:
             val intent = Intent(requireContext(), ScheduledServicesActivity::class.java)
+            startActivity(intent)
+        }
+
+        // Click listener for "Order Details"
+        val orderDetails = view.findViewById<TextView>(R.id.order_details)
+        orderDetails?.setOnClickListener {
+            val intent = Intent(requireContext(), OrderDetailsActivity::class.java)
             startActivity(intent)
         }
     }

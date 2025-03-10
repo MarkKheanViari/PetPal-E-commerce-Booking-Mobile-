@@ -260,7 +260,6 @@
             app:layout_constraintTop_toBottomOf="@id/categoryScrollView"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <!-- Fragment Container for Products/Fragments -->
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
@@ -272,12 +271,35 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
+            <!-- RecyclerView for displaying products -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/productsRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scrollbars="vertical" />
+
+            <!-- TextView for showing no products available message -->
+            <TextView
+                android:id="@+id/noProductsTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No products available for this category"
+                android:visibility="gone"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:gravity="center" />
+
+            <!-- ProgressBar for loading state -->
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:layout_centerInParent="true"
+                style="@android:style/Widget.ProgressBar.Small" />
         </FrameLayout>
+
+
 
         <!-- Bottom Navigation -->
         <com.google.android.material.bottomnavigation.BottomNavigationView

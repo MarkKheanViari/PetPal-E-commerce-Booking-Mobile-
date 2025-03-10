@@ -22,6 +22,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -311,7 +312,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkForApprovedAppointments(userId: Int) {
-        val url = "http://192.168.1.12/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
+        val url = "http://192.168.1.65/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
         val request = JsonObjectRequest(
             com.android.volley.Request.Method.GET, url, null,
             { response ->
@@ -418,7 +419,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchProducts() {
-        val url = "http://192.168.1.12/backend/fetch_product.php"
+        val url = "http://192.168.1.65/backend/fetch_product.php"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -443,7 +444,7 @@ class MainActivity : AppCompatActivity() {
 
                     val productsArray = json.optJSONArray("products") ?: JSONArray()
                     val fetchedProducts = mutableListOf<Product>()
-                    val baseImageUrl = "http://192.168.1.12/backend/uploads/"
+                    val baseImageUrl = "http://192.168.1.65/backend/uploads/"
 
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)
@@ -486,28 +487,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchProductsByCategory(category: String) {
-        if (category == "all") {
-            displayedProducts.clear()
-            displayedProducts.addAll(allProducts)
-            productAdapter.updateProducts(ArrayList(displayedProducts))
-            return
-        }
+        // Show loading spinner
+        val progressBar: ProgressBar = findViewById(R.id.progressBar) // Reference to your progress bar
+        progressBar.visibility = View.VISIBLE
 
-        val url = "http://192.168.1.12/backend/fetch_product.php?category=$category"
+        // Clear any previous products
+        displayedProducts.clear()
+        productAdapter.notifyDataSetChanged()
+
+        // Fetch products by category
+        val url = "http://192.168.1.65/backend/fetch_product.php?category=$category"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    progressBar.visibility = View.GONE
+                    Toast.makeText(this@MainActivity, "❌ Network error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseData = response.body?.string()
-                if (responseData.isNullOrEmpty()) {
+
+                // Check if no products are available
+                if (responseData.isNullOrEmpty() || responseData.contains("\"products\":[]")) {
                     runOnUiThread {
-                        Toast.makeText(this@MainActivity, "No products found for $category", Toast.LENGTH_SHORT).show()
+                        // Show the "No products available" message and hide the RecyclerView
+                        findViewById<RecyclerView>(R.id.productsRecyclerView).visibility = View.GONE
+                        findViewById<TextView>(R.id.noProductsTextView).visibility = View.VISIBLE
+                        progressBar.visibility = View.GONE
                     }
                     return
                 }
@@ -518,15 +527,16 @@ class MainActivity : AppCompatActivity() {
 
                     val categoryProducts = mutableListOf<Product>()
                     val productsArray = jsonResponse.optJSONArray("products") ?: JSONArray()
+
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)
                         val rawImage = productJson.optString("image", "").trim()
                         val fullImageUrl = if (rawImage.isNotEmpty() && !rawImage.startsWith("http")) {
-                            "http://192.168.1.12/backend/uploads/$rawImage"
+                            "http://192.168.1.65/backend/uploads/$rawImage"
                         } else {
                             rawImage
                         }
-                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.1.12/backend/uploads/default.jpg"
+                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.1.65/backend/uploads/default.jpg"
 
                         categoryProducts.add(
                             Product(
@@ -541,18 +551,52 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     runOnUiThread {
-                        displayedProducts.clear()
-                        displayedProducts.addAll(categoryProducts)
-                        productAdapter.updateProducts(ArrayList(displayedProducts))
+                        // Hide progress bar once data is loaded
+                        progressBar.visibility = View.GONE
+
+                        if (categoryProducts.isNotEmpty()) {
+                            displayedProducts.clear()
+                            displayedProducts.addAll(categoryProducts)
+                            productAdapter.updateProducts(ArrayList(displayedProducts))
+
+                            // Show the RecyclerView with products
+                            findViewById<RecyclerView>(R.id.productsRecyclerView).visibility = View.VISIBLE
+                            findViewById<TextView>(R.id.noProductsTextView).visibility = View.GONE
+                        } else {
+                            // Show no products message
+                            Toast.makeText(this@MainActivity, "No products available for this category", Toast.LENGTH_SHORT).show()
+                            findViewById<RecyclerView>(R.id.productsRecyclerView).visibility = View.GONE
+                            findViewById<TextView>(R.id.noProductsTextView).visibility = View.VISIBLE
+                        }
                     }
                 } catch (e: Exception) {
                     runOnUiThread {
+                        progressBar.visibility = View.GONE
                         Toast.makeText(this@MainActivity, "Error parsing data: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
         })
     }
+
+    // Function to disable category buttons
+    private fun disableCategoryButtons(disable: Boolean) {
+        val buttons = listOf(
+            R.id.allButton, R.id.foodButton, R.id.treatsButton, R.id.essentialsButton,
+            R.id.suppliesButton, R.id.accessoriesButton, R.id.groomingButton, R.id.hygieneButton,
+            R.id.toysButton, R.id.enrichmentButton, R.id.healthcareButton, R.id.trainingButton
+        )
+        buttons.forEach { buttonId ->
+            val button = findViewById<Button>(buttonId)
+            button.isEnabled = !disable
+        }
+    }
+
+    // Function to enable category buttons again
+    private fun enableCategoryButtons() {
+        disableCategoryButtons(false)
+    }
+
 
     private fun doLogout() {
         val sharedPrefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)

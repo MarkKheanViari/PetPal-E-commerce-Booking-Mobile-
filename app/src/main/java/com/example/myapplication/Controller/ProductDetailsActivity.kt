@@ -3,7 +3,6 @@ package com.example.myapplication
 import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
-import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -115,7 +114,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/add_to_cart.php")
+            .url("http://192.168.1.65/backend/add_to_cart.php")
             .post(requestBody)
             .build()
 
