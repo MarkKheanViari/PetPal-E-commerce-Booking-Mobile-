@@ -2,26 +2,30 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Toolbar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/orange"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:title="Scheduled Services"
-        app:titleTextColor="@android:color/white"
-        app:menu="@menu/scheduled_services_menu"
-        android:focusable="false"
-        android:clickable="true"
-        app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"/>
+    <!-- Toolbar with Back Button -->
 
     <!-- Tab Layout for Grooming & Veterinary -->
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="400dp"
+        android:layout_height="54dp"
+        android:background="@color/orange"
+        android:navigationIcon="@drawable/back_button"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/scheduled_services_menu"
+        app:navigationIconTint="@android:color/white"
+        app:title="Scheduled Services"
+        app:titleTextColor="@android:color/white" />
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
@@ -33,30 +37,32 @@
         app:tabSelectedTextColor="@color/orange"
         app:tabTextColor="@android:color/darker_gray"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <com.google.android.material.tabs.TabItem
-        android:id="@+id/tabGrooming"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Grooming" />
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tabGrooming"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Grooming" />
 
-    <com.google.android.material.tabs.TabItem
-        android:id="@+id/tabVeterinary"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Veterinary" />
-</com.google.android.material.tabs.TabLayout>
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tabVeterinary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Veterinary"
+            tools:layout_editor_absoluteX="27dp"
+            tools:layout_editor_absoluteY="47dp" />
+    </com.google.android.material.tabs.TabLayout>
 
     <!-- ViewPager for Swiping Between Tabs -->
-<androidx.viewpager2.widget.ViewPager2
-android:id="@+id/viewPager"
-android:layout_width="match_parent"
-android:layout_height="0dp"
-app:layout_constraintTop_toBottomOf="@id/tabLayout"
-app:layout_constraintBottom_toBottomOf="parent"
-app:layout_constraintStart_toStartOf="parent"
-app:layout_constraintEnd_toEndOf="parent"/>
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

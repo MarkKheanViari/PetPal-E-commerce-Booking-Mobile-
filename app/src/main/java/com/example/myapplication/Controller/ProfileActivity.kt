@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -21,12 +22,19 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var etBirthday: EditText
     private lateinit var etSocial: EditText
     private lateinit var btnSaveProfile: Button
+    private lateinit var btnBack: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile_details)
 
-        // Initialize views
+        // Initialize back button and set click listener
+        btnBack = findViewById(R.id.btnBack)
+        btnBack.setOnClickListener {
+            finish() // Close the activity and go back
+        }
+
+        // Initialize profile detail views
         imgProfile = findViewById(R.id.imgProfile)
         etUsername = findViewById(R.id.etUsername)
         etEmail = findViewById(R.id.etEmail)
@@ -58,7 +66,7 @@ class ProfileActivity : AppCompatActivity() {
         social: String
     ) {
         // Replace the URL with your actual server URL
-        val url = "https://192.168.1.65/backend/update_user_info.php"
+        val url = "https://192.168.1.12/backend/update_user_info.php"
 
         val requestQueue = Volley.newRequestQueue(this)
         val stringRequest = object : StringRequest(
@@ -80,7 +88,6 @@ class ProfileActivity : AppCompatActivity() {
                 params["gender"] = gender
                 params["birthday"] = birthday
                 params["social"] = social
-
 
                 return params
             }

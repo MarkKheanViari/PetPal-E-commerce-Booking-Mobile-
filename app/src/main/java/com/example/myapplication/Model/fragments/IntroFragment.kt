@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
+import com.example.myapplication.LoginActivity
 import com.example.myapplication.R
 import com.example.myapplication.RegisterActivity
 
@@ -60,7 +61,7 @@ class IntroFragment : Fragment() {
                 sharedPrefs.edit().putBoolean("hasSeenIntro", true).apply()
 
                 // Navigate to RegisterActivity
-                startActivity(Intent(requireContext(), RegisterActivity::class.java))
+                startActivity(Intent(requireContext(), LoginActivity::class.java))
                 requireActivity().finish() // Close onboarding so user can't go back
             }
         }

@@ -1,35 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.widget.ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.widget.ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:fillViewport="true">  <!-- Ensures the content fills the screen if it's less than the height -->
+    android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:padding="16dp"
         android:background="@color/white">
 
-        <!-- Toolbar/Header -->
+        <!-- Toolbar/Header without the navigation icon -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/orange"
             android:title="Order Details"
             android:titleTextColor="@android:color/white"
-            android:navigationIcon="@drawable/back_button"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
+        <!-- Back Button as an ImageButton placed over the Toolbar -->
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/back_button"
+            android:background="?attr/selectableItemBackgroundBorderless"
+
+            android:padding="8dp"
+            app:layout_constraintTop_toTopOf="@id/toolbar"
+            app:layout_constraintBottom_toBottomOf="@id/toolbar"
+            app:layout_constraintStart_toStartOf="@id/toolbar"/>
+
         <!-- Tab Layout for Order Status -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/order_status_tabs"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:tabMode="fixed"
             app:tabGravity="fill"
@@ -55,7 +68,7 @@
         <!-- RecyclerView for displaying the ordered products -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/order_details_recycler_view"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"

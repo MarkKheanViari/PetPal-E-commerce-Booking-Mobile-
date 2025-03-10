@@ -1,106 +1,124 @@
-<ScrollView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <!-- Back Button -->
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:padding="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/back_button" />
+
+    <!-- Scrollable Content -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:layout_marginTop="56dp">
 
-        <!-- Profile Image & Edit Icon -->
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="16dp">
-
-            <ImageView
-                android:id="@+id/imgProfile"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/profile"
-                android:scaleType="centerCrop" />
-
-            <ImageView
-                android:id="@+id/imgEditPhoto"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="4dp"
-                android:src="@drawable/baseline_edit_24" />
-        </FrameLayout>
-
-        <!-- Username -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Username" />
-        <EditText
-            android:id="@+id/etUsername"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <!-- Email -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Email" />
-        <EditText
-            android:id="@+id/etEmail"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textEmailAddress" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <!-- Phone -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Phone" />
-        <EditText
-            android:id="@+id/etPhone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="phone" />
+            <!-- Profile Image & Edit Icon -->
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp">
 
-        <!-- Gender -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Gender" />
-        <EditText
-            android:id="@+id/etGender"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+                <ImageView
+                    android:id="@+id/imgProfile"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/profile"
+                    android:scaleType="centerCrop" />
 
-        <!-- Birthday -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Birthday" />
-        <EditText
-            android:id="@+id/etBirthday"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="date" />
+                <ImageView
+                    android:id="@+id/imgEditPhoto"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="4dp"
+                    android:src="@drawable/baseline_edit_24" />
+            </FrameLayout>
 
-        <!-- Social Media -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Social Media" />
-        <EditText
-            android:id="@+id/etSocial"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            <!-- Username -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Username" />
+            <EditText
+                android:id="@+id/etUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-        <!-- Save Button -->
-        <Button
-            android:id="@+id/btnSaveProfile"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Save Changes"
-            android:layout_marginTop="16dp" />
-    </LinearLayout>
-</ScrollView>
+            <!-- Email -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email" />
+            <EditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress" />
+
+            <!-- Phone -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phone" />
+            <EditText
+                android:id="@+id/etPhone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="phone" />
+
+            <!-- Gender -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gender" />
+            <EditText
+                android:id="@+id/etGender"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Birthday -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Birthday" />
+            <EditText
+                android:id="@+id/etBirthday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="date" />
+
+            <!-- Social Media -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Social Media" />
+            <EditText
+                android:id="@+id/etSocial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Save Button -->
+            <Button
+                android:id="@+id/btnSaveProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Save Changes"
+                android:layout_marginTop="16dp" />
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>
