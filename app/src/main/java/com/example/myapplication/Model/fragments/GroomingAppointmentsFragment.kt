@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import org.json.JSONObject
 
 class GroomingAppointmentsFragment : Fragment() {
 
@@ -27,7 +26,10 @@ class GroomingAppointmentsFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        appointmentAdapter = AppointmentAdapter(appointmentList)
+        // ✅ Pass a callback to refresh after cancellation
+        appointmentAdapter = AppointmentAdapter(requireContext(), appointmentList) {
+            fetchAppointments() // Refresh list after cancellation
+        }
         recyclerView.adapter = appointmentAdapter
 
         fetchAppointments()
@@ -44,7 +46,7 @@ class GroomingAppointmentsFragment : Fragment() {
             return
         }
 
-        val url = "http://192.168.1.12/backend/fetch_appointments.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.65/backend/fetch_appointments.php?mobile_user_id=$mobileUserId"
 
         val request = JsonObjectRequest(Request.Method.GET, url, null,
             { response ->
@@ -56,7 +58,9 @@ class GroomingAppointmentsFragment : Fragment() {
 
                     for (i in 0 until appointmentsArray.length()) {
                         val item = appointmentsArray.getJSONObject(i)
-                        if (item.getString("service_type") == "Grooming") {  // ✅ Only Grooming
+
+                        // ✅ Only fetch Grooming appointments & exclude "Cleared"
+                        if (item.getString("service_type") == "Grooming" && item.getString("status") != "Cleared") {
                             val appointment = Appointment(
                                 serviceName = item.getString("service_name"),
                                 serviceType = item.getString("service_type"),
