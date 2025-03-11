@@ -4,12 +4,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import com.example.myapplication.Controller.WelcomeActivity
@@ -20,7 +15,7 @@ import org.json.JSONObject
 import java.io.IOException
 
 class LoginActivity : AppCompatActivity() {
-    private lateinit var backBtn : ImageView
+    private lateinit var backBtn: ImageView
     private lateinit var usernameInput: EditText
     private lateinit var passwordInput: EditText
     private lateinit var loginButton: Button
@@ -37,12 +32,12 @@ class LoginActivity : AppCompatActivity() {
         // Initialize SharedPreferences
         sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
 
-        // If the user did not choose "Remember Me" previously, clear stored login data.
+        // Clear stored login data if "Remember Me" was not checked
         if (!sharedPreferences.getBoolean("remember_me", false)) {
             sharedPreferences.edit().clear().apply()
         }
 
-        // Check if user is already logged in (i.e. if user_id exists in SharedPreferences)
+        // Auto-login if user is already logged in
         if (sharedPreferences.contains("user_id")) {
             startMainActivity()
             finish()
@@ -161,7 +156,7 @@ class LoginActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 try {
                     val responseData = response.body?.string()
-                    val jsonResponse = JSONObject(responseData)
+                    val jsonResponse = JSONObject(responseData ?: "")
 
                     runOnUiThread {
                         if (jsonResponse.optBoolean("success", false)) {
@@ -169,31 +164,33 @@ class LoginActivity : AppCompatActivity() {
                             Log.d("LoginActivity", "Received user_id: $userId")
 
                             if (userId != -1) {
-                                // Save user data including email using optString with a default value.
-                                // Also store the "remember_me" flag based on the checkbox.
+                                // Retrieve username and email from the response
+                                val returnedUsername = jsonResponse.getString("username")
+                                val returnedEmail = jsonResponse.optString("email", "user@example.com")
+
+                                // Store user data including email in SharedPreferences
                                 sharedPreferences.edit().apply {
                                     putInt("user_id", userId)
-                                    putString("username", jsonResponse.getString("username"))
-                                    putString("user_email", jsonResponse.optString("email", "user@example.com"))
-                                    putString("location", jsonResponse.optString("location", ""))
-                                    putString("contact_number", jsonResponse.optString("contact_number", ""))
+                                    putString("username", returnedUsername)
+                                    putString("user_email", returnedEmail)
+                                    // You can also store additional fields here.
                                     putBoolean("remember_me", rememberMeCheckBox.isChecked)
                                     putBoolean("isLoggedIn", true)
-                                    putBoolean("hasSeenIntro", true)
                                     apply()
                                 }
 
-                                Log.d("LoginActivity", "Stored user_id: ${sharedPreferences.getInt("user_id", -1)}")
+                                // Optional: Show a welcome message
+                                Toast.makeText(this@LoginActivity, "Welcome, $returnedUsername!", Toast.LENGTH_LONG).show()
+
+                                // Navigate to the main screen
                                 startMainActivity()
                                 finish()
                             } else {
                                 Toast.makeText(this@LoginActivity, "Error: User ID is missing!", Toast.LENGTH_LONG).show()
                             }
                         } else {
-                            // If login fails, check if the error message indicates a wrong password.
                             val errorMessage = jsonResponse.optString("message", "Login failed")
                             if (errorMessage.contains("wrong password", ignoreCase = true)) {
-                                // Set an error on the password field so the hint displays "Wrong password"
                                 passwordInput.error = "Wrong password"
                                 passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
                             } else {
