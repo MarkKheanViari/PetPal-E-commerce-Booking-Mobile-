@@ -11,6 +11,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
+import com.example.myapplication.Controller.WelcomeActivity
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -22,6 +24,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var usernameInput: EditText
     private lateinit var passwordInput: EditText
     private lateinit var loginButton: Button
+    private lateinit var forgotpass : TextView
     private lateinit var registerLink: TextView
     private lateinit var rememberMeCheckBox: CheckBox
     private lateinit var sharedPreferences: SharedPreferences
@@ -51,26 +54,87 @@ class LoginActivity : AppCompatActivity() {
         usernameInput = findViewById(R.id.usernameInput)
         passwordInput = findViewById(R.id.passwordInput)
         loginButton = findViewById(R.id.loginButton)
+        forgotpass = findViewById(R.id.forgotPass)
         registerLink = findViewById(R.id.registerLink)
         rememberMeCheckBox = findViewById(R.id.rememberMe)
 
+        forgotpass.paintFlags = forgotpass.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
+        forgotpass.setTextColor(getColor(R.color.smth_orange))
+
+        registerLink.paintFlags = registerLink.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
+        registerLink.setTextColor(getColor(R.color.smth_orange))
+
+        backBtn.setOnClickListener {
+            startActivity(Intent(this, WelcomeActivity::class.java))
+            finish()
+        }
+
         // Set up click listeners
         loginButton.setOnClickListener {
-            val username = usernameInput.text.toString()
-            val password = passwordInput.text.toString()
+            val username = usernameInput.text.toString().trim()
+            val password = passwordInput.text.toString().trim()
 
-            if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+            var isValid = true
+
+            if (username.isEmpty()) {
+                usernameInput.error = "Username is Required"
+                usernameInput.setBackgroundResource(R.drawable.edittext_error_background)
+                isValid = false
             }
 
-            performLogin(username, password)
+            if (password.isEmpty()) {
+                passwordInput.error = "Password is Required"
+                passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                isValid = false
+            }
+
+            if (isValid) {
+                performLogin(username, password)
+            }
         }
+
+        usernameInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) { // When user leaves username field
+                val username = usernameInput.text.toString().trim()
+                if (username.isBlank()) {
+                    usernameInput.error = "Username is Required"
+                    usernameInput.setBackgroundResource(R.drawable.edittext_error_background)
+                } else {
+                    usernameInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                }
+            }
+        }
+
+        passwordInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) { // When user leaves password field
+                val password = passwordInput.text.toString().trim()
+                if (password.isBlank()) {
+                    passwordInput.error = "Password is Required"
+                    passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                } else {
+                    passwordInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                }
+            }
+        }
+
+        usernameInput.addTextChangedListener {
+            usernameInput.error = null
+            usernameInput.setBackgroundResource(R.drawable.login_design)
+        }
+
+        passwordInput.addTextChangedListener {
+            passwordInput.error = null
+            passwordInput.setBackgroundResource(R.drawable.login_design)
+        }
+
+
+
 
         registerLink.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
+    // Function to reset errors and background
 
     private fun performLogin(username: String, password: String) {
         val jsonObject = JSONObject().apply {
@@ -82,9 +146,9 @@ class LoginActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/mobile_login.php")
-            .post(requestBody)
-            .build()
+        .url("http://192.168.1.12/backend/mobile_login.php")
+        .post(requestBody)
+        .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -131,6 +195,7 @@ class LoginActivity : AppCompatActivity() {
                             if (errorMessage.contains("wrong password", ignoreCase = true)) {
                                 // Set an error on the password field so the hint displays "Wrong password"
                                 passwordInput.error = "Wrong password"
+                                passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
                             } else {
                                 Toast.makeText(this@LoginActivity, errorMessage, Toast.LENGTH_LONG).show()
                             }

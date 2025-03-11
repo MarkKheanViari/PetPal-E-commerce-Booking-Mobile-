@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
+import com.example.myapplication.Controller.WelcomeActivity
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -12,36 +14,234 @@ import java.io.IOException
 
 class RegisterActivity : AppCompatActivity() {
 
+    private lateinit var backBtn : ImageView
     private lateinit var usernameInput: EditText
-    private lateinit var emailInput: EditText
+    private lateinit var emailInput : EditText
+    private lateinit var locationInput : EditText
+    private lateinit var contactInput : EditText
+    private lateinit var ageInput : EditText
     private lateinit var passwordInput: EditText
     private lateinit var confirmPasswordInput: EditText
-    private lateinit var locationInput: EditText
-    private lateinit var ageInput: EditText
-    private lateinit var contactInput: EditText
     private lateinit var termsCheckbox: CheckBox
-    private lateinit var registerButton: Button
-    private lateinit var loginSugg: TextView  // Login suggestion TextView
     private lateinit var termsLink: TextView  // Terms and Conditions link
     private lateinit var privacyLink: TextView  // Privacy Policy link
+    private lateinit var registerButton: Button
+    private lateinit var loginSugg: TextView  // Login suggestion TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
         // Initialize views
-        usernameInput = findViewById(R.id.usernameInput)
-        emailInput = findViewById(R.id.emailInput)
-        passwordInput = findViewById(R.id.passwordInput)
-        confirmPasswordInput = findViewById(R.id.confirmPasswordInput)
-        locationInput = findViewById(R.id.locationInput)
-        ageInput = findViewById(R.id.ageInput)
-        contactInput = findViewById(R.id.contactInput)
+        backBtn = findViewById(R.id.backBtn)
+        usernameInput = findViewById(R.id.usernameInput) //EditText
+        emailInput = findViewById(R.id.emailInput) //EditText
+        locationInput = findViewById(R.id.locationInput) //EditText
+        contactInput = findViewById(R.id.contactInput) //EditText
+        ageInput = findViewById(R.id.ageInput) //EditText
+        passwordInput = findViewById(R.id.passwordInput) //EditText
+        confirmPasswordInput = findViewById(R.id.confirmPasswordInput) //EditText
         termsCheckbox = findViewById(R.id.termsCheckbox)
+        termsLink = findViewById(R.id.termsLink)
+        privacyLink = findViewById(R.id.privacyPolicyLink)
         registerButton = findViewById(R.id.registerButton)
-        loginSugg = findViewById(R.id.login_sugg)
-        termsLink = findViewById(R.id.terms)
-        privacyLink = findViewById(R.id.privacyPolicy)
+        loginSugg = findViewById(R.id.loginSugg)
+
+        backBtn.setOnClickListener {
+            startActivity(Intent(this, WelcomeActivity::class.java))
+            finish()
+        }
+
+        // Register button listener
+        registerButton.setOnClickListener {
+            val username = usernameInput.text.toString().trim()
+            val email = emailInput.text.toString().trim()
+            val location = locationInput.text.toString().trim()
+            val contact = contactInput.text.toString().trim()
+            val age = ageInput.text.toString().trim()
+            val password = passwordInput.text.toString().trim()
+            val confirmPassword = confirmPasswordInput.text.toString().trim()
+
+            var isValid = true
+
+
+            if (username.contains(" ")) {
+                usernameInput.error = "Username cannot contain spaces"
+                usernameInput.setBackgroundResource(R.drawable.edittext_error_background)
+                isValid = false
+            }
+
+            if (contact.length != 11) {
+                contactInput.error = "Invalid contact number"
+                contactInput.setBackgroundResource(R.drawable.edittext_error_background)
+                isValid = false
+            }
+
+            if (age.contains(" ")) {
+                ageInput.error = "Age cannot contain spaces"
+                ageInput.setBackgroundResource(R.drawable.edittext_error_background)
+                isValid = false
+            } else {
+                val ageInt = age.toIntOrNull()
+                if (ageInt == null || ageInt < 9 || ageInt > 80) {
+                    ageInput.error = "Age must be between 9 and 80"
+                    ageInput.setBackgroundResource(R.drawable.edittext_error_background)
+                    isValid = false
+                }
+            }
+
+            if (password < 6.toString() && password > 16.toString()) {
+                passwordInput.error = "Password must be between 6 or 16 characters"
+                passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                isValid = false
+            } else if (password.contains(" ")) {
+                passwordInput.error = "Password cannot contain spaces"
+                passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                isValid = false
+            } else if (password != confirmPassword) {
+                confirmPasswordInput.error = "Passwords do not match"
+                confirmPasswordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                isValid = false
+            }
+
+            if (!termsCheckbox.isChecked) {
+                Toast.makeText(this, "Please accept the Terms and Conditions", Toast.LENGTH_SHORT).show()
+                isValid = false
+            }
+
+            if (isValid) {
+                registerUser(username, email, location, contact, age, password)
+            }
+        }
+
+
+        termsLink.paintFlags = termsLink.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
+        termsLink.setTextColor(getColor(R.color.smth_orange))
+
+        privacyLink.paintFlags = privacyLink.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
+        privacyLink.setTextColor(getColor(R.color.smth_orange))
+
+        loginSugg.paintFlags = loginSugg.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
+        loginSugg.setTextColor(getColor(R.color.smth_orange))
+
+        usernameInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) { // When user leaves username field
+                val username = usernameInput.text.toString().trim()
+                if (username.isBlank()) {
+                    usernameInput.error = "Username is Required"
+                    usernameInput.setBackgroundResource(R.drawable.edittext_error_background)
+                } else {
+                    usernameInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                }
+            }
+        }
+
+        emailInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) { // When user leaves username field
+                val email = emailInput.text.toString().trim()
+                if (email.isBlank()) {
+                    emailInput.error = "Email is Required"
+                    emailInput.setBackgroundResource(R.drawable.edittext_error_background)
+                } else {
+                    emailInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                }
+            }
+        }
+
+        locationInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) { // When user leaves username field
+                val location = locationInput.text.toString().trim()
+                if (location.isBlank()) {
+                    locationInput.error = "Location is Required"
+                    locationInput.setBackgroundResource(R.drawable.edittext_error_background)
+                } else {
+                    locationInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                }
+            }
+        }
+
+        ageInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) { // When user leaves username field
+                val age = ageInput.text.toString().trim()
+                if (age.isBlank()) {
+                    ageInput.error = "Age is Required"
+                    ageInput.setBackgroundResource(R.drawable.edittext_error_background)
+                } else {
+                    ageInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                }
+            }
+        }
+
+        contactInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) { // When user leaves username field
+                val contact = contactInput.text.toString().trim()
+                if (contact.isBlank()) {
+                    contactInput.error = "Contact Number is Required"
+                    contactInput.setBackgroundResource(R.drawable.edittext_error_background)
+                } else {
+                    contactInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                }
+            }
+        }
+
+        passwordInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) { // When user leaves password field
+                val password = passwordInput.text.toString().trim()
+                if (password.isBlank()) {
+                    passwordInput.error = "Password is Required"
+                    passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                } else {
+                    passwordInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                }
+            }
+        }
+
+        confirmPasswordInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) { // When user leaves password field
+                val confirmPassword = confirmPasswordInput.text.toString().trim()
+                if (confirmPassword.isBlank()) {
+                    confirmPasswordInput.error = "Confirm Password is Required"
+                    confirmPasswordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                } else {
+                    confirmPasswordInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                }
+            }
+        }
+
+        usernameInput.addTextChangedListener {
+            usernameInput.error = null
+            usernameInput.setBackgroundResource(R.drawable.login_design)
+        }
+
+        emailInput.addTextChangedListener {
+            emailInput.error = null
+            emailInput.setBackgroundResource(R.drawable.login_design)
+        }
+
+        locationInput.addTextChangedListener {
+            locationInput.error = null
+            locationInput.setBackgroundResource(R.drawable.login_design)
+        }
+
+        contactInput.addTextChangedListener {
+            contactInput.error = null
+            contactInput.setBackgroundResource(R.drawable.login_design)
+        }
+
+        ageInput.addTextChangedListener {
+            ageInput.error = null
+            ageInput.setBackgroundResource(R.drawable.login_design)
+        }
+
+        passwordInput.addTextChangedListener {
+            passwordInput.error = null
+            passwordInput.setBackgroundResource(R.drawable.login_design)
+        }
+
+        confirmPasswordInput.addTextChangedListener {
+            confirmPasswordInput.error = null
+            confirmPasswordInput.setBackgroundResource(R.drawable.login_design)
+        }
 
         // Set click listeners for Terms and Privacy Policy
         termsLink.setOnClickListener {
@@ -52,11 +252,6 @@ class RegisterActivity : AppCompatActivity() {
             startActivity(Intent(this, PrivacyPolicyActivity::class.java))
         }
 
-        // Register button listener
-        registerButton.setOnClickListener {
-            validateAndRegister()
-        }
-
         // Login suggestion click listener
         loginSugg.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
@@ -64,40 +259,6 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private fun validateAndRegister() {
-        val username = usernameInput.text.toString().trim()
-        val email = emailInput.text.toString().trim()
-        val password = passwordInput.text.toString()
-        val confirmPassword = confirmPasswordInput.text.toString()
-        val location = locationInput.text.toString().trim()
-        val age = ageInput.text.toString().trim()
-        val contact = contactInput.text.toString().trim()
-
-        // Validate fields
-        if (username.isEmpty() || email.isEmpty() || password.isEmpty() ||
-            confirmPassword.isEmpty() || location.isEmpty() || age.isEmpty() || contact.isEmpty()) {
-            Toast.makeText(this, "❌ Please fill in all fields.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(this, "❌ Please enter a valid email.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (password != confirmPassword) {
-            Toast.makeText(this, "❌ Passwords do not match.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (!termsCheckbox.isChecked) {
-            Toast.makeText(this, "❌ You must accept the Terms and Conditions.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Proceed with registration
-        registerUser(username, email, password, location, age, contact)
-    }
 
     private fun registerUser(username: String, email: String, password: String, location: String, age: String, contact: String) {
         val url = "http://192.168.1.12/backend/mobile_register.php"
