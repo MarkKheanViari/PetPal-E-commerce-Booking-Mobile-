@@ -13,44 +13,55 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication"
         android:usesCleartextTraffic="true">
-
+        <activity
+            android:name=".Controller.WelcomeActivity"
+            android:exported="false" />
         <activity
             android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-
-        <!-- Other activities -->
+        </activity> <!-- Other activities -->
         <activity
             android:name=".LoginActivity"
             android:exported="true" />
         <activity
             android:name=".MainActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="true" />
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ScheduledServicesActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
-        <activity android:name=".RegisterActivity" android:exported="false" />
-        <activity android:name=".ServiceAvailActivity" android:exported="false" />
-        <activity android:name=".ServiceHistoryActivity" android:exported="false" />
-        <activity android:name=".CartActivity" android:exported="false" />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ServiceAvailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ServiceHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CartActivity"
+            android:exported="false" />
         <activity android:name=".ProductDetailsActivity" />
         <activity android:name=".CheckoutActivity" />
-        <activity android:name=".AddressSelectionActivity" android:exported="false" />
+        <activity
+            android:name=".AddressSelectionActivity"
+            android:exported="false" />
         <activity android:name=".AddAddressActivity" />
-        <activity android:name=".GroomingAppointmentActivity"/>
-        <activity android:name=".VeterinaryAppointmentActivity"/>
+        <activity android:name=".GroomingAppointmentActivity" />
+        <activity android:name=".VeterinaryAppointmentActivity" />
         <activity android:name=".ProfileActivity" />
-        <activity android:name=".LikedProductsActivity"/>
-        <activity android:name=".SettingsActivity"/>
-        <activity android:name=".OnboardingActivity"/>
+        <activity android:name=".LikedProductsActivity" />
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".OnboardingActivity" />
         <activity android:name=".TermsActivity" />
         <activity android:name=".PrivacyPolicyActivity" />
     </application>
+
 </manifest>

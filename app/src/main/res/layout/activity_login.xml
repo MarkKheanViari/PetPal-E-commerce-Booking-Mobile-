@@ -55,8 +55,7 @@
         app:layout_constraintTop_toBottomOf="@+id/toplayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp">
+        android:paddingHorizontal="25dp">
 
         <!-- Username Label -->
         <TextView
@@ -72,28 +71,18 @@
             android:layout_height="10dp"/>
 
         <!-- Username Input -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/username_container"
+        <EditText
+            android:id="@+id/usernameInput"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:boxBackgroundMode="none"
-            app:helperText=""
-            app:helperTextTextColor="@color/red">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/usernameInput"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@drawable/login_design"
-                android:fontFamily="@font/alata"
-                android:hint="   Enter your username"
-                android:inputType="text"
-                android:lines="1"
-                android:maxLength="20"
-                android:textColor="@color/black"
-                android:textColorHint="@color/black"
-                android:textSize="15sp" />
-        </com.google.android.material.textfield.TextInputLayout>
+            android:layout_height="50dp"
+            android:background="@drawable/login_design"
+            android:fontFamily="@font/alata"
+            android:hint="    Enter your username"
+            android:inputType="text"
+            android:lines="1"
+            android:paddingHorizontal="15dp"
+            android:textColor="@color/black"
+            android:textSize="15sp"/>
 
         <Space
             android:layout_width="wrap_content"
@@ -113,31 +102,20 @@
             android:layout_height="10dp"/>
 
         <!-- Password Input -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/password_container"
+        <EditText
+            android:id="@+id/passwordInput"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:boxBackgroundMode="none"
-            app:helperText=""
-            app:helperTextTextColor="@color/red"
-            app:endIconMode="password_toggle"
-            app:endIconDrawable="@drawable/show_password"
-            app:endIconTint="@null">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/passwordInput"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@drawable/login_design"
-                android:fontFamily="@font/alata"
-                android:hint="   Enter your password"
-                android:inputType="textPassword"
-                android:lines="1"
-                android:maxLength="16"
-                android:textColor="@color/black"
-                android:textColorHint="@color/black"
-                android:textSize="15sp" />
-        </com.google.android.material.textfield.TextInputLayout>
+            android:layout_height="50dp"
+            android:background="@drawable/login_design"
+            android:fontFamily="@font/alata"
+            android:hint="    Enter your password"
+            android:inputType="textPassword"
+            android:lines="1"
+            android:maxLength="16"
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:paddingHorizontal="15dp"
+            android:drawableEnd="@drawable/show_password"/>
 
         <!-- Remember Me + Forgot Password -->
         <LinearLayout
