@@ -83,14 +83,14 @@ class ScheduledServicesActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.12/backend/clear_service_history.php"
+        val url = "http://192.168.1.65/backend/clear_service_history.php"
 
         val request = JsonObjectRequest(Request.Method.POST, url, JSONObject().apply {
             put("mobile_user_id", mobileUserId)
         }, { response ->
             if (response.getBoolean("success")) {
                 Toast.makeText(this, "✅ Service history cleared!", Toast.LENGTH_SHORT).show()
-                fetchScheduledAppointments() // Refresh UI
+                fetchScheduledAppointments() // ✅ Refresh UI
             } else {
                 Toast.makeText(this, "❌ Failed: ${response.getString("message")}", Toast.LENGTH_SHORT).show()
             }
@@ -100,6 +100,7 @@ class ScheduledServicesActivity : AppCompatActivity() {
 
         Volley.newRequestQueue(this).add(request)
     }
+
 
     private fun fetchScheduledAppointments() {
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
@@ -113,7 +114,7 @@ class ScheduledServicesActivity : AppCompatActivity() {
         // ✅ Debug: Log user_id to ensure correct data is being sent
         println("DEBUG: Fetching appointments for user_id: $mobileUserId")
 
-        val url = "http://192.168.1.12/backend/fetch_appointments.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.65/backend/fetch_appointments.php?mobile_user_id=$mobileUserId"
 
         val request = JsonObjectRequest(
             Request.Method.GET, url, null,

@@ -26,9 +26,8 @@ class VeterinaryAppointmentsFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // ✅ Pass a callback to refresh after cancellation
         appointmentAdapter = AppointmentAdapter(requireContext(), appointmentList) {
-            fetchAppointments() // Refresh list after cancellation
+            fetchAppointments() // ✅ Refresh list after cancellation
         }
         recyclerView.adapter = appointmentAdapter
 
@@ -46,11 +45,11 @@ class VeterinaryAppointmentsFragment : Fragment() {
             return
         }
 
-        val url = "http://192.168.1.12/backend/fetch_appointments.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.65/backend/fetch_appointments.php?mobile_user_id=$mobileUserId"
 
         val request = JsonObjectRequest(Request.Method.GET, url, null,
             { response ->
-                Log.d("API_RESPONSE", response.toString()) // ✅ Debug API response
+                Log.d("API_RESPONSE", "Veterinary Appointments: $response") // ✅ Debug API response
 
                 if (response.getBoolean("success")) {
                     val appointmentsArray = response.getJSONArray("appointments")
@@ -59,8 +58,8 @@ class VeterinaryAppointmentsFragment : Fragment() {
                     for (i in 0 until appointmentsArray.length()) {
                         val item = appointmentsArray.getJSONObject(i)
 
-                        // ✅ Only fetch Veterinary appointments & exclude "Cleared"
-                        if (item.getString("service_type") == "Veterinary" && item.getString("status") != "Cleared") {
+                        // ✅ Only fetch Veterinary appointments
+                        if (item.getString("service_type") == "Veterinary") {
                             val appointment = Appointment(
                                 serviceName = item.getString("service_name"),
                                 serviceType = item.getString("service_type"),
@@ -74,11 +73,11 @@ class VeterinaryAppointmentsFragment : Fragment() {
 
                     appointmentAdapter.notifyDataSetChanged() // ✅ Refresh RecyclerView
                 } else {
-                    Toast.makeText(requireContext(), "No scheduled services found", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "No veterinary appointments found", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
-                Log.e("API_ERROR", "❌ Error fetching data: ${error.message}")
+                Log.e("API_ERROR", "❌ Veterinary Fetch Error: ${error.message}")
                 Toast.makeText(requireContext(), "❌ Error fetching data: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         )
