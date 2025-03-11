@@ -6,7 +6,7 @@ import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button  // Remove if not needed
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -42,13 +42,6 @@ class CheckoutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_checkout)
 
-        // Get product details from intent
-        val productId = intent.getIntExtra("productId", -1)
-        val productName = intent.getStringExtra("productName") ?: "Unknown"
-        val productPrice = intent.getDoubleExtra("productPrice", 0.0)
-        val productImage = intent.getStringExtra("productImage") ?: ""
-        val quantity = intent.getIntExtra("quantity", 1) // Default to 1 if not passed
-
         // Back button listener
         val backBtn = findViewById<ImageView>(R.id.backBtn)
         backBtn.setOnClickListener { finish() }
@@ -59,10 +52,30 @@ class CheckoutActivity : AppCompatActivity() {
         userInfoText = findViewById(R.id.userInfoText)
         selectPaymentButton = findViewById(R.id.selectPaymentButton)
         paymentMethodText = findViewById(R.id.paymentMethodText)
-        placeOrderButton = findViewById(R.id.checkoutBtn)
+        placeOrderButton = findViewById(R.id.checkoutBtn) // using checkoutBtn as place order button
 
-        // Retrieve the cart items from the previous activity
+        // Retrieve individual product extras (if passed)
+        val productId = intent.getIntExtra("productId", -1)
+        val productName = intent.getStringExtra("productName") ?: "Unknown"
+        val productPrice = intent.getDoubleExtra("productPrice", 0.0)
+        val productImage = intent.getStringExtra("productImage") ?: ""
+        val quantity = intent.getIntExtra("quantity", 1)
+
+        // Retrieve the cart items from the previous activity (if any)
         cartItems = intent.getSerializableExtra("cartItems") as? ArrayList<HashMap<String, String>> ?: arrayListOf()
+
+        // If cartItems is empty and individual product extras were passed, create a cart item from them.
+        if (cartItems.isEmpty() && productId != -1) {
+            val productMap = HashMap<String, String>().apply {
+                put("product_id", productId.toString())
+                put("name", productName)
+                put("price", productPrice.toString())
+                put("image", productImage)  // Ensure the image URL is here
+                put("quantity", quantity.toString())
+            }
+            cartItems.add(productMap)
+        }
+
         cartList = arrayListOf()
 
         // Set up Place Order button listener
@@ -91,13 +104,13 @@ class CheckoutActivity : AppCompatActivity() {
         // Calculate total price and update UI
         calculateTotal()
 
-        // Initialize UI elements
+        // Initialize RecyclerView with CheckoutAdapter (which displays product images, names, etc.)
         recyclerView = findViewById(R.id.checkoutRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         val checkoutAdapter = CheckoutAdapter(this, cartItems)
         recyclerView.adapter = checkoutAdapter
 
-        // Call the method to calculate the summary
+        // Calculate order summary (subtotal, shipping, total)
         calculateOrderSummary()
 
         // Payment Method Selection dialog
@@ -110,7 +123,6 @@ class CheckoutActivity : AppCompatActivity() {
             }
             builder.show()
         }
-
     }
 
     private fun fetchUserInfo() {
@@ -123,7 +135,7 @@ class CheckoutActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.65/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.12/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
         val request = Request.Builder().url(url).get().build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -182,7 +194,7 @@ class CheckoutActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.1.65/backend/submit_order.php")
+            .url("http://192.168.1.12/backend/submit_order.php")
             .post(requestBody)
             .build()
 
@@ -226,24 +238,17 @@ class CheckoutActivity : AppCompatActivity() {
             totalItems += item.quantity
         }
 
-        // Assume shipping is a fixed value. You can modify this logic if needed.
-        val shippingFee = 50.0  // Change this to dynamic if required
+        // Assume shipping is a fixed value. Modify as needed.
+        val shippingFee = 50.0
         val total = subtotal + shippingFee
 
         // Update the UI with the calculated values
         val orderTotalPriceSummary = findViewById<TextView>(R.id.orderTotalPriceSummary)
         orderTotalPriceSummary.text = "₱%.2f".format(total)
 
-        // Set subtotal, shipping, and total in the order summary section
-        val subtotalTextView = findViewById<TextView>(R.id.subtotalTextView)
-        subtotalTextView.text = "₱%.2f".format(subtotal)
-
-
         // Update the "Total Items" text dynamically
-        val totalItemsTextView = findViewById<TextView>(R.id.orderTotalPriceSummary)
-        totalItemsTextView.text = "Total ($totalItems Item${if (totalItems > 1) "s" else ""})"
+        orderTotalPriceSummary.text = "Total ($totalItems Item${if (totalItems > 1) "s" else ""})"
     }
-
 
     // Optional: Navigate to address selection if needed.
     fun navigateToAddressSelection(view: View) {
@@ -258,7 +263,6 @@ class CheckoutActivity : AppCompatActivity() {
             userInfoText.text = selectedAddress
         }
     }
-
 
     private fun showOrderPlacedToast() {
         val inflater: LayoutInflater = layoutInflater

@@ -26,7 +26,11 @@ class CheckoutAdapter(
         holder.priceTextView.text = "₱ ${item["price"]}"
 
         // Load product image using Glide.
-        Glide.with(context).load(item["image"]).into(holder.productImageView)
+        Glide.with(context)
+            .load(item["image"])
+            .placeholder(R.drawable.cat)
+            .error(R.drawable.error_image)
+            .into(holder.productImageView)
     }
 
     override fun getItemCount(): Int = cartItems.size

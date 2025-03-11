@@ -3,10 +3,8 @@ package com.example.myapplication
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,9 +28,8 @@ class ProductAdapter(
         val itemPrice: TextView = view.findViewById(R.id.productPrice)
         val itemStock: TextView = view.findViewById(R.id.productStock)
         val itemImage: ImageView = view.findViewById(R.id.productImage)
-        val buyNowButton: Button = view.findViewById(R.id.buyNowButton) // ✅ Corrected reference
+        val buyNowButton: Button = view.findViewById(R.id.buyNowButton)
     }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.product_item, parent, false)
@@ -54,6 +51,8 @@ class ProductAdapter(
         // Load image with Glide
         Glide.with(context)
             .load(product.imageUrl)
+            .placeholder(R.drawable.cat) // Make sure you have this drawable
+            .error(R.drawable.oranage_header)             // Or use any fallback image
             .into(holder.itemImage)
 
         // Open Product Details when clicking the item
@@ -68,17 +67,23 @@ class ProductAdapter(
             context.startActivity(intent)
         }
 
-        // Handle Buy Now Button Click
         holder.buyNowButton.setOnClickListener {
+            val productMap = HashMap<String, String>().apply {
+                put("product_id", product.id.toString())
+                put("name", product.name)
+                put("price", product.price.toString())
+                put("image", product.imageUrl)  // Include the product image URL
+                put("quantity", "1")
+            }
+            val cartItems = arrayListOf(productMap)
             val intent = Intent(context, CheckoutActivity::class.java).apply {
-                putExtra("productId", product.id)
-                putExtra("productName", product.name)
-                putExtra("productPrice", product.price)
-                putExtra("productImage", product.imageUrl)  // Make sure image URL is passed too
+                putExtra("cartItems", cartItems)
             }
             context.startActivity(intent)
         }
+
     }
+
     fun updateProducts(newProducts: List<Product>) {
         products.clear()
         products.addAll(newProducts)
@@ -105,7 +110,7 @@ class ProductAdapter(
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.65/backend/add_to_cart.php")
+            .url("http://192.168.1.12/backend/add_to_cart.php")
             .post(requestBody)
             .build()
 
