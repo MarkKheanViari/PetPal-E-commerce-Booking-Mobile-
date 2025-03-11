@@ -54,16 +54,25 @@
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/tab_all"
                 android:text="All"/>
+
             <com.google.android.material.tabs.TabItem
-                android:id="@+id/tab_ordered"
-                android:text="Ordered"/>
+                android:id="@+id/tab_pending"
+                android:text="Pending"/> <!-- ✅ Updated ID -->
+
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/tab_to_ship"
                 android:text="To Ship"/>
+
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/tab_shipped"
                 android:text="Shipped"/>
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/tab_delivered"
+                android:text="Delivered"/> <!-- ✅ Added "Delivered" tab -->
+
         </com.google.android.material.tabs.TabLayout>
+
 
         <!-- RecyclerView for displaying the ordered products -->
         <androidx.recyclerview.widget.RecyclerView
