@@ -57,6 +57,7 @@
         <activity android:name=".AddAddressActivity" />
         <activity android:name=".GroomingAppointmentActivity" />
         <activity android:name=".VeterinaryAppointmentActivity" />
+        <activity android:name=".ForgotPasswordActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".LikedProductsActivity" />
         <activity android:name=".SettingsActivity" />

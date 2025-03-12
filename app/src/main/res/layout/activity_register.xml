@@ -35,7 +35,6 @@
             android:gravity="center_vertical"
             android:layout_marginTop="12dp">
 
-
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -228,7 +227,7 @@
                         android:background="@drawable/login_design"
                         android:fontFamily="@font/alata"
                         android:hint="  Enter your contact number"
-                        android:inputType="text"
+                        android:inputType="phone"
                         android:lines="1"
                         android:maxLength="11"
                         android:paddingHorizontal="20dp"
@@ -266,7 +265,7 @@
                         android:background="@drawable/login_design"
                         android:fontFamily="@font/alata"
                         android:hint="  Enter your age"
-                        android:inputType="text"
+                        android:inputType="number"
                         android:lines="1"
                         android:maxLength="2"
                         android:paddingHorizontal="20dp"
@@ -317,7 +316,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="  Confirm Password"
+                android:text="Confirm Password"
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 android:fontFamily="@font/alata" />
@@ -340,7 +339,6 @@
                 android:textSize="15sp"
                 android:paddingHorizontal="20dp"
                 android:drawableEnd="@drawable/show_password"/>
-
 
             <!-- Terms and Conditions and Privacy Policy -->
             <LinearLayout
