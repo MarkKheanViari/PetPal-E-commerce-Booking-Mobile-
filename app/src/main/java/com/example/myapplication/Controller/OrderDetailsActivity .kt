@@ -15,6 +15,8 @@ import com.android.volley.toolbox.Volley
 import com.google.android.material.tabs.TabLayout
 import org.json.JSONArray
 import org.json.JSONObject
+import android.app.AlertDialog
+import android.view.LayoutInflater
 
 class OrderDetailsActivity : AppCompatActivity() {
 
@@ -60,6 +62,22 @@ class OrderDetailsActivity : AppCompatActivity() {
         })
     }
 
+    private fun showOrderDetailsPopup(items: List<OrderItem>) {
+        val builder = AlertDialog.Builder(this)
+        val inflater = LayoutInflater.from(this)
+        val view = inflater.inflate(R.layout.dialog_order_details, null)
+
+        val recyclerView = view.findViewById<RecyclerView>(R.id.orderItemsRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = OrderItemsAdapter(items) // ✅ Use adapter to show order items
+
+        builder.setView(view)
+        builder.setPositiveButton("Close") { dialog, _ -> dialog.dismiss() }
+
+        val dialog = builder.create()
+        dialog.show()
+    }
+
     private fun fetchOrders() {
         val userId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getInt("user_id", -1)
         if (userId == -1) {
@@ -67,7 +85,7 @@ class OrderDetailsActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.12/backend/fetch_orders.php?mobile_user_id=$userId"
+        val url = "http://192.168.1.65/backend/fetch_orders_mobile.php?mobile_user_id=$userId"
 
         val request = JsonObjectRequest(Request.Method.GET, url, null,
             Response.Listener { response ->
@@ -90,12 +108,33 @@ class OrderDetailsActivity : AppCompatActivity() {
         allOrders.clear()
         for (i in 0 until jsonArray.length()) {
             val obj = jsonArray.getJSONObject(i)
+
+            // ✅ Extract items if they exist
+            val itemsList = mutableListOf<OrderItem>()
+            if (obj.has("items")) {
+                val itemsArray = obj.getJSONArray("items")
+                for (j in 0 until itemsArray.length()) {
+                    val itemObj = itemsArray.getJSONObject(j)
+                    val item = OrderItem(
+                        productId = itemObj.getInt("product_id"),
+                        name = itemObj.getString("product_name"),
+                        imageUrl = itemObj.getString("image"), // ✅ Extract Image
+                        description = itemObj.getString("description"), // ✅ Extract Description
+                        quantity = itemObj.getInt("quantity"),
+                        price = itemObj.getString("price")
+                    )
+                    itemsList.add(item)
+                }
+            }
+
+            // ✅ Now pass `itemsList` when creating `Order`
             val order = Order(
                 id = obj.getInt("id"),
                 totalPrice = obj.getString("total_price"),
                 paymentMethod = obj.getString("payment_method"),
                 status = obj.getString("status"),
-                createdAt = obj.getString("created_at")
+                createdAt = obj.getString("created_at"),
+                items = itemsList // ✅ Include items here
             )
             allOrders.add(order)
         }

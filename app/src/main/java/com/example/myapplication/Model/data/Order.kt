@@ -5,5 +5,6 @@ data class Order(
     val totalPrice: String,
     val paymentMethod: String,
     val status: String,
-    val createdAt: String
+    val createdAt: String,
+    val items: List<OrderItem> = emptyList() // ✅ Default to an empty list
 )

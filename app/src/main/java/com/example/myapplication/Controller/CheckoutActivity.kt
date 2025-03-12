@@ -70,7 +70,8 @@ class CheckoutActivity : AppCompatActivity() {
                 put("product_id", productId.toString())
                 put("name", productName)
                 put("price", productPrice.toString())
-                put("image", productImage)  // Ensure the image URL is here
+                put("image", productImage)  // ✅ Ensure Image is here
+                put("description", "No description available") // ✅ Default description if missing
                 put("quantity", quantity.toString())
             }
             cartItems.add(productMap)
@@ -93,6 +94,8 @@ class CheckoutActivity : AppCompatActivity() {
             CartItem(
                 productId = it["product_id"]?.toInt() ?: 0,
                 productName = it["name"] ?: "Unknown",
+                imageUrl = it["image"] ?: "", // ✅ Ensure Image URL is passed
+                description = it["description"] ?: "No description available", // ✅ Ensure Description is passed
                 quantity = it["quantity"]?.toInt() ?: 1,
                 price = it["price"]?.toDouble() ?: 0.0
             )
@@ -135,7 +138,7 @@ class CheckoutActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.12/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.65/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
         val request = Request.Builder().url(url).get().build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -184,6 +187,9 @@ class CheckoutActivity : AppCompatActivity() {
                         put("product_id", item.productId)
                         put("quantity", item.quantity)
                         put("price", item.price)
+                        put("name", item.productName) // ✅ Include Name
+                        put("image", item.imageUrl) // ✅ Include Image URL
+                        put("description", item.description) // ✅ Include Description
                     }
                     put(itemJson)
                 }
@@ -194,7 +200,7 @@ class CheckoutActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/submit_order.php")
+            .url("http://192.168.1.65/backend/submit_order.php")
             .post(requestBody)
             .build()
 
@@ -211,7 +217,6 @@ class CheckoutActivity : AppCompatActivity() {
                 Log.d("CheckoutActivity", "📦 API Response: $responseBody")
                 runOnUiThread {
                     if (response.isSuccessful && responseBody?.contains("success") == true) {
-                        // Show the custom "Order Placed" toast in the top right corner
                         showOrderPlacedToast()
                         finish()
                     } else {
@@ -221,6 +226,7 @@ class CheckoutActivity : AppCompatActivity() {
             }
         })
     }
+
 
     private fun calculateTotal() {
         cartTotal = cartList.sumOf { it.price * it.quantity }

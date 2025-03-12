@@ -54,5 +54,17 @@
             android:textStyle="bold"
             android:layout_marginTop="6dp"
             android:textColor="@android:color/holo_green_dark"/>
+
+        <!-- ✅ View Details Button -->
+        <Button
+            android:id="@+id/view_details_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="View Details"
+            android:textSize="14sp"
+            android:layout_marginTop="10dp"
+            android:padding="8dp"
+            android:backgroundTint="@android:color/holo_blue_dark"
+            android:textColor="@android:color/white"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
