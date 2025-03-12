@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.widget.ImageView
 import android.widget.TextView
@@ -28,13 +29,29 @@ class ProductDetailsActivity : AppCompatActivity() {
         val productName = intent.getStringExtra("productName")
         val productImage = intent.getStringExtra("productImage")
         val productDescription = intent.getStringExtra("productDescription")
-        val productPrice = intent.getDoubleExtra("productPrice", 0.0)
+
+        // Debug the raw extras to see what type productPrice is
+        val extras = intent.extras
+        extras?.keySet()?.forEach { key ->
+            Log.d("ProductDetailsActivity", "Extra: $key = ${extras[key]} (${extras[key]?.javaClass?.simpleName})")
+        }
+
+        // Retrieve productPrice as a String first, then convert to Double
+        val productPriceString = intent.getStringExtra("productPrice")
+        val productPrice = try {
+            productPriceString?.toDouble() ?: intent.getDoubleExtra("productPrice", 0.0)
+        } catch (e: NumberFormatException) {
+            Log.e("ProductDetailsActivity", "Failed to parse productPrice: $productPriceString", e)
+            0.0
+        }
+
+        Log.d("ProductDetailsActivity", "Received productPrice: $productPrice")
 
         // Find UI Elements
         val productNameTextView = findViewById<TextView>(R.id.productName)
         val productImageView = findViewById<ImageView>(R.id.productImageView)
         val productDescriptionTextView = findViewById<TextView>(R.id.productDescription)
-        val productPriceTextView = findViewById<TextView>(R.id.prduct_price)
+        val productPriceTextView = findViewById<TextView>(R.id.prduct_price) // Fix typo if needed
         val backBtn = findViewById<ImageView>(R.id.backBtn)
         val addToCartButton = findViewById<MaterialButton>(R.id.addtocart_container)
         val buyNowButton = findViewById<MaterialButton>(R.id.buynow_container)
@@ -48,8 +65,8 @@ class ProductDetailsActivity : AppCompatActivity() {
         if (!productImage.isNullOrEmpty()) {
             Glide.with(this)
                 .load(productImage)
-                .placeholder(R.drawable.cat) // or any placeholder
-                .error(R.drawable.oranage_header) // or any error drawable
+                .placeholder(R.drawable.cat)
+                .error(R.drawable.oranage_header)
                 .into(productImageView)
         } else {
             productImageView.setImageResource(R.drawable.cat)
@@ -67,14 +84,14 @@ class ProductDetailsActivity : AppCompatActivity() {
             }
         }
 
-        // "Buy Now" functionality: create a cart item & go to checkout
+        // "Buy Now" functionality
         buyNowButton.setOnClickListener {
             if (productId != -1) {
                 goToCheckout(
                     productId,
                     productName,
                     productDescription,
-                    productPrice,
+                    productPrice, // Pass the corrected price
                     quantity,
                     productImage
                 )
@@ -119,7 +136,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.1.65/backend/add_to_cart.php")
+            .url("http://192.168.1.12/backend/add_to_cart.php")
             .post(requestBody)
             .build()
 
@@ -161,7 +178,7 @@ class ProductDetailsActivity : AppCompatActivity() {
         val productMap = HashMap<String, String>().apply {
             put("product_id", productId.toString())
             put("name", productName ?: "")
-            put("price", productPrice.toString())
+            put("price", productPrice.toString()) // Ensure price is passed as a string
             put("image", productImage ?: "")
             put("quantity", quantity.toString())
         }

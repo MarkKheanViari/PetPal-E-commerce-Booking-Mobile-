@@ -2,20 +2,12 @@ package com.example.myapplication
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
-import java.io.IOException
 
 class ProductAdapter(
     private val context: Context,
@@ -36,14 +28,12 @@ class ProductAdapter(
         return ProductViewHolder(view)
     }
 
-    override fun getItemCount(): Int {
-        return products.size
-    }
+    override fun getItemCount(): Int = products.size
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = products[position]
 
-        // Set product details
+        // Display product details
         holder.itemName.text = product.name
         holder.itemPrice.text = "₱${product.price}"
         holder.itemStock.text = "Stock: ${product.quantity}"
@@ -51,11 +41,11 @@ class ProductAdapter(
         // Load image with Glide
         Glide.with(context)
             .load(product.imageUrl)
-            .placeholder(R.drawable.cat) // Make sure you have this drawable
-            .error(R.drawable.oranage_header)             // Or use any fallback image
+            .placeholder(R.drawable.cat)           // your placeholder drawable
+            .error(R.drawable.oranage_header)      // your error drawable
             .into(holder.itemImage)
 
-        // Open Product Details when clicking the item
+        // Open Product Details on item click
         holder.itemView.setOnClickListener {
             val intent = Intent(context, ProductDetailsActivity::class.java).apply {
                 putExtra("productId", product.id)
@@ -67,12 +57,13 @@ class ProductAdapter(
             context.startActivity(intent)
         }
 
+        // "Buy Now" -> create cart item & go to CheckoutActivity
         holder.buyNowButton.setOnClickListener {
             val productMap = HashMap<String, String>().apply {
                 put("product_id", product.id.toString())
                 put("name", product.name)
                 put("price", product.price.toString())
-                put("image", product.imageUrl)  // Include the product image URL
+                put("image", product.imageUrl)
                 put("quantity", "1")
             }
             val cartItems = arrayListOf(productMap)
@@ -81,66 +72,11 @@ class ProductAdapter(
             }
             context.startActivity(intent)
         }
-
     }
 
     fun updateProducts(newProducts: List<Product>) {
         products.clear()
         products.addAll(newProducts)
         notifyDataSetChanged()
-    }
-
-    private fun addToCart(product: Product, position: Int) {
-        val sharedPreferences: SharedPreferences =
-            context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-        val mobileUserId = sharedPreferences.getInt("user_id", -1)
-
-        if (mobileUserId == -1) {
-            Toast.makeText(context, "❌ Please login to add to cart", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val jsonObject = JSONObject().apply {
-            put("mobile_user_id", mobileUserId)
-            put("product_id", product.id)
-            put("quantity", 1)
-        }
-
-        val mediaType = "application/json; charset=utf-8".toMediaType()
-        val requestBody = jsonObject.toString().toRequestBody(mediaType)
-
-        val request = Request.Builder()
-            .url("http://192.168.1.65/backend/add_to_cart.php")
-            .post(requestBody)
-            .build()
-
-        val client = OkHttpClient()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Handler(Looper.getMainLooper()).post {
-                    Toast.makeText(context, "Failed to connect to server", Toast.LENGTH_SHORT).show()
-                }
-            }
-            override fun onResponse(call: Call, response: Response) {
-                val responseBody = response.body?.string()
-                Handler(Looper.getMainLooper()).post {
-                    if (responseBody != null) {
-                        val jsonResponse = JSONObject(responseBody)
-                        val success = jsonResponse.optBoolean("success", false)
-                        if (success) {
-                            Toast.makeText(context, "✅ Added to Cart!", Toast.LENGTH_SHORT).show()
-                            product.quantity--
-                            notifyItemChanged(position)
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "❌ Error: ${jsonResponse.optString("message")}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
-            }
-        })
     }
 }
