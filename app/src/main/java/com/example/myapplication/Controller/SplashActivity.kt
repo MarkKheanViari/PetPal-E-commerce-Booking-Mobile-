@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.example.myapplication.Controller.WelcomeActivity
 
 class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,7 +28,7 @@ class SplashActivity : AppCompatActivity() {
             }
             hasSeenIntro -> {
                 // User has seen intro but not logged in, go to login.
-                startActivity(Intent(this, LoginActivity::class.java))
+                startActivity(Intent(this, WelcomeActivity::class.java))
             }
             else -> {
                 // First time user, show onboarding.

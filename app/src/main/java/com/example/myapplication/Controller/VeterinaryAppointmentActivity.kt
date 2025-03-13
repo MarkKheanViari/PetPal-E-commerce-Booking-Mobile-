@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.app.DatePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -16,6 +17,7 @@ import java.util.Calendar
 
 class VeterinaryAppointmentActivity : AppCompatActivity() {
 
+    private lateinit var backBtn : ImageView
     private lateinit var etName: EditText
     private lateinit var etAddress: EditText
     private lateinit var etPhone: EditText
@@ -32,6 +34,7 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
         setContentView(R.layout.activity_veterinary_appointment)
 
         // Initialize views
+        backBtn = findViewById(R.id.backBtn)
         checkupTypeField = findViewById(R.id.checkupTypeField)
         etName = findViewById(R.id.etName)
         etAddress = findViewById(R.id.etAddress)
@@ -75,7 +78,7 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
     }
 
     private fun submitAppointment() {
-        val url = "http://192.168.1.12/backend/schedule_appointment.php"
+        val url = "http://192.168.1.15/backend/schedule_appointment.php"
 
         // Get user details from SharedPreferences
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)

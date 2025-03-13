@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.app.DatePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -11,11 +12,13 @@ import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import org.json.JSONObject
 import java.util.Calendar
 
 class GroomingAppointmentActivity : AppCompatActivity() {
 
+    private lateinit var backBtn : ImageView
     private lateinit var etName: EditText
     private lateinit var etAddress: EditText
     private lateinit var etPhone: EditText
@@ -32,6 +35,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         setContentView(R.layout.activity_grooming_appointment)
 
         // Initialize views
+        backBtn = findViewById(R.id.backBtn)
         groomTypeField = findViewById(R.id.groomTypeField)
         etName = findViewById(R.id.etName)
         etAddress = findViewById(R.id.etAddress)
@@ -42,6 +46,12 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         btnPickDate = findViewById(R.id.btnPickDate)
         spinnerPaymentMethod = findViewById(R.id.spinnerPaymentMethod)
         val scheduleButton: Button = findViewById(R.id.btnScheduleAppointment)
+
+        /* Remove mo comment if uzto mo matry, gumagana naman. pero may bug lang
+        backBtn.setOnClickListener {
+            (it.context as MainActivity).findViewById<BottomNavigationView>(R.id.bottomNavigation)
+                .selectedItemId = R.id.menu_service // ID of the tab for ServiceFragment
+        } */
 
         // Get service name from intent and display it as non-editable, bold, and centered
         val serviceName = intent.getStringExtra("SERVICE_NAME")
@@ -75,7 +85,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
     }
 
     private fun submitAppointment() {
-        val url = "http://192.168.1.12/backend/schedule_appointment.php"
+        val url = "http://192.168.1.15/backend/schedule_appointment.php"
 
         // Get user details from SharedPreferences
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)

@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/nav_profile"
-        android:title="Profile"
-        android:icon="@drawable/profile" />
 
     <item
         android:id="@+id/nav_products"
@@ -11,13 +7,18 @@
         android:icon="@drawable/home_icon" />
 
     <item
+        android:id="@+id/menu_service"
+        android:title="Service"
+        android:icon="@drawable/menu_book" />
+
+    <item
         android:id="@+id/nav_cart"
         android:title="Cart"
         android:icon="@drawable/cart" />
 
     <item
-        android:id="@+id/menu_service"
-        android:title="Service"
-        android:icon="@drawable/menu_book" />
+        android:id="@+id/nav_profile"
+        android:title="Profile"
+        android:icon="@drawable/profile" />
 </menu>
 
