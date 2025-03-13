@@ -64,6 +64,8 @@
         <activity android:name=".TermsActivity" />
         <activity android:name=".PrivacyPolicyActivity" />
         <activity android:name=".OrderDetailsActivity" />
+        <activity android:name=".HelpActivity"/>
+        <activity android:name=".AboutActivity"/>
     </application>
 
 </manifest>

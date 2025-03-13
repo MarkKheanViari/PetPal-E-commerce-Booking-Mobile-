@@ -66,7 +66,7 @@ class ProfileActivity : AppCompatActivity() {
         social: String
     ) {
         // Replace the URL with your actual server URL
-        val url = "https://192.168.1.15/backend/update_user_info.php"
+        val url = "https://192.168.1.12/backend/update_user_info.php"
 
         val requestQueue = Volley.newRequestQueue(this)
         val stringRequest = object : StringRequest(
