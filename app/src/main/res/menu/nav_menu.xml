@@ -1,34 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="navigation_view">
+<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- Group of top items -->
     <group
+        android:id="@+id/top_group"
         android:checkableBehavior="single">
+
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/settings"
-            android:title="Settings"/>
+            android:title="Settings" />
+
         <item
             android:id="@+id/nav_likedProducts"
             android:icon="@drawable/ic_favorite_border"
-            android:title="Liked Products"/>
+            android:title="Liked Products" />
+
         <item
             android:id="@+id/nav_notif"
             android:icon="@drawable/notif"
-            android:title="Notifications"/>
+            android:title="Notifications" />
+
+        <item
+            android:id="@+id/nav_faq"
+            android:icon="@drawable/help"
+            android:title="FAQ" />
     </group>
 
-
-
-    <item android:title="">
-
-        <menu>
-            <item
-                android:id="@+id/nav_logout"
-                android:icon="@drawable/logout"
-                android:title="Logout"/>
-        </menu>
-    </item>
+    <!-- Attempt to pin Logout at the bottom -->
+    <item
+        android:id="@+id/nav_logout"
+        android:icon="@drawable/logout"
+        android:title="Logout"
+        android:layout_gravity="bottom" />
 </menu>

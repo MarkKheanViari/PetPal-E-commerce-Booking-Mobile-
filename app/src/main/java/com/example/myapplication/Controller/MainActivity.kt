@@ -35,7 +35,7 @@ import java.io.IOException
 class MainActivity : AppCompatActivity() {
 
     private val client = OkHttpClient()
-    private lateinit var productsRecyclerView: androidx.recyclerview.widget.RecyclerView
+    private lateinit var productsRecyclerView: RecyclerView
     private lateinit var productAdapter: ProductAdapter
     lateinit var bottomNavigation: BottomNavigationView
     private lateinit var drawerLayout: DrawerLayout
@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
             drawerLayout.closeDrawer(GravityCompat.START)
         }
 
-        // NavigationView item selections
+        // NavigationView item selections (including FAQ)
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_profile -> {
@@ -109,7 +109,13 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_notif -> {
+                    // Uncomment if NotificationActivity is set up
                     // startActivity(Intent(this, NotificationActivity::class.java))
+                    true
+                }
+                R.id.nav_faq -> {
+                    // Launch the FAQ screen
+                    startActivity(Intent(this, FaqActivity::class.java))
                     true
                 }
                 R.id.nav_logout -> {
@@ -181,10 +187,7 @@ class MainActivity : AppCompatActivity() {
                 is ProfileFragment -> bottomNavigation.selectedItemId = R.id.nav_profile
                 else -> bottomNavigation.selectedItemId = R.id.nav_products
             }
-
         }
-
-
 
         val mobileUserId = sharedPreferences.getInt("user_id", -1)
         if (mobileUserId == -1) {
@@ -367,7 +370,6 @@ class MainActivity : AppCompatActivity() {
     private fun setupBottomNavigation() {
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
             // Attempt to find the view corresponding to the selected item
-            // (This may vary depending on your BottomNavigationView implementation)
             val viewToAnimate = bottomNavigation.findViewById<View>(item.itemId)
             viewToAnimate?.let { view ->
                 val bounceAnimation = AnimationUtils.loadAnimation(this, R.anim.bounce)
@@ -402,7 +404,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 
     /**
      * Toggles the visibility of the search bar, browse text,
@@ -448,7 +449,6 @@ class MainActivity : AppCompatActivity() {
 
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)
-                        val fetchedPrice = productJson.optDouble("price", 0.0)
                         val rawImage = productJson.optString("image", "").trim()
                         val fullImageUrl = if (rawImage.isNotEmpty() && !rawImage.startsWith("http")) {
                             baseImageUrl + rawImage
@@ -489,7 +489,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun fetchProductsByCategory(category: String) {
         // Show loading spinner
-        val progressBar: ProgressBar = findViewById(R.id.progressBar) // Reference to your progress bar
+        val progressBar: ProgressBar = findViewById(R.id.progressBar)
         progressBar.visibility = View.VISIBLE
 
         // Clear any previous products
@@ -511,10 +511,8 @@ class MainActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 val responseData = response.body?.string()
 
-                // Check if no products are available
                 if (responseData.isNullOrEmpty() || responseData.contains("\"products\":[]")) {
                     runOnUiThread {
-                        // Show the "No products available" message and hide the RecyclerView
                         findViewById<RecyclerView>(R.id.productsRecyclerView).visibility = View.GONE
                         findViewById<TextView>(R.id.noProductsTextView).visibility = View.VISIBLE
                         progressBar.visibility = View.GONE
@@ -552,19 +550,15 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     runOnUiThread {
-                        // Hide progress bar once data is loaded
                         progressBar.visibility = View.GONE
 
                         if (categoryProducts.isNotEmpty()) {
                             displayedProducts.clear()
                             displayedProducts.addAll(categoryProducts)
                             productAdapter.updateProducts(ArrayList(displayedProducts))
-
-                            // Show the RecyclerView with products
                             findViewById<RecyclerView>(R.id.productsRecyclerView).visibility = View.VISIBLE
                             findViewById<TextView>(R.id.noProductsTextView).visibility = View.GONE
                         } else {
-                            // Show no products message
                             Toast.makeText(this@MainActivity, "No products available for this category", Toast.LENGTH_SHORT).show()
                             findViewById<RecyclerView>(R.id.productsRecyclerView).visibility = View.GONE
                             findViewById<TextView>(R.id.noProductsTextView).visibility = View.VISIBLE
@@ -580,7 +574,6 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    // Function to disable category buttons
     private fun disableCategoryButtons(disable: Boolean) {
         val buttons = listOf(
             R.id.allButton, R.id.foodButton, R.id.treatsButton, R.id.essentialsButton,
@@ -593,11 +586,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Function to enable category buttons again
     private fun enableCategoryButtons() {
         disableCategoryButtons(false)
     }
-
 
     private fun doLogout() {
         val sharedPrefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
