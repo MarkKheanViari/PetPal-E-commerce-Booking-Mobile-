@@ -7,4 +7,5 @@
 
     <!-- Orange background color (use your preferred shade of orange) -->
     <solid android:color="#FFA143" />
+    <stroke android:width="2dp" android:color="@color/darker_orange" />
 </shape>

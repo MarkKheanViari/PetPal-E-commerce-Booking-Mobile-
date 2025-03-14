@@ -26,7 +26,7 @@ class CartFragment : Fragment(), CartActionListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyText: TextView
-    private lateinit var checkoutButton: ImageView
+    private lateinit var checkoutButton: Button
     private lateinit var totalPriceTextView: TextView
 
     private val client = OkHttpClient()
@@ -77,7 +77,7 @@ class CartFragment : Fragment(), CartActionListener {
      * Called when quantity changes in the cart. Updates the server.
      */
     override fun updateCartQuantity(cartId: Int, newQuantity: Int) {
-        val url = "http://192.168.1.12/backend/update_cart.php"
+        val url = "http://192.168.1.15/backend/update_cart.php"
         val json = JSONObject().apply {
             put("cart_id", cartId)
             put("quantity", newQuantity)
@@ -120,7 +120,7 @@ class CartFragment : Fragment(), CartActionListener {
      * Called when an item is removed from the cart. Updates the server.
      */
     override fun removeItemFromCart(cartId: Int) {
-        val url = "http://192.168.1.12/backend/remove_from_cart.php"
+        val url = "http://192.168.1.15/backend/remove_from_cart.php"
         val json = JSONObject().apply { put("cart_id", cartId) }
         val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = Request.Builder().url(url).post(requestBody).build()
@@ -174,7 +174,7 @@ class CartFragment : Fragment(), CartActionListener {
             return
         }
 
-        val url = "http://192.168.1.12/backend/fetch_cart.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.15/backend/fetch_cart.php?mobile_user_id=$mobileUserId"
         val request = Request.Builder().url(url).get().build()
 
         client.newCall(request).enqueue(object : Callback {
