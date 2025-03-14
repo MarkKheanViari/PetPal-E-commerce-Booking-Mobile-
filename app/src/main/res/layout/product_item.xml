@@ -79,7 +79,7 @@
             android:text="Buy Now"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:backgroundTint="@color/orange"
+            android:backgroundTint="@color/darker_orange"
             android:textColor="@android:color/white"
             android:layout_marginTop="8dp"
             android:background="@drawable/button_rounded"/>

@@ -2,7 +2,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/white"
+    tools:context=".CheckoutActivity">
 
     <!-- Top Toolbar -->
     <androidx.appcompat.widget.Toolbar
@@ -252,13 +254,13 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <!-- Checkout Button -->
-        <ImageView
+        <Button
             android:id="@+id/checkoutBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="Checkout Button"
-            android:src="@drawable/checkout"
+            android:text="Place Order"
             android:layout_gravity="end"
-            android:layout_marginEnd="20dp"/>
+            android:layout_marginEnd="16dp"/>
+
     </androidx.appcompat.widget.Toolbar>
 </androidx.constraintlayout.widget.ConstraintLayout>
