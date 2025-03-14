@@ -14,7 +14,7 @@ class ProfileFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the fragment_profile layout which now contains help and about buttons
+        // Inflate the fragment_profile layout which contains your UI elements
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
 
@@ -32,26 +32,17 @@ class ProfileFragment : Fragment() {
         userNameTextView.text = savedUserName
         userEmailTextView.text = savedUserEmail
 
-        // Existing click listeners for other functions
-        val scheduledServices = view.findViewById<TextView>(R.id.scheduled_services)
-        scheduledServices.setOnClickListener {
+        // Set up click listeners for additional functions
+        view.findViewById<TextView>(R.id.scheduled_services).setOnClickListener {
             startActivity(Intent(requireContext(), ScheduledServicesActivity::class.java))
         }
-
-        val orderDetails = view.findViewById<TextView>(R.id.order_details)
-        orderDetails.setOnClickListener {
+        view.findViewById<TextView>(R.id.order_details).setOnClickListener {
             startActivity(Intent(requireContext(), OrderDetailsActivity::class.java))
         }
-
-        // New click listener for Help
-        val helpButton = view.findViewById<TextView>(R.id.help)
-        helpButton.setOnClickListener {
+        view.findViewById<TextView>(R.id.help).setOnClickListener {
             startActivity(Intent(requireContext(), HelpActivity::class.java))
         }
-
-        // New click listener for About Us
-        val aboutButton = view.findViewById<TextView>(R.id.about)
-        aboutButton.setOnClickListener {
+        view.findViewById<TextView>(R.id.about).setOnClickListener {
             startActivity(Intent(requireContext(), AboutActivity::class.java))
         }
     }
