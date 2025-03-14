@@ -8,6 +8,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import com.example.myapplication.Controller.WelcomeActivity
+import com.google.android.material.textfield.TextInputLayout
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -18,8 +19,10 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var backBtn: ImageView
     private lateinit var usernameInput: EditText
     private lateinit var passwordInput: EditText
+    private lateinit var usernameLayout: TextInputLayout
+    private lateinit var passwordLayout: TextInputLayout
     private lateinit var loginButton: Button
-    private lateinit var forgotpass : TextView
+    private lateinit var forgotpass: TextView
     private lateinit var registerLink: TextView
     private lateinit var rememberMeCheckBox: CheckBox
     private lateinit var sharedPreferences: SharedPreferences
@@ -44,8 +47,10 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
-        // Initialize views
+        // Initialize views (note: usernameInput and passwordInput are inside TextInputLayouts)
         backBtn = findViewById(R.id.backBtn)
+        usernameLayout = findViewById(R.id.usernameLayout)
+        passwordLayout = findViewById(R.id.passwordLayout)
         usernameInput = findViewById(R.id.usernameInput)
         passwordInput = findViewById(R.id.passwordInput)
         loginButton = findViewById(R.id.loginButton)
@@ -64,22 +69,24 @@ class LoginActivity : AppCompatActivity() {
             finish()
         }
 
-        // Set up click listeners
+        // Set up click listener for login button
         loginButton.setOnClickListener {
+            // Clear any previous errors
+            usernameLayout.error = null
+            passwordLayout.error = null
+
             val username = usernameInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
 
             var isValid = true
 
             if (username.isEmpty()) {
-                usernameInput.error = "Username is Required"
-                usernameInput.setBackgroundResource(R.drawable.edittext_error_background)
+                usernameLayout.error = "Username is Required"
                 isValid = false
             }
 
             if (password.isEmpty()) {
-                passwordInput.error = "Password is Required"
-                passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                passwordLayout.error = "Password is Required"
                 isValid = false
             }
 
@@ -88,48 +95,19 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        usernameInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) { // When user leaves username field
-                val username = usernameInput.text.toString().trim()
-                if (username.isBlank()) {
-                    usernameInput.error = "Username is Required"
-                    usernameInput.setBackgroundResource(R.drawable.edittext_error_background)
-                } else {
-                    usernameInput.setBackgroundResource(R.drawable.login_design) // Reset background
-                }
-            }
-        }
-
-        passwordInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) { // When user leaves password field
-                val password = passwordInput.text.toString().trim()
-                if (password.isBlank()) {
-                    passwordInput.error = "Password is Required"
-                    passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
-                } else {
-                    passwordInput.setBackgroundResource(R.drawable.login_design) // Reset background
-                }
-            }
-        }
-
+        // Remove error when user fixes input
         usernameInput.addTextChangedListener {
-            usernameInput.error = null
-            usernameInput.setBackgroundResource(R.drawable.login_design)
+            usernameLayout.error = null
         }
-
         passwordInput.addTextChangedListener {
-            passwordInput.error = null
-            passwordInput.setBackgroundResource(R.drawable.login_design)
+            passwordLayout.error = null
         }
 
-
-
-
+        // Navigation to register screen
         registerLink.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
-    // Function to reset errors and background
 
     private fun performLogin(username: String, password: String) {
         val jsonObject = JSONObject().apply {
@@ -141,14 +119,15 @@ class LoginActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-        .url("http://192.168.1.15/backend/mobile_login.php")
-        .post(requestBody)
-        .build()
+            .url("http://192.168.1.12/backend/mobile_login.php")
+            .post(requestBody)
+            .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("LoginActivity", "Login failed", e)
                 runOnUiThread {
+                    // For network failures you may still show a Toast
                     Toast.makeText(this@LoginActivity, "Login failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
@@ -157,32 +136,25 @@ class LoginActivity : AppCompatActivity() {
                 try {
                     val responseData = response.body?.string()
                     val jsonResponse = JSONObject(responseData ?: "")
-
                     runOnUiThread {
                         if (jsonResponse.optBoolean("success", false)) {
                             val userId = jsonResponse.optInt("user_id", -1)
                             Log.d("LoginActivity", "Received user_id: $userId")
 
                             if (userId != -1) {
-                                // Retrieve username and email from the response
                                 val returnedUsername = jsonResponse.getString("username")
                                 val returnedEmail = jsonResponse.optString("email", "user@example.com")
 
-                                // Store user data including email in SharedPreferences
                                 sharedPreferences.edit().apply {
                                     putInt("user_id", userId)
                                     putString("username", returnedUsername)
                                     putString("user_email", returnedEmail)
-                                    // You can also store additional fields here.
                                     putBoolean("remember_me", rememberMeCheckBox.isChecked)
                                     putBoolean("isLoggedIn", true)
                                     apply()
                                 }
 
-                                // Optional: Show a welcome message
                                 Toast.makeText(this@LoginActivity, "Welcome, $returnedUsername!", Toast.LENGTH_LONG).show()
-
-                                // Navigate to the main screen
                                 startMainActivity()
                                 finish()
                             } else {
@@ -190,11 +162,19 @@ class LoginActivity : AppCompatActivity() {
                             }
                         } else {
                             val errorMessage = jsonResponse.optString("message", "Login failed")
-                            if (errorMessage.contains("wrong password", ignoreCase = true)) {
-                                passwordInput.error = "Wrong password"
-                                passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
-                            } else {
-                                Toast.makeText(this@LoginActivity, errorMessage, Toast.LENGTH_LONG).show()
+                            // Display errors in the corresponding TextInputLayout
+                            when {
+                                errorMessage.contains("wrong password", ignoreCase = true) -> {
+                                    passwordLayout.error = "Wrong password"
+                                }
+                                errorMessage.contains("wrong username", ignoreCase = true) -> {
+                                    usernameLayout.error = "Wrong username"
+                                }
+                                else -> {
+                                    // If the error is generic, show it in both fields
+                                    usernameLayout.error = errorMessage
+                                    passwordLayout.error = errorMessage
+                                }
                             }
                         }
                     }
