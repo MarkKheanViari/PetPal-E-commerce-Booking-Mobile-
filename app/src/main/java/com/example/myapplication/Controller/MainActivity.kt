@@ -105,17 +105,16 @@ class MainActivity : AppCompatActivity() {
                     startActivity(Intent(this, SettingsActivity::class.java))
                     true
                 }
-                R.id.nav_likedProducts -> {
-                    startActivity(Intent(this, LikedProductsActivity::class.java))
+                R.id.nav_notif -> {
+                    startActivity(Intent(this, NotificationActivity::class.java))
                     true
                 }
                 R.id.nav_notif -> {
-                    // Uncomment if NotificationActivity is set up
-                    // startActivity(Intent(this, NotificationActivity::class.java))
+                    // Launch NotificationActivity
+                    startActivity(Intent(this, NotificationActivity::class.java))
                     true
                 }
                 R.id.nav_faq -> {
-                    // Launch the FAQ screen
                     startActivity(Intent(this, FaqActivity::class.java))
                     true
                 }

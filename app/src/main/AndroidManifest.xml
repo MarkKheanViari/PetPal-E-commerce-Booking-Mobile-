@@ -68,6 +68,8 @@
         <activity android:name=".AboutActivity"/>
         <activity android:name=".FaqActivity"/>
         <activity android:name=".ForgotPasswordActivity"/>
+        <activity android:name=".NotificationActivity" />
+
     </application>
 
 </manifest>
