@@ -5,67 +5,82 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@color/white">
+    android:background="@android:color/white"
+    android:padding="16dp">
 
-    <!-- Title -->
+    <!-- Schedule Prompt -->
     <TextView
-        android:id="@+id/serviceTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Grooming Services"
-        android:textSize="20sp"
+        android:text="Schedule an appointment!"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:paddingBottom="10dp" />
+        android:textColor="@color/orange"
+        android:paddingBottom="16dp" />
 
-    <!-- Service Selection Cards -->
+    <!-- Category Tabs -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_horizontal"
-        android:paddingBottom="16dp">
+        android:gravity="center">
 
-        <!-- Grooming Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardGrooming"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:padding="10dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp"
-            android:backgroundTint="@color/white">
+            android:padding="12dp"
+            app:cardCornerRadius="0dp"
+            app:cardElevation="0dp"
+            android:backgroundTint="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackground">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Grooming"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:padding="8dp"
-                android:gravity="center"/>
+                android:textColor="@android:color/black"
+                android:gravity="center"
+                android:paddingBottom="8dp" />
+
+            <View
+                android:id="@+id/groomingUnderline"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/orange"
+                android:layout_gravity="bottom" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Veterinary Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardVet"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:padding="10dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp"
-            android:backgroundTint="@color/white">
+            android:padding="12dp"
+            app:cardCornerRadius="0dp"
+            app:cardElevation="0dp"
+            android:backgroundTint="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackground">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Veterinary"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:padding="8dp"
-                android:gravity="center"/>
+                android:textColor="@android:color/black"
+                android:gravity="center"
+                android:paddingBottom="8dp" />
+
+            <View
+                android:id="@+id/vetUnderline"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@android:color/transparent"
+                android:layout_gravity="bottom" />
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 
@@ -73,8 +88,10 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewServices"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="10dp"
-        android:scrollbars="vertical"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="16dp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical" />
 
 </LinearLayout>

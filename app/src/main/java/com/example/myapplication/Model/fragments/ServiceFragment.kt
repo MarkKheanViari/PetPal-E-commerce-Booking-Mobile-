@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -31,12 +32,14 @@ class ServiceFragment : Fragment(R.layout.fragment_service) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Common views used in both layouts
-        val cardGrooming: MaterialCardView? = view.findViewById(R.id.cardGrooming)
-        val cardVet: MaterialCardView? = view.findViewById(R.id.cardVet)
-        val serviceTitle: TextView? = view.findViewById(R.id.serviceTitle)
+        // Initialize views
+        val cardGrooming: MaterialCardView = view.findViewById(R.id.cardGrooming)
+        val cardVet: MaterialCardView = view.findViewById(R.id.cardVet)
+        val groomingUnderline: View = view.findViewById(R.id.groomingUnderline)
+        val vetUnderline: View = view.findViewById(R.id.vetUnderline)
         recyclerView = view.findViewById(R.id.recyclerViewServices)
 
+        // Setup RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         serviceAdapter = ServiceAdapter(requireContext(), serviceList)
         recyclerView.adapter = serviceAdapter
@@ -44,53 +47,29 @@ class ServiceFragment : Fragment(R.layout.fragment_service) {
         // Default load Grooming services
         fetchServices("Grooming")
 
-        cardGrooming?.setOnClickListener {
+        // Category tab click listeners
+        cardGrooming.setOnClickListener {
             selectedServiceType = "Grooming"
-            serviceTitle?.text = "Grooming Services"
+            // Update underlines
+            groomingUnderline.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.orange))
+            vetUnderline.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.transparent))
             fetchServices("Grooming")
         }
 
-        cardVet?.setOnClickListener {
+        cardVet.setOnClickListener {
             selectedServiceType = "Veterinary"
-            serviceTitle?.text = "Veterinary Services"
+            // Update underlines
+            vetUnderline.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.orange))
+            groomingUnderline.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.transparent))
             fetchServices("Veterinary")
         }
-
-        // Try to find the schedule button by checking both possible IDs.
-        val scheduleAppointmentButton: Button? =
-            view.findViewById(R.id.btnScheduleAppointment)
-
-        scheduleAppointmentButton?.setOnClickListener {
-            clearUserInput(view)
-        } ?: Log.e("ServiceFragment", "No schedule appointment button found in the layout!")
-    }
-
-    // Clears the text (and any formatting) from the appointment input fields.
-    private fun clearUserInput(view: View) {
-        // Check for both grooming and checkup fields since each layout has its own
-        val groomTypeField: EditText? = view.findViewById(R.id.groomTypeField)
-        val checkupTypeField: EditText? = view.findViewById(R.id.checkupTypeField)
-        groomTypeField?.setText("")
-        checkupTypeField?.setText("")
-
-        // Clear the rest of the common fields
-        view.findViewById<EditText>(R.id.etName)?.setText("")
-        view.findViewById<EditText>(R.id.etAddress)?.setText("")
-        view.findViewById<EditText>(R.id.etPhone)?.setText("")
-        view.findViewById<EditText>(R.id.etPetName)?.setText("")
-        view.findViewById<EditText>(R.id.etPetBreed)?.setText("")
-        view.findViewById<EditText>(R.id.etNotes)?.setText("")
-
-        // Optionally reset other inputs (e.g., RadioGroup, Spinner)
-        view.findViewById<RadioGroup>(R.id.radioPetType)?.clearCheck()
-        view.findViewById<Spinner>(R.id.spinnerPaymentMethod)?.setSelection(0)
     }
 
     private fun fetchServices(serviceType: String) {
         val url = if (serviceType == "Grooming") {
-            "http://192.168.1.15/backend/fetch_grooming_services.php"
+            "http://192.168.1.65/backend/fetch_grooming_services.php"
         } else {
-            "http://192.168.1.15/backend/fetch_veterinary_services.php"
+            "http://192.168.1.65/backend/fetch_veterinary_services.php"
         }
 
         val queue: RequestQueue = Volley.newRequestQueue(requireContext())
@@ -99,7 +78,6 @@ class ServiceFragment : Fragment(R.layout.fragment_service) {
             { response ->
                 try {
                     Log.d("ServiceFragment", "🔍 API Response: $response")
-                    // Extract "services" array from the response
                     val servicesArray = response.getJSONArray("services")
                     serviceList.clear()
                     for (i in 0 until servicesArray.length()) {
@@ -126,5 +104,24 @@ class ServiceFragment : Fragment(R.layout.fragment_service) {
             })
 
         queue.add(request)
+    }
+
+    private fun clearUserInput(view: View) {
+        // Note: This method references fields that may not be present in this layout.
+        // Adjust or remove if not needed.
+        val groomTypeField: EditText? = view.findViewById(R.id.groomTypeField)
+        val checkupTypeField: EditText? = view.findViewById(R.id.checkupTypeField)
+        groomTypeField?.setText("")
+        checkupTypeField?.setText("")
+
+        view.findViewById<EditText>(R.id.etName)?.setText("")
+        view.findViewById<EditText>(R.id.etAddress)?.setText("")
+        view.findViewById<EditText>(R.id.etPhone)?.setText("")
+        view.findViewById<EditText>(R.id.etPetName)?.setText("")
+        view.findViewById<EditText>(R.id.etPetBreed)?.setText("")
+        view.findViewById<EditText>(R.id.etNotes)?.setText("")
+
+        view.findViewById<RadioGroup>(R.id.radioPetType)?.clearCheck()
+        view.findViewById<Spinner>(R.id.spinnerPaymentMethod)?.setSelection(0)
     }
 }
