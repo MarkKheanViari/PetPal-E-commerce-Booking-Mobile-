@@ -1,124 +1,209 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- Back Button -->
-    <ImageButton
-        android:id="@+id/btnBack"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:padding="8dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/back_button" />
-
-    <!-- Scrollable Content -->
-    <ScrollView
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="56dp">
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:background="#EFAD72"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Back Button -->
+        <ImageView
+            android:id="@+id/backBtn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/back_button"/>
+
+        <Space
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:text="Edit Profle"
+            android:textSize="25sp"
+            android:layout_marginStart="20dp"
+            android:fontFamily="@font/alata"
+            android:textColor="@color/black"/>
 
-            <!-- Profile Image & Edit Icon -->
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="16dp">
+    </androidx.appcompat.widget.Toolbar>
 
-                <ImageView
-                    android:id="@+id/imgProfile"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:src="@drawable/profile"
-                    android:scaleType="centerCrop" />
+    <!-- Profile Image & Edit Icon -->
+    <FrameLayout
+        android:id="@+id/profileFL"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-                <ImageView
-                    android:id="@+id/imgEditPhoto"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_gravity="bottom|end"
-                    android:layout_margin="4dp"
-                    android:src="@drawable/baseline_edit_24" />
-            </FrameLayout>
+        <ImageView
+            android:id="@+id/imgProfile"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@drawable/profile_view"
+            android:src="@drawable/profile"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/profile_picture"/>
 
-            <!-- Username -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Username" />
-            <EditText
-                android:id="@+id/etUsername"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <ImageView
+            android:id="@+id/imgEditPhoto"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="top|end"
+            android:layout_margin="4dp"
+            android:src="@drawable/baseline_edit_24" />
+    </FrameLayout>
 
-            <!-- Email -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Email" />
-            <EditText
-                android:id="@+id/etEmail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textEmailAddress" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="15dp"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/profileFL"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-            <!-- Phone -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Phone" />
-            <EditText
-                android:id="@+id/etPhone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="phone" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:textSize="20sp"
+            android:fontFamily="@font/alata"
+            android:textColor="@color/black"
+            android:layout_gravity="start"/>
 
-            <!-- Gender -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Gender" />
-            <EditText
-                android:id="@+id/etGender"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="10dp"/>
 
-            <!-- Birthday -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Birthday" />
-            <EditText
-                android:id="@+id/etBirthday"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="date" />
+        <!-- Edit Name -->
+        <EditText
+            android:id="@+id/etUsername"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/add_subtract_corners"
+            android:maxLines="1"
+            android:inputType="textPersonName"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:drawableEnd="@drawable/edit_btn"/>
 
-            <!-- Social Media -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Social Media" />
-            <EditText
-                android:id="@+id/etSocial"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"/>
 
-            <!-- Save Button -->
-            <Button
-                android:id="@+id/btnSaveProfile"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Save Changes"
-                android:layout_marginTop="16dp" />
-        </LinearLayout>
-    </ScrollView>
-</RelativeLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            android:textSize="20sp"
+            android:fontFamily="@font/alata"
+            android:textColor="@color/black"
+            android:layout_gravity="start"/>
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="10dp"/>
+
+        <!-- Edit Name -->
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/add_subtract_corners"
+            android:maxLines="1"
+            android:inputType="textEmailAddress"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:drawableEnd="@drawable/edit_btn"/>
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Address"
+            android:textSize="20sp"
+            android:fontFamily="@font/alata"
+            android:textColor="@color/black"
+            android:layout_gravity="start"/>
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="10dp"/>
+
+        <!-- Edit Name -->
+        <EditText
+            android:id="@+id/etAddress"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/add_subtract_corners"
+            android:maxLines="1"
+            android:textSize="18sp"
+            android:inputType="textPostalAddress"
+            android:textColor="@color/black"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:drawableEnd="@drawable/edit_btn"/>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="25dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phone Number"
+            android:textSize="20sp"
+            android:fontFamily="@font/alata"
+            android:textColor="@color/black"
+            android:layout_gravity="start"/>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
+        <EditText
+            android:id="@+id/etPhone"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/add_subtract_corners"
+            android:maxLines="1"
+            android:textSize="18sp"
+            android:inputType="phone"
+            android:textColor="@color/black"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:drawableEnd="@drawable/edit_btn"/>
+
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"/>
+
+        <Button
+            android:id="@+id/save_changesBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save Changes"
+            android:layout_gravity="center"
+            android:backgroundTint="@color/smth_orange"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

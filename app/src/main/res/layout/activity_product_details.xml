@@ -7,11 +7,13 @@
     android:background="@color/white"
     tools:context=".ProductDetailsActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/top_container"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toptoolbar"
+        android:background="@color/light_orange"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
+        android:paddingVertical="8dp"
+        android:paddingHorizontal="16dp"
         app:layout_constraintTop_toTopOf="parent">
 
         <!-- Back Button -->
@@ -19,10 +21,27 @@
             android:id="@+id/backBtn"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:layout_gravity="start"
             android:src="@drawable/back_button"
-            android:contentDescription="Back"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:contentDescription="@string/design_desc"/>
+
+        <ImageView
+            android:id="@+id/likedBtn"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_gravity="end"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/fill_heart"
+            android:contentDescription="@string/design_desc"/>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/top_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/toptoolbar">
 
         <!-- Product Image -->
         <androidx.cardview.widget.CardView
@@ -31,9 +50,7 @@
             android:layout_height="300dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="6dp"
-            android:backgroundTint="@color/light_orange"
-            android:layout_marginTop="10dp"
-            app:layout_constraintTop_toBottomOf="@id/backBtn"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
@@ -137,11 +154,10 @@
             android:backgroundTint="@color/smth_orange"
             android:text="Add to Cart"
             android:textAllCaps="false"
-            android:textColor="@android:color/white"
             app:cornerRadius="25dp" />
 
         <Space
-            android:layout_width="12dp"
+            android:layout_width="15dp"
             android:layout_height="wrap_content"/>
 
         <!-- Buy Now Button -->
@@ -152,7 +168,6 @@
             android:layout_weight="1"
             android:text="Buy Now"
             android:backgroundTint="@color/darker_orange"
-            android:textColor="@android:color/white"
             app:cornerRadius="25dp"
             android:textAllCaps="false"/>
 

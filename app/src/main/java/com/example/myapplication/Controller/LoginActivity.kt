@@ -3,7 +3,10 @@ package com.example.myapplication
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
 import android.util.Log
+import android.view.MotionEvent
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
@@ -16,11 +19,12 @@ import org.json.JSONObject
 import java.io.IOException
 
 class LoginActivity : AppCompatActivity() {
+
+    private var isPasswordVisible = false // Track visibility state
+
     private lateinit var backBtn: ImageView
     private lateinit var usernameInput: EditText
     private lateinit var passwordInput: EditText
-    private lateinit var usernameLayout: TextInputLayout
-    private lateinit var passwordLayout: TextInputLayout
     private lateinit var loginButton: Button
     private lateinit var forgotpass: TextView
     private lateinit var registerLink: TextView
@@ -49,8 +53,6 @@ class LoginActivity : AppCompatActivity() {
 
         // Initialize views (note: usernameInput and passwordInput are inside TextInputLayouts)
         backBtn = findViewById(R.id.backBtn)
-        usernameLayout = findViewById(R.id.usernameLayout)
-        passwordLayout = findViewById(R.id.passwordLayout)
         usernameInput = findViewById(R.id.usernameInput)
         passwordInput = findViewById(R.id.passwordInput)
         loginButton = findViewById(R.id.loginButton)
@@ -72,21 +74,20 @@ class LoginActivity : AppCompatActivity() {
         // Set up click listener for login button
         loginButton.setOnClickListener {
             // Clear any previous errors
-            usernameLayout.error = null
-            passwordLayout.error = null
-
             val username = usernameInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
 
             var isValid = true
 
             if (username.isEmpty()) {
-                usernameLayout.error = "Username is Required"
+                usernameInput.error = "Username is Required"
+                usernameInput.setBackgroundResource(R.drawable.edittext_error_background)
                 isValid = false
             }
 
             if (password.isEmpty()) {
-                passwordLayout.error = "Password is Required"
+                passwordInput.error = "Password is Required"
+                passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
                 isValid = false
             }
 
@@ -97,17 +98,46 @@ class LoginActivity : AppCompatActivity() {
 
         // Remove error when user fixes input
         usernameInput.addTextChangedListener {
-            usernameLayout.error = null
+            usernameInput.setBackgroundResource(R.drawable.login_design)
         }
         passwordInput.addTextChangedListener {
-            passwordLayout.error = null
+            passwordInput.setBackgroundResource(R.drawable.login_design)
         }
 
         // Navigation to register screen
         registerLink.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
+
+        setupPasswordToggle()
+
     }
+
+    private fun EditText.setCompoundDrawableClickListener(onDrawableEndClick: () -> Unit) {
+        setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                val drawableEnd = compoundDrawablesRelative[2]
+                if (drawableEnd != null && event.rawX >= (right - paddingEnd - drawableEnd.bounds.width())) {
+                    onDrawableEndClick()
+                    performClick()
+                    return@setOnTouchListener true
+                }
+            }
+            false
+        }
+    }
+
+    private fun setupPasswordToggle() {
+        passwordInput.setCompoundDrawableClickListener {
+            isPasswordVisible = !isPasswordVisible
+            passwordInput.transformationMethod =
+                if (isPasswordVisible) HideReturnsTransformationMethod.getInstance()
+                else PasswordTransformationMethod.getInstance()
+            passwordInput.setSelection(passwordInput.text?.length ?: 0)
+        }
+    }
+
+
 
     private fun performLogin(username: String, password: String) {
         val jsonObject = JSONObject().apply {
@@ -119,7 +149,7 @@ class LoginActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/mobile_login.php")
+            .url("http://192.168.1.15/backend/mobile_login.php")
             .post(requestBody)
             .build()
 
@@ -165,15 +195,17 @@ class LoginActivity : AppCompatActivity() {
                             // Display errors in the corresponding TextInputLayout
                             when {
                                 errorMessage.contains("wrong password", ignoreCase = true) -> {
-                                    passwordLayout.error = "Wrong password"
+                                    passwordInput.error = "Wrong password"
+                                    passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
                                 }
                                 errorMessage.contains("wrong username", ignoreCase = true) -> {
-                                    usernameLayout.error = "Wrong username"
+                                    usernameInput.error = "Wrong username"
+                                    usernameInput.setBackgroundResource(R.drawable.edittext_error_background)
                                 }
                                 else -> {
                                     // If the error is generic, show it in both fields
-                                    usernameLayout.error = errorMessage
-                                    passwordLayout.error = errorMessage
+                                    usernameInput.error = errorMessage
+                                    passwordInput.error = errorMessage
                                 }
                             }
                         }
