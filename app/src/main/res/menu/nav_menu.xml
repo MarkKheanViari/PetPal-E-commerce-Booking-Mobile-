@@ -7,11 +7,6 @@
         android:checkableBehavior="single">
 
         <item
-            android:id="@+id/nav_settings"
-            android:icon="@drawable/settings"
-            android:title="Settings" />
-
-        <item
             android:id="@+id/nav_likedProducts"
             android:icon="@drawable/ic_favorite_border"
             android:title="Liked Products" />

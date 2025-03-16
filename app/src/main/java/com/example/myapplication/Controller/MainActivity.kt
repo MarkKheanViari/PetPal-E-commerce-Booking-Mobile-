@@ -316,7 +316,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkForApprovedAppointments(userId: Int) {
-        val url = "http://192.168.1.65/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
+        val url = "http://192.168.1.12/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
         val request = JsonObjectRequest(
             com.android.volley.Request.Method.GET, url, null,
             { response ->
@@ -370,19 +370,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupBottomNavigation() {
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
-            // Attempt to find the view corresponding to the selected item
+            // Animate the selected item
             val viewToAnimate = bottomNavigation.findViewById<View>(item.itemId)
-            viewToAnimate?.let { view ->
+            viewToAnimate?.let {
                 val bounceAnimation = AnimationUtils.loadAnimation(this, R.anim.bounce)
-                view.startAnimation(bounceAnimation)
+                it.startAnimation(bounceAnimation)
             }
+
+            // Update the toolbar title with the menu item's title
+            findViewById<TextView>(R.id.toolbarTitle).text = item.title
 
             when (item.itemId) {
                 R.id.nav_products -> {
-                    // Pop any active fragments and show the catalog
                     supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                     showMainUI(true)
-                    findViewById<TextView>(R.id.toolbarTitle).text = "Catalog"
                     fetchProducts()
                     true
                 }
@@ -404,6 +405,7 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
     }
 
     /**
@@ -421,7 +423,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchProducts() {
-        val url = "http://192.168.1.65/backend/fetch_product.php"
+        val url = "http://192.168.1.12/backend/fetch_product.php"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -446,7 +448,7 @@ class MainActivity : AppCompatActivity() {
 
                     val productsArray = json.optJSONArray("products") ?: JSONArray()
                     val fetchedProducts = mutableListOf<Product>()
-                    val baseImageUrl = "http://192.168.1.65/backend/uploads/"
+                    val baseImageUrl = "http://192.168.1.12/backend/uploads/"
 
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)
@@ -498,7 +500,7 @@ class MainActivity : AppCompatActivity() {
         productAdapter.notifyDataSetChanged()
 
         // Fetch products by category
-        val url = "http://192.168.1.65/backend/fetch_product.php?category=$category"
+        val url = "http://192.168.1.12/backend/fetch_product.php?category=$category"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -532,11 +534,11 @@ class MainActivity : AppCompatActivity() {
                         val productJson = productsArray.getJSONObject(i)
                         val rawImage = productJson.optString("image", "").trim()
                         val fullImageUrl = if (rawImage.isNotEmpty() && !rawImage.startsWith("http")) {
-                            "http://192.168.1.65/backend/uploads/$rawImage"
+                            "http://192.168.1.12/backend/uploads/$rawImage"
                         } else {
                             rawImage
                         }
-                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.1.65/backend/uploads/default.jpg"
+                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.1.12/backend/uploads/default.jpg"
 
                         categoryProducts.add(
                             Product(

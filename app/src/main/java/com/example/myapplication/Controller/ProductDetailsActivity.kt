@@ -53,6 +53,7 @@ class ProductDetailsActivity : AppCompatActivity() {
         val productDescriptionTextView = findViewById<TextView>(R.id.productDescription)
         val productPriceTextView = findViewById<TextView>(R.id.prduct_price) // Fix typo if needed
         val backBtn = findViewById<ImageView>(R.id.backBtn)
+        val likedBtn = findViewById<ImageView>(R.id.likedBtn)  // Like button
         val addToCartButton = findViewById<MaterialButton>(R.id.addtocart_container)
         val buyNowButton = findViewById<MaterialButton>(R.id.buynow_container)
 
@@ -74,6 +75,27 @@ class ProductDetailsActivity : AppCompatActivity() {
 
         // Back button
         backBtn.setOnClickListener { finish() }
+
+        // Like button functionality:
+        // Create a Product instance from the current product details,
+        // add it to LikedProductsStore, then navigate to LikedProductsActivity.
+        likedBtn.setOnClickListener {
+            if (productId != -1 && productName != null && productDescription != null) {
+                val product = Product(
+                    id = productId,
+                    name = productName,
+                    price = productPrice.toString(),
+                    description = productDescription,
+                    quantity = 1, // default value for liked products
+                    imageUrl = productImage ?: ""
+                )
+                LikedProductsStore.addProduct(product)
+                val intent = Intent(this, LikedProductsActivity::class.java)
+                startActivity(intent)
+            } else {
+                Toast.makeText(this, "Failed to add product to likes", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         // "Add to Cart" functionality
         addToCartButton.setOnClickListener {
@@ -136,7 +158,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.1.65/backend/add_to_cart.php")
+            .url("http://192.168.1.12/backend/add_to_cart.php")
             .post(requestBody)
             .build()
 
