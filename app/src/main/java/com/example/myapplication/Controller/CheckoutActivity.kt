@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -25,9 +26,13 @@ class CheckoutActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var totalTextView: TextView
     private lateinit var userInfoText: TextView
+    private lateinit var addressName: TextView
+    private lateinit var addressPhone: TextView
+    private lateinit var addressDetails: TextView
     private lateinit var selectPaymentButton: Button
     private lateinit var paymentMethodText: TextView
     private lateinit var placeOrderButton: Button
+    private lateinit var addressSection: LinearLayout
 
     private lateinit var cartItems: ArrayList<HashMap<String, String>>
     private lateinit var cartList: ArrayList<CartItem>
@@ -45,9 +50,13 @@ class CheckoutActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.checkoutRecyclerView)
         totalTextView = findViewById(R.id.totalTextView)
         userInfoText = findViewById(R.id.userInfoText)
+        addressName = findViewById(R.id.addressName)
+        addressPhone = findViewById(R.id.addressPhone)
+        addressDetails = findViewById(R.id.addressDetails)
         selectPaymentButton = findViewById(R.id.selectPaymentButton)
         paymentMethodText = findViewById(R.id.paymentMethodText)
         placeOrderButton = findViewById(R.id.checkoutBtn)
+        addressSection = findViewById(R.id.addressSection)
 
         val productId = intent.getIntExtra("productId", -1)
         val productName = intent.getStringExtra("productName") ?: "Unknown"
@@ -84,7 +93,7 @@ class CheckoutActivity : AppCompatActivity() {
         })
 
         placeOrderButton.setOnClickListener { submitOrder() }
-        fetchUserInfo()
+        fetchUserInfo() // Fetch user info including address
         calculateTotal()
         calculateOrderSummary()
 
@@ -101,39 +110,72 @@ class CheckoutActivity : AppCompatActivity() {
             }
             builder.show()
         }
+
+        // Make address section clickable to navigate to address selection
+        addressSection.setOnClickListener {
+            navigateToAddressSelection(it)
+        }
     }
 
     private fun fetchUserInfo() {
         val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         val mobileUserId = sharedPreferences.getInt("user_id", -1)
+        Log.d("CheckoutActivity", "mobileUserId from SharedPreferences: $mobileUserId")
 
         if (mobileUserId == -1) {
-            Toast.makeText(this, "❌ Please login to continue", Toast.LENGTH_SHORT).show()
-            finish()
+            Log.e("CheckoutActivity", "No user logged in!")
+            runOnUiThread {
+                Toast.makeText(this@CheckoutActivity, "❌ Please login to continue", Toast.LENGTH_SHORT).show()
+                finish()
+            }
             return
         }
 
-        val url = "http://192.168.1.65/backend/fetch_user_info.php?mobileUserId=$mobileUserId"
+        val url = "http://192.168.1.65/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
+        Log.d("CheckoutActivity", "Request URL: $url")
         val request = Request.Builder().url(url).get().build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
+                Log.e("CheckoutActivity", "Network failure: ${e.message}", e)
                 runOnUiThread {
-                    Toast.makeText(this@CheckoutActivity, "❌ Failed to fetch user info", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@CheckoutActivity, "❌ Network failure: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
+                Log.d("CheckoutActivity", "Response: $responseBody")
                 if (!responseBody.isNullOrEmpty()) {
-                    val jsonResponse = JSONObject(responseBody)
-                    if (jsonResponse.optBoolean("success", false)) {
-                        val username = jsonResponse.optString("username")
-                        val contactNumber = jsonResponse.optString("contact_number")
-                        val location = jsonResponse.optString("location")
-                        runOnUiThread {
-                            userInfoText.text = "$username ($contactNumber)\n$location"
+                    try {
+                        val jsonResponse = JSONObject(responseBody)
+                        if (jsonResponse.optBoolean("success", false)) {
+                            val username = jsonResponse.optString("username", "Unknown User")
+                            val contactNumber = jsonResponse.optString("contact_number", "No contact")
+                            val location = jsonResponse.optString("location", "No address available")
+                            runOnUiThread {
+                                addressName.text = username
+                                addressPhone.text = contactNumber
+                                addressDetails.text = location
+                                Toast.makeText(this@CheckoutActivity, "✅ User info fetched", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            val errorMessage = jsonResponse.optString("message", "Unknown error")
+                            Log.e("CheckoutActivity", "Backend error: $errorMessage")
+                            runOnUiThread {
+                                Toast.makeText(this@CheckoutActivity, "❌ $errorMessage", Toast.LENGTH_SHORT).show()
+                            }
                         }
+                    } catch (e: Exception) {
+                        Log.e("CheckoutActivity", "Error parsing JSON: ${e.message}", e)
+                        runOnUiThread {
+                            Toast.makeText(this@CheckoutActivity, "❌ Error parsing response: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } else {
+                    Log.e("CheckoutActivity", "Empty response from server")
+                    runOnUiThread {
+                        Toast.makeText(this@CheckoutActivity, "❌ Empty response from server", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -220,14 +262,10 @@ class CheckoutActivity : AppCompatActivity() {
         val total = subtotal + shippingFee
 
         val subtotalTextView = findViewById<TextView>(R.id.subtotalTextView)
-        val shippingFeeTextView = findViewById<TextView>(R.id.subtotalTextView)//need to change because i am only using this
         val orderTotalPriceSummary = findViewById<TextView>(R.id.orderTotalPriceSummary)
-        val totalItemsTextView = findViewById<TextView>(R.id.subtotalTextView)
 
-        subtotalTextView.text = "Subtotal: ₱%.2f".format(subtotal)
-        shippingFeeTextView.text = "Shipping Fee: ₱%.2f".format(shippingFee)
-        orderTotalPriceSummary.text = "Total: ₱%.2f".format(total)
-        totalItemsTextView.text = "Total ($totalItems Item${if (totalItems > 1) "s" else ""})"
+        subtotalTextView.text = "₱%.2f".format(subtotal)
+        orderTotalPriceSummary.text = "₱%.2f".format(total)
 
         Log.d("CheckoutActivity", "Subtotal: $subtotal, Total: $total, Items: $totalItems")
     }
@@ -241,7 +279,7 @@ class CheckoutActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE_ADDRESS && resultCode == RESULT_OK) {
             val selectedAddress = data?.getStringExtra("selectedAddress")
-            userInfoText.text = selectedAddress
+            addressDetails.text = selectedAddress ?: "No address selected"
         }
     }
 
