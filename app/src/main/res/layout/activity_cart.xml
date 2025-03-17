@@ -5,13 +5,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@android:color/white">
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:background="@android:color/white"
+    tools:context=".CartActivity">
 
     <!-- "Your cart is empty" message -->
     <TextView
         android:id="@+id/emptyText"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="Your cart is empty."
@@ -25,26 +27,25 @@
     <!-- Cart RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/cartRecyclerView"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:padding="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_container"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_container"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_editor_absoluteX="-2dp" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Bottom container with total price and checkout -->
     <LinearLayout
         android:id="@+id/bottom_container"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="80dp"
         android:orientation="horizontal"
         android:gravity="end|center_vertical"
         android:background="@color/light_orange"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <Space
             android:layout_width="5dp"
@@ -63,18 +64,15 @@
             android:layout_width="20dp"
             android:layout_height="wrap_content" />
 
-
         <Button
             android:id="@+id/checkoutButton"
             android:layout_width="130dp"
             android:layout_height="60dp"
-            android:text="Check Out"/>
+            android:text="Check Out" />
 
         <Space
             android:layout_width="20dp"
             android:layout_height="wrap_content" />
-
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
