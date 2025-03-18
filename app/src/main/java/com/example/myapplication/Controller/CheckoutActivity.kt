@@ -18,6 +18,7 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 
@@ -193,10 +194,12 @@ class CheckoutActivity : AppCompatActivity() {
             return
         }
 
+        val paymentMethod = paymentMethodText.text.toString()
+
         val jsonObject = JSONObject().apply {
             put("mobile_user_id", userId)
             put("total_price", cartTotal)
-            put("payment_method", paymentMethodText.text.toString())
+            put("payment_method", paymentMethod)
             put("cart_items", JSONArray().apply {
                 for (item in cartList) {
                     val itemJson = JSONObject().apply {
@@ -213,35 +216,87 @@ class CheckoutActivity : AppCompatActivity() {
         }
 
         Log.d("CheckoutActivity", "📦 Request JSON: $jsonObject")
+
         val requestBody = jsonObject.toString().toRequestBody("application/json".toMediaType())
 
-        val request = Request.Builder()
-            .url("http://192.168.1.65/backend/submit_order.php")
-            .post(requestBody)
-            .build()
+        if (paymentMethod == "GCASH") {
+            Log.d("CheckoutActivity", "⚡ Using PayMongo GCASH Payment")
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e("CheckoutActivity", "❌ Network Error: ${e.message}")
-                runOnUiThread {
-                    Toast.makeText(this@CheckoutActivity, "❌ Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
+            val request = Request.Builder()
+                .url("http://192.168.1.65/backend/paymongo_checkout.php") // New API for GCASH
+                .post(requestBody)
+                .build()
 
-            override fun onResponse(call: Call, response: Response) {
-                val responseBody = response.body?.string()
-                Log.d("CheckoutActivity", "📦 API Response: $responseBody")
-                runOnUiThread {
-                    if (response.isSuccessful && responseBody?.contains("success") == true) {
-                        showOrderPlacedToast()
-                        finish()
-                    } else {
-                        Toast.makeText(this@CheckoutActivity, "❌ Failed to place order.", Toast.LENGTH_SHORT).show()
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.e("CheckoutActivity", "❌ Network Error: ${e.message}")
+                    runOnUiThread {
+                        Toast.makeText(this@CheckoutActivity, "❌ Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
-            }
-        })
+
+                override fun onResponse(call: Call, response: Response) {
+                    val responseBody = response.body?.string()
+                    Log.d("CheckoutActivity", "📦 API Response: $responseBody")
+
+                    runOnUiThread {
+                        try {
+                            val jsonResponse = JSONObject(responseBody ?: "{}")
+
+                            if (jsonResponse.optBoolean("success", false)) {
+                                val checkoutUrl = jsonResponse.optString("checkout_url", "")
+
+                                if (checkoutUrl.isNotEmpty()) {
+                                    Log.d("CheckoutActivity", "🌐 Redirecting to PayMongo: $checkoutUrl")
+
+                                    val intent = Intent(this@CheckoutActivity, WebViewActivity::class.java)
+                                    intent.putExtra("url", checkoutUrl)
+                                    startActivity(intent)
+                                } else {
+                                    Toast.makeText(this@CheckoutActivity, "❌ Error: Missing checkout URL", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                val errorMessage = jsonResponse.optString("message", "Unknown error")
+                                Toast.makeText(this@CheckoutActivity, "❌ $errorMessage", Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: JSONException) {
+                            Log.e("CheckoutActivity", "❌ JSON Parsing Error: ${e.message}")
+                            Toast.makeText(this@CheckoutActivity, "❌ JSON Parsing Error", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            })
+        } else {
+            // Normal COD order submission
+            val request = Request.Builder()
+                .url("http://192.168.1.65/backend/submit_order.php")
+                .post(requestBody)
+                .build()
+
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.e("CheckoutActivity", "❌ Network Error: ${e.message}")
+                    runOnUiThread {
+                        Toast.makeText(this@CheckoutActivity, "❌ Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    val responseBody = response.body?.string()
+                    Log.d("CheckoutActivity", "📦 API Response: $responseBody")
+                    runOnUiThread {
+                        if (response.isSuccessful && responseBody?.contains("success") == true) {
+                            showOrderPlacedToast()
+                            finish()
+                        } else {
+                            Toast.makeText(this@CheckoutActivity, "❌ Failed to place order.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            })
+        }
     }
+
 
     private fun calculateTotal() {
         cartTotal = cartList.sumOf { it.price * it.quantity }
