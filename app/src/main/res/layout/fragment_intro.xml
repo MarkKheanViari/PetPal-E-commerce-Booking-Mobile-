@@ -60,22 +60,19 @@
                 android:text="@string/get_started"
                 android:visibility="gone" />
 
+            <TextView
+                android:id="@+id/slideToContinueText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Slide to continue"
+                android:textColor="@color/smth_orange"
+                android:textSize="14sp" />
+
         </LinearLayout>
 
-        <!-- Horizontal Progress Bar at the bottom -->
-        <ProgressBar
-            android:id="@+id/introProgressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="8dp"
-            android:layout_margin="16dp"
-            android:max="6"
-            android:progress="1"
-            android:progressTint="@color/orange"
-            android:indeterminate="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+        <!-- "Slide to continue" TextView positioned above the divider -->
+
+        <!-- Divider line now anchored to the bottom of the parent -->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

@@ -48,5 +48,10 @@ class ProfileFragment : Fragment() {
         view.findViewById<TextView>(R.id.liked_products).setOnClickListener {
             startActivity(Intent(requireContext(),LikedProductsActivity::class.java))
         }
+        view.findViewById<TextView>(R.id.profile_details).setOnClickListener {
+            startActivity(Intent(requireContext(),ProfileActivity::class.java))
+        }
+
+
     }
 }
