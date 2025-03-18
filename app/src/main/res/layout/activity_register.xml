@@ -354,7 +354,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="I accept "
-                    android:textSize="14sp"
+                    android:textSize="13sp"
                     android:fontFamily="@font/alata" />
 
                 <TextView
@@ -363,7 +363,7 @@
                     android:layout_height="wrap_content"
                     android:text="Terms and Conditions"
                     android:textColor="@color/smth_orange"
-                    android:textSize="14sp"
+                    android:textSize="13sp"
                     android:fontFamily="@font/alata" />
 
                 <TextView
@@ -371,7 +371,7 @@
                     android:layout_height="wrap_content"
                     android:text=" and "
                     android:textColor="@color/smth_black"
-                    android:textSize="14sp"
+                    android:textSize="13sp"
                     android:fontFamily="@font/alata" />
 
                 <TextView
@@ -380,7 +380,7 @@
                     android:layout_height="wrap_content"
                     android:text="Privacy Policy"
                     android:textColor="@color/smth_orange"
-                    android:textSize="14sp"
+                    android:textSize="13sp"
                     android:fontFamily="@font/alata" />
             </LinearLayout>
 

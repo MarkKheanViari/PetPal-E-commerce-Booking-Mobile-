@@ -67,9 +67,9 @@ class ServiceFragment : Fragment(R.layout.fragment_service) {
 
     private fun fetchServices(serviceType: String) {
         val url = if (serviceType == "Grooming") {
-            "http://192.168.1.15/backend/fetch_grooming_services.php"
+            "http://192.168.137.14/backend/fetch_grooming_services.php"
         } else {
-            "http://192.168.1.15/backend/fetch_veterinary_services.php"
+            "http://192.168.137.14/backend/fetch_veterinary_services.php"
         }
 
         val queue: RequestQueue = Volley.newRequestQueue(requireContext())

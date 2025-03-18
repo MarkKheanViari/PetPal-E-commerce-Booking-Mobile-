@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:text="Welcome to Petpal!"
                 android:textSize="30sp"
-                android:textColor="#AD570B"
+                android:textColor="@color/black"
                 android:fontFamily="@font/alata"/>
 
             <Space
@@ -50,7 +50,7 @@
                 android:text="@string/intro1_text"
                 android:textAlignment="center"
                 android:textSize="20sp"
-                android:textColor="@color/smth_orange"
+                android:textColor="#AD570B"
                 android:fontFamily="@font/alata"/>
 
             <Space

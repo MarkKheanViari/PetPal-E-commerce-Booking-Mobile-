@@ -78,7 +78,7 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
     }
 
     private fun submitAppointment() {
-        val url = "http://192.168.1.15/backend/schedule_appointment.php"
+        val url = "http://192.168.137.14/backend/schedule_appointment.php"
 
         // Get user details from SharedPreferences
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)

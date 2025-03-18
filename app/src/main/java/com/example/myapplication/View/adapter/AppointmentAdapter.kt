@@ -80,7 +80,7 @@ class AppointmentAdapter(
             return
         }
 
-        val url = "http://192.168.1.15/backend/cancel_service_request.php"
+        val url = "http://192.168.137.14/backend/cancel_service_request.php"
 
         val requestData = JSONObject().apply {
             put("mobile_user_id", mobileUserId)

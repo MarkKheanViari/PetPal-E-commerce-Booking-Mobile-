@@ -79,7 +79,7 @@ class AddAddressActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.15/backend/add_address.php"
+        val url = "http://192.168.137.14/backend/add_address.php"
         val json = """
         {
           "user_id": "$mobileUserId",
