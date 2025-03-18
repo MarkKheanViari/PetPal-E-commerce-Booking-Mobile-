@@ -67,46 +67,60 @@
 
         </androidx.appcompat.widget.Toolbar>
 
+
         <Space
             android:id="@+id/spacer"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="20dp"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/toolbar"/>
 
-        <!-- Search Input -->
-        <EditText
-            android:id="@+id/search_bar"
-            android:layout_width="377dp"
-            android:layout_height="40dp"
-            android:hint="      Search"
-            android:textSize="18sp"
-            android:fontFamily="@font/alata"
-            android:textColorHint="@color/black"
-            android:maxLines="1"
-            android:drawableEnd="@drawable/search_icon"
-            android:paddingStart="15dp"
-            android:paddingEnd="10dp"
-            android:background="@drawable/searchactivity_roundedcorner"
-            android:inputType="text"
-            android:imeOptions="actionSearch"
+        <LinearLayout
+            android:id="@+id/searchBar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
             app:layout_constraintTop_toBottomOf="@id/spacer"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- "Browse Through" Text -->
-        <TextView
-            android:id="@+id/browseText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Browse Through"
-            android:textSize="20sp"
-            android:textColor="@color/black"
-            android:fontFamily="@font/alata"
-            android:paddingTop="10dp"
-            android:layout_marginStart="16dp"
-            app:layout_constraintTop_toBottomOf="@id/search_bar"
-            app:layout_constraintStart_toStartOf="parent" />
+            <!-- Search Input -->
+            <EditText
+                android:id="@+id/search_bar"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:hint="      Search"
+                android:textSize="18sp"
+                android:fontFamily="@font/alata"
+                android:textColorHint="@color/black"
+                android:maxLines="1"
+                android:drawableEnd="@drawable/search_icon"
+                android:paddingStart="15dp"
+                android:paddingEnd="10dp"
+                android:background="@drawable/searchactivity_roundedcorner"
+                android:inputType="text"
+                android:imeOptions="actionSearch"/>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp"/>
+
+            <!-- "Browse Through" Text -->
+            <TextView
+                android:id="@+id/browseText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Browse Through"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/alata"
+                app:layout_constraintTop_toBottomOf="@id/searchBar_layout"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </LinearLayout>
+
+
+
 
         <!-- Category Scroll -->
         <HorizontalScrollView
@@ -115,12 +129,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:scrollbars="none"
-            app:layout_constraintTop_toBottomOf="@id/browseText">
+            app:layout_constraintTop_toBottomOf="@id/searchBar_layout">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="30dp"
                 android:orientation="horizontal"
                 android:paddingHorizontal="16dp">
 
@@ -246,6 +259,13 @@
             </LinearLayout>
         </HorizontalScrollView>
 
+        <Space
+            android:id="@+id/spacer2"
+            android:layout_width="wrap_content"
+            android:layout_height="10dp"
+            app:layout_constraintTop_toBottomOf="@id/categoryScrollView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf=""/>
 
         <!-- "Recommended Items" Text -->
         <TextView
@@ -257,7 +277,7 @@
             android:textColor="@color/black"
             android:fontFamily="@font/alata"
             android:layout_marginStart="16dp"
-            app:layout_constraintTop_toBottomOf="@id/categoryScrollView"
+            app:layout_constraintTop_toBottomOf="@id/spacer2"
             app:layout_constraintStart_toStartOf="parent" />
 
         <FrameLayout
