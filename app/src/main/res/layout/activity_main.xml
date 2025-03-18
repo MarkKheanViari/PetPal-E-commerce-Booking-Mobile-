@@ -29,9 +29,9 @@
             android:gravity="center"
             android:paddingVertical="8dp"
             android:paddingHorizontal="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintEnd_toEndOf="parent">
 
             <!-- Menu Icon -->
             <androidx.appcompat.widget.AppCompatImageView
@@ -63,17 +63,20 @@
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_gravity="end"
-                android:src="@drawable/notif"/>
+                android:src="@drawable/notif" />
 
         </androidx.appcompat.widget.Toolbar>
 
-
+        <!-- OPTIONAL: If you really want a small gap below the toolbar, keep it minimal (e.g. 8dp) -->
         <Space
             android:id="@+id/spacer"
             android:layout_width="match_parent"
-            android:layout_height="20dp"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"/>
+            android:layout_height="8dp"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
+        <!-- Search Bar layout -->
         <LinearLayout
             android:id="@+id/searchBar_layout"
             android:layout_width="match_parent"
@@ -101,9 +104,10 @@
                 android:inputType="text"
                 android:imeOptions="actionSearch"/>
 
+            <!-- OPTIONAL: A tiny gap below the search bar -->
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="10dp"/>
+                android:layout_height="8dp" />
 
             <!-- "Browse Through" Text -->
             <TextView
@@ -113,14 +117,9 @@
                 android:text="Browse Through"
                 android:textSize="20sp"
                 android:textColor="@color/black"
-                android:fontFamily="@font/alata"
-                app:layout_constraintTop_toBottomOf="@id/searchBar_layout"
-                app:layout_constraintStart_toStartOf="parent" />
+                android:fontFamily="@font/alata" />
 
         </LinearLayout>
-
-
-
 
         <!-- Category Scroll -->
         <HorizontalScrollView
@@ -129,7 +128,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:scrollbars="none"
-            app:layout_constraintTop_toBottomOf="@id/searchBar_layout">
+            app:layout_constraintTop_toBottomOf="@id/searchBar_layout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -256,16 +257,19 @@
                     android:text="Training"
                     android:textColor="@color/black"
                     android:onClick="onCategorySelected"/>
+
+
             </LinearLayout>
         </HorizontalScrollView>
 
+        <!-- Another small gap (optional) -->
         <Space
             android:id="@+id/spacer2"
             android:layout_width="wrap_content"
-            android:layout_height="10dp"
+            android:layout_height="8dp"
             app:layout_constraintTop_toBottomOf="@id/categoryScrollView"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- "Recommended Items" Text -->
         <TextView
@@ -280,12 +284,13 @@
             app:layout_constraintTop_toBottomOf="@id/spacer2"
             app:layout_constraintStart_toStartOf="parent" />
 
+        <!-- Fragment container: holds RecyclerView or replaced by CartFragment, etc. -->
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="10dp"
-            android:paddingHorizontal="16dp"
+            android:padding="0dp"
             app:layout_constraintTop_toBottomOf="@id/recommendTxt"
             app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
             app:layout_constraintStart_toStartOf="parent"
@@ -315,11 +320,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                android:layout_centerInParent="true"
+                android:layout_gravity="center"
                 style="@android:style/Widget.ProgressBar.Small" />
+
         </FrameLayout>
-
-
 
         <!-- Bottom Navigation -->
         <com.google.android.material.bottomnavigation.BottomNavigationView

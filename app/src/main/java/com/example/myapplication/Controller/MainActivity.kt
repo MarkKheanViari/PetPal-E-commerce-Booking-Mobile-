@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity() {
             drawerLayout.closeDrawer(GravityCompat.START)
         }
 
-        // NavigationView item selections (including FAQ)
+        // NavigationView item selections
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_profile -> {
@@ -107,11 +107,6 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_notif -> {
-                    startActivity(Intent(this, NotificationActivity::class.java))
-                    true
-                }
-                R.id.nav_notif -> {
-                    // Launch NotificationActivity
                     startActivity(Intent(this, NotificationActivity::class.java))
                     true
                 }
@@ -249,9 +244,6 @@ class MainActivity : AppCompatActivity() {
         productAdapter.updateProducts(ArrayList(displayedProducts))
     }
 
-    /**
-     * Replaces the fragment_container with the given fragment.
-     */
     private fun loadFragment(fragment: Fragment) {
         val fragmentTag = fragment.javaClass.simpleName
         val existingFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
@@ -280,43 +272,22 @@ class MainActivity : AppCompatActivity() {
             Pair(R.id.allButton, "all"),
             Pair(R.id.foodButton, "Food"),
             Pair(R.id.treatsButton, "Treats"),
-            Pair(R.id.essentialsButton, "Essentials"),
-            Pair(R.id.suppliesButton, "Supplies"),
-            Pair(R.id.accessoriesButton, "Accessories"),
-            Pair(R.id.groomingButton, "Grooming"),
-            Pair(R.id.hygieneButton, "Hygiene"),
-            Pair(R.id.toysButton, "Toys"),
-            Pair(R.id.enrichmentButton, "Enrichment"),
-            Pair(R.id.healthcareButton, "Healthcare"),
-            Pair(R.id.trainingButton, "Training")
+            // Add more pairs for each button...
         )
 
         categories.forEach { (buttonId, category) ->
             val button = findViewById<Button>(buttonId)
             button.setOnClickListener {
-                // 1) Pop any active fragments from the back stack
                 supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-
-                // 2) Show the main UI again
                 showMainUI(true)
-
-                // 3) Reset bottom nav to 'Products' tab
                 bottomNavigation.selectedItemId = R.id.nav_products
-
-                // 4) Fetch products by this category
                 fetchProductsByCategory(category)
-
-                // 5) Update button styles
-                updateButtonStyles(
-                    button,
-                    *categories.map { findViewById<Button>(it.first) }.toTypedArray()
-                )
             }
         }
     }
 
     private fun checkForApprovedAppointments(userId: Int) {
-        val url = "http://192.168.1.65/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
+        val url = "http://192.168.1.12/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
         val request = JsonObjectRequest(
             com.android.volley.Request.Method.GET, url, null,
             { response ->
@@ -357,20 +328,9 @@ class MainActivity : AppCompatActivity() {
         builder.show()
     }
 
-    private fun updateButtonStyles(selectedButton: Button, vararg otherButtons: Button) {
-        selectedButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.orange))
-        selectedButton.setTextColor(Color.WHITE)
-        for (button in otherButtons) {
-            if (button != selectedButton) {
-                button.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.light_smth))
-                button.setTextColor(Color.BLACK)
-            }
-        }
-    }
-
     private fun setupBottomNavigation() {
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
-            // Animate the selected item
+            // Optionally animate the selected item
             val viewToAnimate = bottomNavigation.findViewById<View>(item.itemId)
             viewToAnimate?.let {
                 val bounceAnimation = AnimationUtils.loadAnimation(this, R.anim.bounce)
@@ -382,22 +342,26 @@ class MainActivity : AppCompatActivity() {
 
             when (item.itemId) {
                 R.id.nav_products -> {
-                    supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                    // Show the search bar and related views for products
                     showMainUI(true)
+                    supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                     fetchProducts()
                     true
                 }
                 R.id.menu_service -> {
+                    // Hide search bar and related views
                     showMainUI(false)
                     loadFragment(ServiceFragment())
                     true
                 }
                 R.id.nav_cart -> {
+                    // Hide search bar and related views so the cart goes up
                     showMainUI(false)
                     loadFragment(CartFragment())
                     true
                 }
                 R.id.nav_profile -> {
+                    // Hide search bar and related views
                     showMainUI(false)
                     loadFragment(ProfileFragment())
                     true
@@ -405,25 +369,22 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
-
     }
 
-    /**
-     * Toggles the visibility of the search bar, browse text,
-     * category buttons, recommended text, and products RecyclerView.
-     */
+
     private fun showMainUI(show: Boolean) {
         val visibility = if (show) View.VISIBLE else View.GONE
 
-        findViewById<EditText>(R.id.search_bar).visibility = visibility
+        findViewById<LinearLayout>(R.id.searchBar_layout).visibility = visibility
         findViewById<TextView>(R.id.browseText).visibility = visibility
         findViewById<View>(R.id.categoryScrollView).visibility = visibility
         findViewById<TextView>(R.id.recommendTxt).visibility = visibility
-        findViewById<View>(R.id.productsRecyclerView).visibility = visibility
     }
 
+
+
     private fun fetchProducts() {
-        val url = "http://192.168.1.65/backend/fetch_product.php"
+        val url = "http://192.168.1.12/backend/fetch_product.php"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -448,7 +409,7 @@ class MainActivity : AppCompatActivity() {
 
                     val productsArray = json.optJSONArray("products") ?: JSONArray()
                     val fetchedProducts = mutableListOf<Product>()
-                    val baseImageUrl = "http://192.168.1.65/backend/uploads/"
+                    val baseImageUrl = "http://192.168.1.12/backend/uploads/"
 
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)
@@ -491,16 +452,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchProductsByCategory(category: String) {
-        // Show loading spinner
         val progressBar: ProgressBar = findViewById(R.id.progressBar)
         progressBar.visibility = View.VISIBLE
 
-        // Clear any previous products
         displayedProducts.clear()
         productAdapter.notifyDataSetChanged()
 
-        // Fetch products by category
-        val url = "http://192.168.1.65/backend/fetch_product.php?category=$category"
+        val url = "http://192.168.1.12/backend/fetch_product.php?category=$category"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -534,11 +492,11 @@ class MainActivity : AppCompatActivity() {
                         val productJson = productsArray.getJSONObject(i)
                         val rawImage = productJson.optString("image", "").trim()
                         val fullImageUrl = if (rawImage.isNotEmpty() && !rawImage.startsWith("http")) {
-                            "http://192.168.1.65/backend/uploads/$rawImage"
+                            "http://192.168.1.12/backend/uploads/$rawImage"
                         } else {
                             rawImage
                         }
-                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.1.65/backend/uploads/default.jpg"
+                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.1.12/backend/uploads/default.jpg"
 
                         categoryProducts.add(
                             Product(
@@ -575,22 +533,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
-    }
-
-    private fun disableCategoryButtons(disable: Boolean) {
-        val buttons = listOf(
-            R.id.allButton, R.id.foodButton, R.id.treatsButton, R.id.essentialsButton,
-            R.id.suppliesButton, R.id.accessoriesButton, R.id.groomingButton, R.id.hygieneButton,
-            R.id.toysButton, R.id.enrichmentButton, R.id.healthcareButton, R.id.trainingButton
-        )
-        buttons.forEach { buttonId ->
-            val button = findViewById<Button>(buttonId)
-            button.isEnabled = !disable
-        }
-    }
-
-    private fun enableCategoryButtons() {
-        disableCategoryButtons(false)
     }
 
     private fun doLogout() {

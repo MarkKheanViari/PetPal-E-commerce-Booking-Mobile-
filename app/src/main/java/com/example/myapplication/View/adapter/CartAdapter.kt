@@ -26,41 +26,34 @@ class CartAdapter(
         holder.productPrice.text = "₱${item["price"]}"
         holder.quantityText.text = item["quantity"]
 
-        // Load product image using Glide
+        // Load product image using Glide (if you have the image URL)
         Glide.with(context).load(item["image"]).into(holder.productImage)
 
-        // Decrease quantity button
         holder.minusButton.setOnClickListener {
-            val newQuantity = holder.quantityText.text.toString().toInt() - 1
+            val currentQuantity = holder.quantityText.text.toString().toInt()
+            val newQuantity = currentQuantity - 1
             if (newQuantity > 0) {
                 listener.updateCartQuantity(item["cart_id"]!!.toInt(), newQuantity)
             }
         }
 
-        // Increase quantity button
         holder.plusButton.setOnClickListener {
-            val newQuantity = holder.quantityText.text.toString().toInt() + 1
+            val currentQuantity = holder.quantityText.text.toString().toInt()
+            val newQuantity = currentQuantity + 1
             listener.updateCartQuantity(item["cart_id"]!!.toInt(), newQuantity)
         }
 
-        // Remove item button
         holder.removeItemButton.setOnClickListener {
             listener.removeItemFromCart(item["cart_id"]!!.toInt())
         }
 
-        // Tap anywhere on the item to open ProductDetailsActivity with product details
+        // Clicking the entire item -> show product details
         holder.itemView.setOnClickListener {
             listener.onProductClick(item)
         }
     }
 
     override fun getItemCount(): Int = cartItems.size
-
-    fun updateCartItems(newCartItems: List<HashMap<String, String>>) {
-        cartItems.clear()
-        cartItems.addAll(newCartItems)
-        notifyDataSetChanged()
-    }
 
     class CartViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val productImage: ImageView = view.findViewById(R.id.productImageView)
