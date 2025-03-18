@@ -1,7 +1,11 @@
 package com.example.myapplication
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
+import android.view.MotionEvent
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
@@ -14,11 +18,13 @@ import java.io.IOException
 
 class ForgotPasswordActivity : AppCompatActivity() {
 
+    private var isPasswordVisible = false // Track visibility state
+
     private lateinit var backBtn: ImageView
+    private lateinit var phoneNumberInput : EditText
+    private lateinit var otpInput : EditText
     private lateinit var newPasswordInput: EditText
     private lateinit var confirmPasswordInput: EditText
-    private lateinit var newPasswordLayout: TextInputLayout
-    private lateinit var confirmPasswordLayout: TextInputLayout
     private lateinit var changePasswordButton: Button
     private lateinit var sharedPreferences: SharedPreferences
     private val client = OkHttpClient()
@@ -32,8 +38,13 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
         // Initialize views
         backBtn = findViewById(R.id.backBtn)
-        newPasswordLayout = findViewById(R.id.newPasswordLayout)
-        confirmPasswordLayout = findViewById(R.id.confirmPasswordLayout)
+
+        backBtn.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+        }
+
+        phoneNumberInput = findViewById(R.id.phoneNumberInput)
+        otpInput = findViewById(R.id.otpInput)
         newPasswordInput = findViewById(R.id.newPasswordInput)
         confirmPasswordInput = findViewById(R.id.confirmPasswordInput)
         changePasswordButton = findViewById(R.id.changePasswordButton)
@@ -42,41 +53,94 @@ class ForgotPasswordActivity : AppCompatActivity() {
         backBtn.setOnClickListener { finish() }
 
         // Remove error messages as user types
-        newPasswordInput.addTextChangedListener { newPasswordLayout.error = null }
-        confirmPasswordInput.addTextChangedListener { confirmPasswordLayout.error = null }
+        newPasswordInput.addTextChangedListener {
+            newPasswordInput.error = null
+            newPasswordInput.setBackgroundResource(R.drawable.login_design)
+        }
+        confirmPasswordInput.addTextChangedListener {
+            confirmPasswordInput.error = null
+            confirmPasswordInput.setBackgroundResource(R.drawable.login_design)
+        }
 
         // Change Password button click listener
         changePasswordButton.setOnClickListener {
             // Clear any previous error messages
-            newPasswordLayout.error = null
-            confirmPasswordLayout.error = null
-
             val newPassword = newPasswordInput.text.toString().trim()
             val confirmPassword = confirmPasswordInput.text.toString().trim()
 
+            var isValid = true
+
             // Validate inputs
             if (newPassword.isEmpty()) {
-                newPasswordLayout.error = "New password is required"
-                return@setOnClickListener
+                newPasswordInput.error = "New password is required"
+                newPasswordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                isValid = false
+            } else if (newPassword < 6.toString() && newPassword > 16.toString()) {
+                newPasswordInput.error = "Password must be between 6 or 16 characters"
+                newPasswordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                isValid = false
+            } else if (newPassword.contains(" ")) {
+                newPasswordInput.error = "Password cannot contain spaces"
+                newPasswordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                isValid = false
             }
             if (confirmPassword.isEmpty()) {
-                confirmPasswordLayout.error = "Please confirm your new password"
-                return@setOnClickListener
+                confirmPasswordInput.error = "Please confirm your new password"
+                confirmPasswordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                isValid = false
             }
             if (newPassword != confirmPassword) {
-                confirmPasswordLayout.error = "Passwords do not match"
-                return@setOnClickListener
+                confirmPasswordInput.error = "Passwords do not match"
+                confirmPasswordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                isValid = false
             }
 
             // Retrieve the user id from SharedPreferences
             val userId = sharedPreferences.getInt("user_id", -1)
             if (userId == -1) {
                 Toast.makeText(this, "User not found. Please log in again.", Toast.LENGTH_LONG).show()
-                return@setOnClickListener
+                isValid = false
             }
 
+
             // Call the backend API to update the password in the database
-            performPasswordChange(userId, newPassword)
+            if (isValid) {
+                performPasswordChange(userId, newPassword)
+            }
+        }
+
+        setupPasswordToggle()
+    }
+
+    private fun EditText.setCompoundDrawableClickListener(onDrawableEndClick: () -> Unit) {
+        setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                val drawableEnd = compoundDrawablesRelative[2]
+                if (drawableEnd != null && event.rawX >= (right - paddingEnd - drawableEnd.bounds.width())) {
+                    onDrawableEndClick()
+                    performClick()
+                    return@setOnTouchListener true
+                }
+            }
+            false
+        }
+    }
+
+    private fun setupPasswordToggle() {
+        newPasswordInput.setCompoundDrawableClickListener {
+            isPasswordVisible = !isPasswordVisible
+            newPasswordInput.transformationMethod =
+                if (isPasswordVisible) HideReturnsTransformationMethod.getInstance()
+                else PasswordTransformationMethod.getInstance()
+            newPasswordInput.setSelection(newPasswordInput.text?.length ?: 0)
+        }
+
+        confirmPasswordInput.setCompoundDrawableClickListener {
+            isPasswordVisible = !isPasswordVisible
+            confirmPasswordInput.transformationMethod =
+                if (isPasswordVisible) HideReturnsTransformationMethod.getInstance()
+                else PasswordTransformationMethod.getInstance()
+            confirmPasswordInput.setSelection(confirmPasswordInput.text?.length ?: 0)
         }
     }
 
@@ -91,7 +155,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
         // Replace the URL with your actual backend endpoint URL
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/mobile_change_password.php")
+            .url("http://192.168.1.15/backend/mobile_change_password.php")
             .post(requestBody)
             .build()
 

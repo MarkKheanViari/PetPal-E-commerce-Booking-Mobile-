@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
+import com.example.myapplication.Controller.WelcomeActivity
 import com.example.myapplication.LoginActivity
 import com.example.myapplication.R
 import com.example.myapplication.RegisterActivity
@@ -60,8 +61,8 @@ class IntroFragment : Fragment() {
                 val sharedPrefs = requireActivity().getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                 sharedPrefs.edit().putBoolean("hasSeenIntro", true).apply()
 
-                // Navigate to RegisterActivity
-                startActivity(Intent(requireContext(), LoginActivity::class.java))
+                // Navigate to WelcomeActivity
+                startActivity(Intent(requireContext(), WelcomeActivity::class.java))
                 requireActivity().finish() // Close onboarding so user can't go back
             }
         }

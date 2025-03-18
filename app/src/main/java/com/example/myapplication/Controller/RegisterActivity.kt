@@ -2,6 +2,9 @@ package com.example.myapplication
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
+import android.view.MotionEvent
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
@@ -13,6 +16,8 @@ import org.json.JSONObject
 import java.io.IOException
 
 class RegisterActivity : AppCompatActivity() {
+
+    private var isPasswordVisible = false // Track visibility state
 
     private lateinit var backBtn : ImageView
     private lateinit var usernameInput: EditText
@@ -257,11 +262,45 @@ class RegisterActivity : AppCompatActivity() {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
+
+        setupPasswordToggle()
+    }
+
+    private fun EditText.setCompoundDrawableClickListener(onDrawableEndClick: () -> Unit) {
+        setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                val drawableEnd = compoundDrawablesRelative[2]
+                if (drawableEnd != null && event.rawX >= (right - paddingEnd - drawableEnd.bounds.width())) {
+                    onDrawableEndClick()
+                    performClick()
+                    return@setOnTouchListener true
+                }
+            }
+            false
+        }
+    }
+
+    private fun setupPasswordToggle() {
+        passwordInput.setCompoundDrawableClickListener {
+            isPasswordVisible = !isPasswordVisible
+            passwordInput.transformationMethod =
+                if (isPasswordVisible) HideReturnsTransformationMethod.getInstance()
+                else PasswordTransformationMethod.getInstance()
+            passwordInput.setSelection(passwordInput.text?.length ?: 0)
+        }
+
+        confirmPasswordInput.setCompoundDrawableClickListener {
+            isPasswordVisible = !isPasswordVisible
+            confirmPasswordInput.transformationMethod =
+                if (isPasswordVisible) HideReturnsTransformationMethod.getInstance()
+                else PasswordTransformationMethod.getInstance()
+            confirmPasswordInput.setSelection(confirmPasswordInput.text?.length ?: 0)
+        }
     }
 
 
     private fun registerUser(username: String, email: String, password: String, location: String, age: String, contact: String) {
-        val url = "http://192.168.1.12/backend/mobile_register.php"
+        val url = "http://192.168.1.15/backend/mobile_register.php"
 
         val jsonObject = JSONObject().apply {
             put("username", username)

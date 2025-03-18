@@ -1,26 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Shadow -->
-    <item>
-        <shape>
-            <corners
-                android:topLeftRadius="20dp"
-                android:topRightRadius="20dp"
-                android:bottomLeftRadius="0dp"
-                android:bottomRightRadius="0dp"/>
-            <solid android:color="#33000000"/> <!-- Semi-transparent shadow -->
-        </shape>
-    </item>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <corners
+        android:topLeftRadius="20dp"
+        android:topRightRadius="20dp"/>
+    <solid android:color="@color/white"/>
+    <stroke
+        android:width="2dp"
+        android:color="@color/light_gray"/>
 
-    <!-- Foreground Shape -->
-    <item android:top="4dp"> <!-- Move foreground to simulate shadow -->
-        <shape>
-            <corners
-                android:topLeftRadius="20dp"
-                android:topRightRadius="20dp"
-                android:bottomLeftRadius="0dp"
-                android:bottomRightRadius="0dp"/>
-            <solid android:color="@color/white"/>
-        </shape>
-    </item>
-</layer-list>
+</shape>
