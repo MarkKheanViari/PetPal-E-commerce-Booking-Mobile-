@@ -19,19 +19,19 @@ class RegisterActivity : AppCompatActivity() {
 
     private var isPasswordVisible = false // Track visibility state
 
-    private lateinit var backBtn : ImageView
+    private lateinit var backBtn: ImageView
     private lateinit var usernameInput: EditText
-    private lateinit var emailInput : EditText
-    private lateinit var locationInput : EditText
-    private lateinit var contactInput : EditText
-    private lateinit var ageInput : EditText
+    private lateinit var emailInput: EditText
+    private lateinit var locationInput: EditText
+    private lateinit var contactInput: EditText
+    private lateinit var ageInput: EditText
     private lateinit var passwordInput: EditText
     private lateinit var confirmPasswordInput: EditText
     private lateinit var termsCheckbox: CheckBox
-    private lateinit var termsLink: TextView  // Terms and Conditions link
-    private lateinit var privacyLink: TextView  // Privacy Policy link
+    private lateinit var termsLink: TextView
+    private lateinit var privacyLink: TextView
     private lateinit var registerButton: Button
-    private lateinit var loginSugg: TextView  // Login suggestion TextView
+    private lateinit var loginSugg: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,13 +39,13 @@ class RegisterActivity : AppCompatActivity() {
 
         // Initialize views
         backBtn = findViewById(R.id.backBtn)
-        usernameInput = findViewById(R.id.usernameInput) //EditText
-        emailInput = findViewById(R.id.emailInput) //EditText
-        locationInput = findViewById(R.id.locationInput) //EditText
-        contactInput = findViewById(R.id.contactInput) //EditText
-        ageInput = findViewById(R.id.ageInput) //EditText
-        passwordInput = findViewById(R.id.passwordInput) //EditText
-        confirmPasswordInput = findViewById(R.id.confirmPasswordInput) //EditText
+        usernameInput = findViewById(R.id.usernameInput)
+        emailInput = findViewById(R.id.emailInput)
+        locationInput = findViewById(R.id.locationInput)
+        contactInput = findViewById(R.id.contactInput)
+        ageInput = findViewById(R.id.ageInput)
+        passwordInput = findViewById(R.id.passwordInput)
+        confirmPasswordInput = findViewById(R.id.confirmPasswordInput)
         termsCheckbox = findViewById(R.id.termsCheckbox)
         termsLink = findViewById(R.id.termsLink)
         privacyLink = findViewById(R.id.privacyPolicyLink)
@@ -68,7 +68,6 @@ class RegisterActivity : AppCompatActivity() {
             val confirmPassword = confirmPasswordInput.text.toString().trim()
 
             var isValid = true
-
 
             if (username.contains(" ")) {
                 usernameInput.error = "Username cannot contain spaces"
@@ -95,8 +94,8 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
 
-            if (password < 6.toString() && password > 16.toString()) {
-                passwordInput.error = "Password must be between 6 or 16 characters"
+            if (password.length < 6 || password.length > 16) { // Fixed password length validation
+                passwordInput.error = "Password must be between 6 and 16 characters"
                 passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
                 isValid = false
             } else if (password.contains(" ")) {
@@ -119,7 +118,6 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
 
-
         termsLink.paintFlags = termsLink.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
         termsLink.setTextColor(getColor(R.color.smth_orange))
 
@@ -129,90 +127,92 @@ class RegisterActivity : AppCompatActivity() {
         loginSugg.paintFlags = loginSugg.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
         loginSugg.setTextColor(getColor(R.color.smth_orange))
 
+        // Focus listeners to validate fields
         usernameInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) { // When user leaves username field
+            if (!hasFocus) {
                 val username = usernameInput.text.toString().trim()
                 if (username.isBlank()) {
                     usernameInput.error = "Username is Required"
                     usernameInput.setBackgroundResource(R.drawable.edittext_error_background)
                 } else {
-                    usernameInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                    usernameInput.setBackgroundResource(R.drawable.login_design)
                 }
             }
         }
 
         emailInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) { // When user leaves username field
+            if (!hasFocus) {
                 val email = emailInput.text.toString().trim()
                 if (email.isBlank()) {
                     emailInput.error = "Email is Required"
                     emailInput.setBackgroundResource(R.drawable.edittext_error_background)
                 } else {
-                    emailInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                    emailInput.setBackgroundResource(R.drawable.login_design)
                 }
             }
         }
 
         locationInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) { // When user leaves username field
+            if (!hasFocus) {
                 val location = locationInput.text.toString().trim()
                 if (location.isBlank()) {
                     locationInput.error = "Location is Required"
                     locationInput.setBackgroundResource(R.drawable.edittext_error_background)
                 } else {
-                    locationInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                    locationInput.setBackgroundResource(R.drawable.login_design)
                 }
             }
         }
 
         ageInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) { // When user leaves username field
+            if (!hasFocus) {
                 val age = ageInput.text.toString().trim()
                 if (age.isBlank()) {
                     ageInput.error = "Age is Required"
                     ageInput.setBackgroundResource(R.drawable.edittext_error_background)
                 } else {
-                    ageInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                    ageInput.setBackgroundResource(R.drawable.login_design)
                 }
             }
         }
 
         contactInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) { // When user leaves username field
+            if (!hasFocus) {
                 val contact = contactInput.text.toString().trim()
                 if (contact.isBlank()) {
                     contactInput.error = "Contact Number is Required"
                     contactInput.setBackgroundResource(R.drawable.edittext_error_background)
                 } else {
-                    contactInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                    contactInput.setBackgroundResource(R.drawable.login_design)
                 }
             }
         }
 
         passwordInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) { // When user leaves password field
+            if (!hasFocus) {
                 val password = passwordInput.text.toString().trim()
                 if (password.isBlank()) {
                     passwordInput.error = "Password is Required"
                     passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
                 } else {
-                    passwordInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                    passwordInput.setBackgroundResource(R.drawable.login_design)
                 }
             }
         }
 
         confirmPasswordInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) { // When user leaves password field
+            if (!hasFocus) {
                 val confirmPassword = confirmPasswordInput.text.toString().trim()
                 if (confirmPassword.isBlank()) {
                     confirmPasswordInput.error = "Confirm Password is Required"
                     confirmPasswordInput.setBackgroundResource(R.drawable.edittext_error_background)
                 } else {
-                    confirmPasswordInput.setBackgroundResource(R.drawable.login_design) // Reset background
+                    confirmPasswordInput.setBackgroundResource(R.drawable.login_design)
                 }
             }
         }
 
+        // Text change listeners to clear errors
         usernameInput.addTextChangedListener {
             usernameInput.error = null
             usernameInput.setBackgroundResource(R.drawable.login_design)
@@ -248,7 +248,7 @@ class RegisterActivity : AppCompatActivity() {
             confirmPasswordInput.setBackgroundResource(R.drawable.login_design)
         }
 
-        // Set click listeners for Terms and Privacy Policy
+        // Click listeners for Terms, Privacy Policy, and Login suggestion
         termsLink.setOnClickListener {
             startActivity(Intent(this, TermsActivity::class.java))
         }
@@ -257,7 +257,6 @@ class RegisterActivity : AppCompatActivity() {
             startActivity(Intent(this, PrivacyPolicyActivity::class.java))
         }
 
-        // Login suggestion click listener
         loginSugg.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
@@ -298,9 +297,8 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun registerUser(username: String, email: String, password: String, location: String, age: String, contact: String) {
-        val url = "http://192.168.137.14/backend/mobile_register.php"
+    private fun registerUser(username: String, email: String, location: String, contact: String, age: String, password: String) {
+        val url = "http://192.168.1.65/backend/mobile_register.php"
 
         val jsonObject = JSONObject().apply {
             put("username", username)

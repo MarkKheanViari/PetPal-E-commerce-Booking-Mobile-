@@ -11,7 +11,6 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import com.example.myapplication.Controller.WelcomeActivity
-import com.google.android.material.textfield.TextInputLayout
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -51,7 +50,7 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
-        // Initialize views (note: usernameInput and passwordInput are inside TextInputLayouts)
+        // Initialize views
         backBtn = findViewById(R.id.backBtn)
         usernameInput = findViewById(R.id.usernameInput)
         passwordInput = findViewById(R.id.passwordInput)
@@ -71,13 +70,12 @@ class LoginActivity : AppCompatActivity() {
             finish()
         }
 
-        forgotpass.setOnClickListener{
+        forgotpass.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
 
         // Set up click listener for login button
         loginButton.setOnClickListener {
-            // Clear any previous errors
             val username = usernameInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
 
@@ -103,9 +101,11 @@ class LoginActivity : AppCompatActivity() {
         // Remove error when user fixes input
         usernameInput.addTextChangedListener {
             usernameInput.setBackgroundResource(R.drawable.login_design)
+            usernameInput.error = null
         }
         passwordInput.addTextChangedListener {
             passwordInput.setBackgroundResource(R.drawable.login_design)
+            passwordInput.error = null
         }
 
         // Navigation to register screen
@@ -114,7 +114,6 @@ class LoginActivity : AppCompatActivity() {
         }
 
         setupPasswordToggle()
-
     }
 
     private fun EditText.setCompoundDrawableClickListener(onDrawableEndClick: () -> Unit) {
@@ -141,19 +140,19 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-
-
     private fun performLogin(username: String, password: String) {
         val jsonObject = JSONObject().apply {
             put("username", username)
             put("password", password)
         }
 
+        Log.d("LoginActivity", "Request JSON: ${jsonObject.toString()}")
+
         val mediaType = "application/json; charset=utf-8".toMediaType()
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.137.14/backend/mobile_login.php")
+            .url("http://192.168.1.65/backend/mobile_login.php")
             .post(requestBody)
             .build()
 
@@ -161,7 +160,6 @@ class LoginActivity : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("LoginActivity", "Login failed", e)
                 runOnUiThread {
-                    // For network failures you may still show a Toast
                     Toast.makeText(this@LoginActivity, "Login failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
@@ -169,6 +167,7 @@ class LoginActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 try {
                     val responseData = response.body?.string()
+                    Log.d("LoginActivity", "Response: $responseData")
                     val jsonResponse = JSONObject(responseData ?: "")
                     runOnUiThread {
                         if (jsonResponse.optBoolean("success", false)) {
@@ -196,18 +195,16 @@ class LoginActivity : AppCompatActivity() {
                             }
                         } else {
                             val errorMessage = jsonResponse.optString("message", "Login failed")
-                            // Display errors in the corresponding TextInputLayout
                             when {
-                                errorMessage.contains("wrong password", ignoreCase = true) -> {
+                                errorMessage.contains("password", ignoreCase = true) -> {
                                     passwordInput.error = "Wrong password"
                                     passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
                                 }
-                                errorMessage.contains("wrong username", ignoreCase = true) -> {
+                                errorMessage.contains("username", ignoreCase = true) -> {
                                     usernameInput.error = "Wrong username"
                                     usernameInput.setBackgroundResource(R.drawable.edittext_error_background)
                                 }
                                 else -> {
-                                    // If the error is generic, show it in both fields
                                     usernameInput.error = errorMessage
                                     passwordInput.error = errorMessage
                                 }

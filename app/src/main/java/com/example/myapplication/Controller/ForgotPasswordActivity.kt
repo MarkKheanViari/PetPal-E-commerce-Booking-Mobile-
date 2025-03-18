@@ -155,7 +155,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
         // Replace the URL with your actual backend endpoint URL
         val request = Request.Builder()
-            .url("http://192.168.137.14/backend/mobile_change_password.php")
+            .url("http://192.168.1.65/backend/mobile_change_password.php")
             .post(requestBody)
             .build()
 
