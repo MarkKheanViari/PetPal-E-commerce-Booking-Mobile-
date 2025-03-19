@@ -20,9 +20,11 @@ class ForgotPasswordActivity : AppCompatActivity() {
     private var isPasswordVisible = false
     private val client = OkHttpClient()
     private var generatedOtp: String? = null
+    private var selectedMethod: String = "Contact Number" // Default selection
 
     private lateinit var backBtn: ImageView
-    private lateinit var phoneNumberInput: EditText
+    private lateinit var recoveryMethodSpinner: Spinner
+    private lateinit var recoveryInput: EditText
     private lateinit var otpInput: EditText
     private lateinit var newPasswordInput: EditText
     private lateinit var confirmPasswordInput: EditText
@@ -36,7 +38,8 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
         // Initialize views
         backBtn = findViewById(R.id.backBtn)
-        phoneNumberInput = findViewById(R.id.phoneNumberInput)
+        recoveryMethodSpinner = findViewById(R.id.recoveryMethodSpinner)
+        recoveryInput = findViewById(R.id.recoveryInput)
         otpInput = findViewById(R.id.otpInput)
         newPasswordInput = findViewById(R.id.newPasswordInput)
         confirmPasswordInput = findViewById(R.id.confirmPasswordInput)
@@ -44,18 +47,44 @@ class ForgotPasswordActivity : AppCompatActivity() {
         confirmOtpButton = findViewById(R.id.confirmOtpButton)
         changePasswordButton = findViewById(R.id.changePasswordButton)
 
+        // Setup Spinner
+        val methods = arrayOf("Contact Number", "Email")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, methods)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        recoveryMethodSpinner.adapter = adapter
+        recoveryMethodSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: android.view.View?, position: Int, id: Long) {
+                selectedMethod = methods[position]
+                recoveryInput.hint = if (selectedMethod == "Email") "Enter your email" else "Enter your contact number"
+                recoveryInput.inputType = if (selectedMethod == "Email") android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS else android.text.InputType.TYPE_CLASS_PHONE
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
         backBtn.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
 
         getOtpButton.setOnClickListener {
-            val phoneNumber = phoneNumberInput.text.toString().trim()
-            if (phoneNumber.length != 11) {
-                phoneNumberInput.error = "Enter a valid 11-digit phone number"
-                phoneNumberInput.setBackgroundResource(R.drawable.edittext_error_background)
-            } else {
-                requestOtp(phoneNumber)
+            val recoveryValue = recoveryInput.text.toString().trim()
+            when (selectedMethod) {
+                "Contact Number" -> {
+                    if (recoveryValue.length != 11) {
+                        recoveryInput.error = "Enter a valid 11-digit phone number"
+                        recoveryInput.setBackgroundResource(R.drawable.edittext_error_background)
+                    } else {
+                        requestOtpViaTwilio(recoveryValue)
+                    }
+                }
+                "Email" -> {
+                    if (!android.util.Patterns.EMAIL_ADDRESS.matcher(recoveryValue).matches()) {
+                        recoveryInput.error = "Enter a valid email address"
+                        recoveryInput.setBackgroundResource(R.drawable.edittext_error_background)
+                    } else {
+                        requestOtpViaEmail(recoveryValue)
+                    }
+                }
             }
         }
 
@@ -76,6 +105,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
         changePasswordButton.setOnClickListener {
             val newPassword = newPasswordInput.text.toString().trim()
             val confirmPassword = confirmPasswordInput.text.toString().trim()
+            val recoveryValue = recoveryInput.text.toString().trim()
 
             var isValid = true
             if (newPassword.length < 6 || newPassword.length > 16) {
@@ -89,14 +119,14 @@ class ForgotPasswordActivity : AppCompatActivity() {
                 isValid = false
             }
             if (isValid) {
-                resetPassword(phoneNumberInput.text.toString().trim(), newPassword)
+                resetPassword(recoveryValue, newPassword)
             }
         }
 
         // Clear errors on text change
-        phoneNumberInput.addTextChangedListener {
-            phoneNumberInput.error = null
-            phoneNumberInput.setBackgroundResource(R.drawable.login_design)
+        recoveryInput.addTextChangedListener {
+            recoveryInput.error = null
+            recoveryInput.setBackgroundResource(R.drawable.login_design)
         }
         otpInput.addTextChangedListener {
             otpInput.error = null
@@ -112,7 +142,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
         }
 
         setupPasswordToggle()
-        enablePasswordFields(false) // Initially disable password fields
+        enablePasswordFields(false)
     }
 
     private fun enablePasswordFields(enable: Boolean) {
@@ -121,7 +151,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
         changePasswordButton.isEnabled = enable
     }
 
-    private fun requestOtp(phoneNumber: String) {
+    private fun requestOtpViaTwilio(phoneNumber: String) {
         generatedOtp = (100000..999999).random().toString()
         val accountSid = "AC3c220916700e2b965cc6370150ebff1e"
         val authToken = "7bc53fe182735c1f8bb5c34b246946b8"
@@ -130,7 +160,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
         val url = "https://api.twilio.com/2010-04-01/Accounts/$accountSid/Messages.json"
         val formBody = FormBody.Builder()
-            .add("To", "+63$phoneNumber") // Assuming PH number, adjust country code as needed
+            .add("To", "+63$phoneNumber") // Adjust country code as needed
             .add("From", twilioPhoneNumber)
             .add("Body", message)
             .build()
@@ -143,7 +173,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("ForgotPassword", "Failed to send OTP", e)
+                Log.e("ForgotPassword", "Failed to send OTP via Twilio", e)
                 runOnUiThread {
                     Toast.makeText(this@ForgotPasswordActivity, "Failed to send OTP: ${e.message}", Toast.LENGTH_LONG).show()
                 }
@@ -151,7 +181,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
             override fun onResponse(call: Call, response: Response) {
                 val responseData = response.body?.string()
-                Log.d("ForgotPassword", "OTP Response: $responseData")
+                Log.d("ForgotPassword", "Twilio Response: $responseData")
                 runOnUiThread {
                     if (response.isSuccessful) {
                         Toast.makeText(this@ForgotPasswordActivity, "OTP sent to $phoneNumber", Toast.LENGTH_SHORT).show()
@@ -163,9 +193,48 @@ class ForgotPasswordActivity : AppCompatActivity() {
         })
     }
 
-    private fun resetPassword(phoneNumber: String, newPassword: String) {
+    private fun requestOtpViaEmail(email: String) {
+        generatedOtp = (100000..999999).random().toString()
         val jsonObject = JSONObject().apply {
-            put("contact_number", phoneNumber)
+            put("email", email)
+            put("otp", generatedOtp)
+        }
+
+        val mediaType = "application/json; charset=utf-8".toMediaType()
+        val requestBody = jsonObject.toString().toRequestBody(mediaType)
+
+        val request = Request.Builder()
+            .url("http://192.168.1.65/backend/send_otp_email.php")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("ForgotPassword", "Failed to send OTP via Email", e)
+                runOnUiThread {
+                    Toast.makeText(this@ForgotPasswordActivity, "Failed to send OTP: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseData = response.body?.string()
+                Log.d("ForgotPassword", "Email OTP Response: $responseData")
+                val jsonResponse = JSONObject(responseData ?: "")
+                runOnUiThread {
+                    if (jsonResponse.optBoolean("success", false)) {
+                        Toast.makeText(this@ForgotPasswordActivity, "OTP sent to $email", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@ForgotPasswordActivity, jsonResponse.optString("message", "Failed to send OTP"), Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun resetPassword(recoveryValue: String, newPassword: String) {
+        val jsonObject = JSONObject().apply {
+            if (selectedMethod == "Email") put("email", recoveryValue)
+            else put("contact_number", recoveryValue)
             put("new_password", newPassword)
         }
 
@@ -191,7 +260,8 @@ class ForgotPasswordActivity : AppCompatActivity() {
                 val jsonResponse = JSONObject(responseData ?: "")
                 runOnUiThread {
                     if (jsonResponse.optBoolean("success", false)) {
-                        Toast.makeText(this@ForgotPasswordActivity, "Password reset successfully!", Toast.LENGTH_SHORT).show()
+                        val message = jsonResponse.optString("message", "Password reset successful!")
+                        Toast.makeText(this@ForgotPasswordActivity, message, Toast.LENGTH_LONG).show()
                         startActivity(Intent(this@ForgotPasswordActivity, LoginActivity::class.java))
                         finish()
                     } else {
