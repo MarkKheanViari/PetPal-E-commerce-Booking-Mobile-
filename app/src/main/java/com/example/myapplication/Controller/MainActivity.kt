@@ -13,6 +13,7 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -245,13 +246,47 @@ class MainActivity : AppCompatActivity() {
         val categories = listOf(
             Pair(R.id.allButton, "all"),
             Pair(R.id.foodButton, "Food"),
-            Pair(R.id.treatsButton, "Treats")
-            // Add more pairs for each button...
+            Pair(R.id.treatsButton, "Treats"),
+            Pair(R.id.essentialsButton, "Essentials"),
+            Pair(R.id.suppliesButton, "Supplies"),
+            Pair(R.id.accessoriesButton, "Accessories"),
+            Pair(R.id.groomingButton, "Grooming"),
+            Pair(R.id.hygieneButton, "Hygiene"),
+            Pair(R.id.toysButton, "Toys"),
+            Pair(R.id.enrichmentButton, "Enrichment"),
+            Pair(R.id.healthcareButton, "Healthcare"),
+            Pair(R.id.trainingButton, "Training")
         )
 
+        // Store all buttons in a list for easy access
+        val buttons = categories.map { (buttonId, _) -> findViewById<Button>(buttonId) }
+
+        // Set initial state: "All" button highlighted by default
+        buttons.forEach { button ->
+            if (button.id == R.id.allButton) {
+                button.backgroundTintList = ContextCompat.getColorStateList(this, R.color.orange)
+                button.setTextColor(ContextCompat.getColor(this, android.R.color.white))
+            } else {
+                button.backgroundTintList = ContextCompat.getColorStateList(this, R.color.light_smth)
+                button.setTextColor(ContextCompat.getColor(this, R.color.black))
+            }
+        }
+
+        // Set click listeners
         categories.forEach { (buttonId, category) ->
             val button = findViewById<Button>(buttonId)
             button.setOnClickListener {
+                // Reset all buttons to unselected state
+                buttons.forEach { btn ->
+                    btn.backgroundTintList = ContextCompat.getColorStateList(this, R.color.light_smth)
+                    btn.setTextColor(ContextCompat.getColor(this, R.color.black))
+                }
+
+                // Highlight the clicked button
+                button.backgroundTintList = ContextCompat.getColorStateList(this, R.color.orange)
+                button.setTextColor(ContextCompat.getColor(this, android.R.color.white))
+
+                // Perform the category fetch
                 supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                 showMainUI(true)
                 bottomNavigation.selectedItemId = R.id.nav_products
@@ -429,7 +464,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun fetchProductsByCategory(category: String) {
         val progressBar: ProgressBar = findViewById(R.id.progressBar)
+        val noProductsContainer: LinearLayout = findViewById(R.id.noProductsContainer)
+        val productsRecyclerView: RecyclerView = findViewById(R.id.productsRecyclerView)
+
         progressBar.visibility = View.VISIBLE
+        noProductsContainer.visibility = View.GONE
+        productsRecyclerView.visibility = View.GONE
 
         displayedProducts.clear()
         productAdapter.notifyDataSetChanged()
@@ -450,9 +490,9 @@ class MainActivity : AppCompatActivity() {
 
                 if (responseData.isNullOrEmpty() || responseData.contains("\"products\":[]")) {
                     runOnUiThread {
-                        findViewById<RecyclerView>(R.id.productsRecyclerView).visibility = View.GONE
-                        findViewById<TextView>(R.id.noProductsTextView).visibility = View.VISIBLE
                         progressBar.visibility = View.GONE
+                        productsRecyclerView.visibility = View.GONE
+                        noProductsContainer.visibility = View.VISIBLE
                     }
                     return
                 }
@@ -492,12 +532,11 @@ class MainActivity : AppCompatActivity() {
                             displayedProducts.clear()
                             displayedProducts.addAll(categoryProducts)
                             productAdapter.updateProducts(ArrayList(displayedProducts))
-                            findViewById<RecyclerView>(R.id.productsRecyclerView).visibility = View.VISIBLE
-                            findViewById<TextView>(R.id.noProductsTextView).visibility = View.GONE
+                            productsRecyclerView.visibility = View.VISIBLE
+                            noProductsContainer.visibility = View.GONE
                         } else {
-                            Toast.makeText(this@MainActivity, "No products available for this category", Toast.LENGTH_SHORT).show()
-                            findViewById<RecyclerView>(R.id.productsRecyclerView).visibility = View.GONE
-                            findViewById<TextView>(R.id.noProductsTextView).visibility = View.VISIBLE
+                            productsRecyclerView.visibility = View.GONE
+                            noProductsContainer.visibility = View.VISIBLE
                         }
                     }
                 } catch (e: Exception) {

@@ -156,8 +156,7 @@
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/orange"
                     android:text="All"
-                    android:textColor="@android:color/white"
-                    android:onClick="onCategorySelected"/>
+                    android:textColor="@android:color/white"/>
 
                 <Button
                     android:id="@+id/foodButton"
@@ -166,8 +165,7 @@
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/light_smth"
                     android:text="Food"
-                    android:textColor="@color/black"
-                    android:onClick="onCategorySelected"/>
+                    android:textColor="@color/black"/>
 
                 <Button
                     android:id="@+id/treatsButton"
@@ -176,8 +174,7 @@
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/light_smth"
                     android:text="Treats"
-                    android:textColor="@color/black"
-                    android:onClick="onCategorySelected"/>
+                    android:textColor="@color/black"/>
 
                 <Button
                     android:id="@+id/essentialsButton"
@@ -186,8 +183,7 @@
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/light_smth"
                     android:text="Essentials"
-                    android:textColor="@color/black"
-                    android:onClick="onCategorySelected"/>
+                    android:textColor="@color/black"/>
 
                 <Button
                     android:id="@+id/suppliesButton"
@@ -196,8 +192,7 @@
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/light_smth"
                     android:text="Supplies"
-                    android:textColor="@color/black"
-                    android:onClick="onCategorySelected"/>
+                    android:textColor="@color/black"/>
 
                 <Button
                     android:id="@+id/accessoriesButton"
@@ -206,8 +201,7 @@
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/light_smth"
                     android:text="Accessories"
-                    android:textColor="@color/black"
-                    android:onClick="onCategorySelected"/>
+                    android:textColor="@color/black"/>
 
                 <Button
                     android:id="@+id/groomingButton"
@@ -216,8 +210,7 @@
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/light_smth"
                     android:text="Grooming"
-                    android:textColor="@color/black"
-                    android:onClick="onCategorySelected"/>
+                    android:textColor="@color/black"/>
 
                 <Button
                     android:id="@+id/hygieneButton"
@@ -226,8 +219,7 @@
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/light_smth"
                     android:text="Hygiene"
-                    android:textColor="@color/black"
-                    android:onClick="onCategorySelected"/>
+                    android:textColor="@color/black"/>
 
                 <Button
                     android:id="@+id/toysButton"
@@ -236,8 +228,7 @@
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/light_smth"
                     android:text="Toys"
-                    android:textColor="@color/black"
-                    android:onClick="onCategorySelected"/>
+                    android:textColor="@color/black"/>
 
                 <Button
                     android:id="@+id/enrichmentButton"
@@ -246,8 +237,7 @@
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/light_smth"
                     android:text="Enrichment"
-                    android:textColor="@color/black"
-                    android:onClick="onCategorySelected"/>
+                    android:textColor="@color/black"/>
 
                 <Button
                     android:id="@+id/healthcareButton"
@@ -256,8 +246,7 @@
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/light_smth"
                     android:text="Healthcare"
-                    android:textColor="@color/black"
-                    android:onClick="onCategorySelected"/>
+                    android:textColor="@color/black"/>
 
                 <Button
                     android:id="@+id/trainingButton"
@@ -266,10 +255,7 @@
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/light_smth"
                     android:text="Training"
-                    android:textColor="@color/black"
-                    android:onClick="onCategorySelected"/>
-
-
+                    android:textColor="@color/black"/>
             </LinearLayout>
         </HorizontalScrollView>
 
@@ -312,16 +298,34 @@
                 android:paddingHorizontal="16dp"
                 android:scrollbars="vertical" />
 
-            <!-- TextView for showing no products available message -->
-            <TextView
-                android:id="@+id/noProductsTextView"
+            <!-- Container for "No Products" message and image -->
+            <LinearLayout
+                android:id="@+id/noProductsContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="No products available for this category"
-                android:visibility="gone"
-                android:textSize="16sp"
-                android:textColor="@android:color/black"
-                android:gravity="center" />
+                android:layout_gravity="center"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone">
+
+                <!-- Image for "No Products" -->
+                <ImageView
+                    android:id="@+id/noProductsImage"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/cat"
+                    android:contentDescription="No products available" />
+
+                <!-- TextView for "No Products" message -->
+                <TextView
+                    android:id="@+id/noProductsTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No products available for this category"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
 
             <!-- ProgressBar for loading state -->
             <ProgressBar
