@@ -80,4 +80,5 @@ dependencies {
 
     implementation ("com.google.android.material:material:1.9.0")
     implementation ("com.squareup.okhttp3:okhttp:4.9.2")
+    implementation ("pl.droidsonroids.gif:android-gif-drawable:1.2.23")
 }
