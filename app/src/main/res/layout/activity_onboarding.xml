@@ -25,26 +25,70 @@
         app:tabGravity="center"
         app:tabMode="fixed"
         app:layout_constraintTop_toBottomOf="@id/viewPager"
-        app:layout_constraintBottom_toTopOf="@id/introProgressBarActivity"
+        app:layout_constraintBottom_toTopOf="@id/segmentedProgress"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp" />
 
-    <!-- Optional: a progress bar at the bottom of the screen -->
-    <ProgressBar
-        android:id="@+id/introProgressBarActivity"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="8dp"
-        android:layout_margin="16dp"
+    <!-- Segmented progress bar with dashes -->
+    <LinearLayout
+        android:id="@+id/segmentedProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
         android:layout_marginBottom="16dp"
-        android:indeterminate="false"
-        android:max="6"
-        android:progress="1"
-        android:progressTint="@color/orange"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <View
+            android:id="@+id/segment1"
+            android:layout_width="16dp"
+            android:layout_height="4dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/segment_background"
+            android:backgroundTint="#AD570B" />
+
+        <View
+            android:id="@+id/segment2"
+            android:layout_width="16dp"
+            android:layout_height="4dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/segment_background"
+            android:backgroundTint="#FFDAB9" />
+
+        <View
+            android:id="@+id/segment3"
+            android:layout_width="16dp"
+            android:layout_height="4dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/segment_background"
+            android:backgroundTint="#FFDAB9" />
+
+        <View
+            android:id="@+id/segment4"
+            android:layout_width="16dp"
+            android:layout_height="4dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/segment_background"
+            android:backgroundTint="#FFDAB9" />
+
+        <View
+            android:id="@+id/segment5"
+            android:layout_width="16dp"
+            android:layout_height="4dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/segment_background"
+            android:backgroundTint="#FFDAB9" />
+
+        <View
+            android:id="@+id/segment6"
+            android:layout_width="16dp"
+            android:layout_height="4dp"
+            android:background="@drawable/segment_background"
+            android:backgroundTint="#FFDAB9" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

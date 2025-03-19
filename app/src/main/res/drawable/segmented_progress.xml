@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background (unfilled segments) -->
+    <item android:id="@android:id/background">
+        <shape>
+            <corners android:radius="4dp" />
+            <solid android:color="#E0E0E0" /> <!-- Light gray for unfilled -->
+            <size android:height="8dp" />
+        </shape>
+    </item>
+
+    <!-- Progress (filled segments) -->
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape>
+                <corners android:radius="4dp" />
+                <solid android:color="@color/orange" /> <!-- Orange for filled -->
+                <size android:height="8dp" />
+            </shape>
+        </clip>
+    </item>
+</layer-list>
