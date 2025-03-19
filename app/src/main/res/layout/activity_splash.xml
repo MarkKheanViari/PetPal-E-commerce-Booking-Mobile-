@@ -9,5 +9,5 @@
         android:layout_height="732dp"
         android:layout_marginLeft="0dp"
         android:layout_marginTop="10dp"
-        android:src="@drawable/petpal" />
+        android:src="@drawable/petpalimage" />
 </RelativeLayout>

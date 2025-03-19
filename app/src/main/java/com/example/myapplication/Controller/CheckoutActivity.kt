@@ -132,7 +132,7 @@ class CheckoutActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.65/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.12/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
         Log.d("CheckoutActivity", "Request URL: $url")
         val request = Request.Builder().url(url).get().build()
 
@@ -223,7 +223,7 @@ class CheckoutActivity : AppCompatActivity() {
             Log.d("CheckoutActivity", "⚡ Using PayMongo GCASH Payment")
 
             val request = Request.Builder()
-                .url("http://192.168.1.65/backend/paymongo_checkout.php") // New API for GCASH
+                .url("http://192.168.1.12/backend/paymongo_checkout.php") // New API for GCASH
                 .post(requestBody)
                 .build()
 
@@ -269,7 +269,7 @@ class CheckoutActivity : AppCompatActivity() {
         } else {
             // Normal COD order submission
             val request = Request.Builder()
-                .url("http://192.168.1.65/backend/submit_order.php")
+                .url("http://192.168.1.12/backend/submit_order.php")
                 .post(requestBody)
                 .build()
 
