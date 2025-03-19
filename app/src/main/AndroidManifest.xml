@@ -71,6 +71,22 @@
         <activity android:name=".NotificationActivity" />
         <activity android:name=".WebViewActivity" android:exported="true"/>
 
+        <!-- ✅ Deep Link Configuration -->
+        <activity
+            android:name=".PaymentSuccessActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:scheme="myapplication"
+                    android:host="payment_success"/>
+            </intent-filter>
+        </activity>
+
+
+
     </application>
 
 </manifest>
