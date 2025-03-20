@@ -94,12 +94,20 @@ class ForgotPasswordActivity : AppCompatActivity() {
             if (enteredOtp.isEmpty()) {
                 otpInput.error = "Enter the OTP"
                 otpInput.setBackgroundResource(R.drawable.edittext_error_background)
-            } else if (enteredOtp == generatedOtp) {
-                Toast.makeText(this, "OTP Verified!", Toast.LENGTH_SHORT).show()
-                enablePasswordFields(true)
             } else {
-                otpInput.error = "Invalid OTP"
-                otpInput.setBackgroundResource(R.drawable.edittext_error_background)
+                if (selectedMethod == "Email") {
+                    // Verify email OTP via server
+                    verifyEmailOtp(recoveryInput.text.toString().trim(), enteredOtp)
+                } else {
+                    // Verify Twilio OTP locally (no expiration for SMS)
+                    if (enteredOtp == generatedOtp) {
+                        Toast.makeText(this, "OTP Verified!", Toast.LENGTH_SHORT).show()
+                        enablePasswordFields(true)
+                    } else {
+                        otpInput.error = "Invalid OTP"
+                        otpInput.setBackgroundResource(R.drawable.edittext_error_background)
+                    }
+                }
             }
         }
 
@@ -230,6 +238,51 @@ class ForgotPasswordActivity : AppCompatActivity() {
                         }
                     } catch (e: JSONException) {
                         Log.e("ForgotPassword", "Failed to parse response as JSON", e)
+                        Toast.makeText(this@ForgotPasswordActivity, "Unexpected server response: $responseData", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun verifyEmailOtp(email: String, enteredOtp: String) {
+        val jsonObject = JSONObject().apply {
+            put("email", email)
+            put("otp", enteredOtp)
+        }
+
+        val mediaType = "application/json; charset=utf-8".toMediaType()
+        val requestBody = jsonObject.toString().toRequestBody(mediaType)
+
+        val request = Request.Builder()
+            .url("http://192.168.1.65/backend/verify_otp.php")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("ForgotPassword", "Failed to verify OTP: ${e.message}", e)
+                runOnUiThread {
+                    Toast.makeText(this@ForgotPasswordActivity, "Failed to verify OTP: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseData = response.body?.string()
+                Log.d("ForgotPassword", "Verify OTP Response: $responseData")
+                runOnUiThread {
+                    try {
+                        val jsonResponse = JSONObject(responseData ?: "{}")
+                        if (jsonResponse.optBoolean("success", false)) {
+                            Toast.makeText(this@ForgotPasswordActivity, "OTP Verified!", Toast.LENGTH_SHORT).show()
+                            enablePasswordFields(true)
+                        } else {
+                            val errorMessage = jsonResponse.optString("message", "Failed to verify OTP")
+                            otpInput.error = errorMessage
+                            otpInput.setBackgroundResource(R.drawable.edittext_error_background)
+                        }
+                    } catch (e: JSONException) {
+                        Log.e("ForgotPassword", "Failed to parse response as JSON: $responseData", e)
                         Toast.makeText(this@ForgotPasswordActivity, "Unexpected server response: $responseData", Toast.LENGTH_LONG).show()
                     }
                 }
