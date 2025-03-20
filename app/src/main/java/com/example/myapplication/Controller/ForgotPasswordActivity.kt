@@ -12,6 +12,7 @@ import androidx.core.widget.addTextChangedListener
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 
@@ -204,7 +205,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http:///backend/send_otp_email.php")
+            .url("http://192.168.1.65/backend/send_otp_email.php")
             .post(requestBody)
             .build()
 
@@ -219,12 +220,17 @@ class ForgotPasswordActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 val responseData = response.body?.string()
                 Log.d("ForgotPassword", "Email OTP Response: $responseData")
-                val jsonResponse = JSONObject(responseData ?: "")
                 runOnUiThread {
-                    if (jsonResponse.optBoolean("success", false)) {
-                        Toast.makeText(this@ForgotPasswordActivity, "OTP sent to $email", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this@ForgotPasswordActivity, jsonResponse.optString("message", "Failed to send OTP"), Toast.LENGTH_LONG).show()
+                    try {
+                        val jsonResponse = JSONObject(responseData ?: "{}")
+                        if (jsonResponse.optBoolean("success", false)) {
+                            Toast.makeText(this@ForgotPasswordActivity, "OTP sent to $email", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this@ForgotPasswordActivity, jsonResponse.optString("message", "Failed to send OTP"), Toast.LENGTH_LONG).show()
+                        }
+                    } catch (e: JSONException) {
+                        Log.e("ForgotPassword", "Failed to parse response as JSON", e)
+                        Toast.makeText(this@ForgotPasswordActivity, "Unexpected server response: $responseData", Toast.LENGTH_LONG).show()
                     }
                 }
             }
@@ -242,30 +248,42 @@ class ForgotPasswordActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.168.55/backend/mobile_reset_password.php")
+            .url("http://192.168.1.65/backend/mobile_reset_password.php")
             .post(requestBody)
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("ForgotPassword", "Reset password failed", e)
+                Log.e("ForgotPassword", "Failed to reset password: ${e.message}", e)
                 runOnUiThread {
-                    Toast.makeText(this@ForgotPasswordActivity, "Reset failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@ForgotPasswordActivity, "Failed to reset password: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseData = response.body?.string()
-                Log.d("ForgotPassword", "Reset Response: $responseData")
-                val jsonResponse = JSONObject(responseData ?: "")
+                Log.d("ForgotPassword", "Reset Password Response: $responseData")
                 runOnUiThread {
-                    if (jsonResponse.optBoolean("success", false)) {
-                        val message = jsonResponse.optString("message", "Password reset successful!")
-                        Toast.makeText(this@ForgotPasswordActivity, message, Toast.LENGTH_LONG).show()
-                        startActivity(Intent(this@ForgotPasswordActivity, LoginActivity::class.java))
-                        finish()
-                    } else {
-                        Toast.makeText(this@ForgotPasswordActivity, jsonResponse.optString("message", "Reset failed"), Toast.LENGTH_LONG).show()
+                    try {
+                        val jsonResponse = JSONObject(responseData ?: "{}")
+                        if (jsonResponse.optBoolean("success", false)) {
+                            val message = if (jsonResponse.optBoolean("new_user", false)) {
+                                "Password reset successful. New account created."
+                            } else {
+                                "Password reset successful!"
+                            }
+                            Toast.makeText(this@ForgotPasswordActivity, message, Toast.LENGTH_LONG).show()
+                            // Redirect to LoginActivity
+                            startActivity(Intent(this@ForgotPasswordActivity, LoginActivity::class.java))
+                            finish()
+                        } else {
+                            val errorMessage = jsonResponse.optString("message", "Failed to reset password")
+                            Log.e("ForgotPassword", "Server error: $errorMessage")
+                            Toast.makeText(this@ForgotPasswordActivity, errorMessage, Toast.LENGTH_LONG).show()
+                        }
+                    } catch (e: JSONException) {
+                        Log.e("ForgotPassword", "Failed to parse response as JSON: $responseData", e)
+                        Toast.makeText(this@ForgotPasswordActivity, "Unexpected server response: $responseData", Toast.LENGTH_LONG).show()
                     }
                 }
             }
