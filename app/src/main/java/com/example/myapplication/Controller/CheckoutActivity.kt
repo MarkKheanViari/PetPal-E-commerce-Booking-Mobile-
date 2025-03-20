@@ -34,6 +34,7 @@ class CheckoutActivity : AppCompatActivity() {
     private lateinit var paymentMethodText: TextView
     private lateinit var placeOrderButton: Button
     private lateinit var addressSection: LinearLayout
+    private lateinit var paymentMethodIcon: ImageView // Added for logo
 
     private lateinit var cartItems: ArrayList<HashMap<String, String>>
     private lateinit var cartList: ArrayList<CartItem>
@@ -60,6 +61,7 @@ class CheckoutActivity : AppCompatActivity() {
         paymentMethodText = findViewById(R.id.paymentMethodText)
         placeOrderButton = findViewById(R.id.checkoutBtn)
         addressSection = findViewById(R.id.addressSection)
+        paymentMethodIcon = findViewById(R.id.paymentMethodIcon) // Initialize the logo ImageView
 
         val productId = intent.getIntExtra("productId", -1)
         val productName = intent.getStringExtra("productName") ?: "Unknown"
@@ -109,7 +111,10 @@ class CheckoutActivity : AppCompatActivity() {
             val builder = android.app.AlertDialog.Builder(this)
             builder.setTitle("Select Payment Method")
             builder.setItems(paymentOptions) { _, which ->
-                paymentMethodText.text = paymentOptions[which]
+                val selectedMethod = paymentOptions[which]
+                paymentMethodText.text = selectedMethod
+                // Show/hide GCash logo based on selection
+                paymentMethodIcon.visibility = if (selectedMethod == "GCASH") View.VISIBLE else View.GONE
             }
             builder.show()
         }
@@ -131,13 +136,12 @@ class CheckoutActivity : AppCompatActivity() {
                 "/payment/success" -> {
                     val orderId = uri.getQueryParameter("order_id")
                     Toast.makeText(this, "✅ Payment successful for Order #$orderId", Toast.LENGTH_LONG).show()
-                    setResult(RESULT_OK) // Optional: Set result for parent activity
-                    finish() // Close CheckoutActivity and return to previous screen
+                    setResult(RESULT_OK)
+                    finish()
                 }
                 "/payment/cancel" -> {
-                    val orderId = uri.getQueryParameter("order_id")
-                    Toast.makeText(this, "⚠ Payment canceled for Order #$orderId", Toast.LENGTH_LONG).show()
-                    // Optionally, allow the user to retry payment by staying in CheckoutActivity
+                    Toast.makeText(this, "⚠ Payment canceled", Toast.LENGTH_LONG).show()
+                    // Stay in CheckoutActivity to allow retry
                 }
             }
         }
@@ -248,7 +252,7 @@ class CheckoutActivity : AppCompatActivity() {
             Log.d("CheckoutActivity", "⚡ Using PayMongo GCASH Payment")
 
             val request = Request.Builder()
-                .url("http://192.168.1.65/backend/paymongo_checkout.php") // New API for GCASH
+                .url("http://192.168.1.65/backend/paymongo_checkout.php")
                 .post(requestBody)
                 .build()
 
@@ -321,7 +325,6 @@ class CheckoutActivity : AppCompatActivity() {
             })
         }
     }
-
 
     private fun calculateTotal() {
         cartTotal = cartList.sumOf { it.price * it.quantity }

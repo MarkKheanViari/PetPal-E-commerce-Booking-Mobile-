@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -41,7 +42,6 @@
             android:fontFamily="@font/alata" />
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- Address Section at the Top -->
     <!-- Address Section at the Top (Clickable) -->
     <LinearLayout
         android:id="@+id/addressSection"
@@ -58,45 +58,43 @@
         android:clickable="true"
         android:focusable="true">
 
-    <!-- Address Details (User Name, Phone, and Address) -->
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
-
-        <!-- User Name and Phone Number -->
-        <TextView
-            android:id="@+id/addressName"
-            android:layout_width="wrap_content"
+        <!-- Address Details (User Name, Phone, and Address) -->
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Mark Khean M. Viari"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"/>
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/addressPhone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+63 909 979 4946"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="4dp"/>
+            <!-- User Name and Phone Number -->
+            <TextView
+                android:id="@+id/addressName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mark Khean M. Viari"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"/>
 
-        <!-- User Address -->
-        <TextView
-            android:id="@+id/addressDetails"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="3rd Block, Baltazar St., Sagud-Bahley, San Fabian, Pangasinan, North Luzon, 2433"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="4dp"/>
+            <TextView
+                android:id="@+id/addressPhone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+63 909 979 4946"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginTop="4dp"/>
+
+            <!-- User Address -->
+            <TextView
+                android:id="@+id/addressDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3rd Block, Baltazar St., Sagud-Bahley, San Fabian, Pangasinan, North Luzon, 2433"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
     </LinearLayout>
-
-</LinearLayout>
-
 
     <!-- Scrollable area for main content -->
     <ScrollView
@@ -203,13 +201,39 @@
                     android:textColor="@color/black"
                     android:textSize="17sp" />
 
-                <TextView
-                    android:id="@+id/paymentMethodText"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:id="@+id/paymentMethodText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Select Payment Method"
+                        android:textSize="15sp"
+                        android:textColor="@color/black" />
+
+                    <ImageView
+                        android:id="@+id/paymentMethodIcon"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_marginStart="8dp"
+                        android:contentDescription="Payment Method Icon"
+                        android:src="@drawable/gcash_logo"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/selectPaymentButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Select Payment Method"
-                    android:textSize="15sp"
-                    android:textColor="@color/black" />
+                    android:text="Select Payment"
+                    android:layout_marginTop="10dp"
+                    android:visibility="visible"/>
             </LinearLayout>
 
             <!-- Hidden views for storing data -->
@@ -230,14 +254,6 @@
                 android:textSize="16sp"
                 android:textColor="@color/black"
                 android:visibility="gone" />
-
-            <Button
-                android:id="@+id/selectPaymentButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Select Payment"
-                android:layout_marginTop="10dp"
-                android:visibility="visible"/>
         </LinearLayout>
     </ScrollView>
 
@@ -261,6 +277,5 @@
             android:text="Place Order"
             android:layout_gravity="end"
             android:layout_marginEnd="16dp"/>
-
     </androidx.appcompat.widget.Toolbar>
 </androidx.constraintlayout.widget.ConstraintLayout>
