@@ -105,7 +105,7 @@
 
         <Space
             android:layout_width="wrap_content"
-            android:layout_height="25dp"/>
+            android:layout_height="15dp"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -136,7 +136,7 @@
 
         <Space
             android:layout_width="wrap_content"
-            android:layout_height="25dp"/>
+            android:layout_height="15dp"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -167,7 +167,7 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="25dp"/>
+            android:layout_height="15dp"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -205,7 +205,7 @@
             android:layout_height="wrap_content"
             android:text="Save Changes"
             android:layout_gravity="center"
-            android:backgroundTint="@color/smth_orange"/>
+            android:backgroundTint="@color/darker_orange"/>
 
     </LinearLayout>
 

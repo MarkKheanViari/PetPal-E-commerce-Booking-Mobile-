@@ -10,7 +10,7 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:background="@color/orange"
+        android:background="@color/darker_orange"
         android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -104,7 +104,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:src="@android:drawable/ic_menu_search"
-        app:backgroundTint="?attr/colorAccent"
+        app:backgroundTint="@color/darker_orange"
         app:elevation="6dp"
         android:contentDescription="Search Help" />
 

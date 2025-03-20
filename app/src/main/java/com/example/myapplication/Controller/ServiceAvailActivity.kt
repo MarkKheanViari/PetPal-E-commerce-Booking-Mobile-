@@ -82,7 +82,7 @@ class ServiceAvailActivity : AppCompatActivity() {
 
     // ✅ NEW FUNCTION: Fetch Service Details
     private fun fetchServiceDetails(serviceId: Int) {
-        val url = "http://192.168.1.15/backend/fetch_services.php"
+        val url = "http://192.168.168.55/backend/fetch_services.php"
         Log.d("Service Details", "🔄 Fetching service details for ID: $serviceId") // ✅ Debugging Log
 
         val request = Request.Builder().url(url).get().build()
@@ -138,7 +138,7 @@ class ServiceAvailActivity : AppCompatActivity() {
 
         val requestBody = jsonObject.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = Request.Builder()
-            .url("http://192.168.1.15/backend/request_service.php")
+            .url("http://192.168.168.55/backend/request_service.php")
             .post(requestBody)
             .build()
 

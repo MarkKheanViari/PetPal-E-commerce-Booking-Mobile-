@@ -83,7 +83,7 @@ class ScheduledServicesActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.15/backend/clear_service_history.php"
+        val url = "http://192.168.168.55/backend/clear_service_history.php"
 
         val request = JsonObjectRequest(Request.Method.POST, url, JSONObject().apply {
             put("mobile_user_id", mobileUserId)
@@ -114,7 +114,7 @@ class ScheduledServicesActivity : AppCompatActivity() {
         // ✅ Debug: Log user_id to ensure correct data is being sent
         println("DEBUG: Fetching appointments for user_id: $mobileUserId")
 
-        val url = "http://192.168.1.15/backend/fetch_appointments.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.168.55/backend/fetch_appointments.php?mobile_user_id=$mobileUserId"
 
         val request = JsonObjectRequest(
             Request.Method.GET, url, null,

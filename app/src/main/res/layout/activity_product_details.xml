@@ -95,6 +95,7 @@
         app:layout_constraintStart_toStartOf="parent"/>
 
     <ImageView
+        android:id="@+id/likeBtn"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:src="@drawable/fill_heart"
@@ -103,6 +104,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="10dp"/>
+
 
     <!-- Description container without outline -->
     <LinearLayout

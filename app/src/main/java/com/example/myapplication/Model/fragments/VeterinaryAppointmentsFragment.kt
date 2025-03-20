@@ -45,7 +45,7 @@ class VeterinaryAppointmentsFragment : Fragment() {
             return
         }
 
-        val url = "http://192.168.1.15/backend/fetch_appointments.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.43.55/backend/fetch_appointments.php?mobile_user_id=$mobileUserId"
 
         val request = JsonObjectRequest(Request.Method.GET, url, null,
             { response ->
