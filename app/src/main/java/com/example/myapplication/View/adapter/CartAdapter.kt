@@ -60,8 +60,8 @@ class CartAdapter(
         val productName: TextView = view.findViewById(R.id.productNameTextView)
         val productPrice: TextView = view.findViewById(R.id.productPriceTextView)
         val quantityText: TextView = view.findViewById(R.id.quantityTextView)
-        val minusButton: Button = view.findViewById(R.id.minusButton)
-        val plusButton: Button = view.findViewById(R.id.plusButton)
+        val minusButton: ImageView = view.findViewById(R.id.minusButton)
+        val plusButton: ImageView = view.findViewById(R.id.plusButton)
         val removeItemButton: Button = view.findViewById(R.id.removeItemButton)
     }
 }

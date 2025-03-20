@@ -68,15 +68,14 @@
                 android:orientation="horizontal">
 
                 <!-- Minus Button -->
-                <Button
+                <ImageView
                     android:id="@+id/minusButton"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/remove"
                     android:layout_marginEnd="6dp"
-                    android:background="@drawable/circle"
-                    android:text="-"
-                    android:textColor="@android:color/white"
-                    android:textSize="16sp" />
+                    android:contentDescription="@string/design_desc"
+                    android:background="@drawable/add_subtract_corners"/>
 
                 <!-- Quantity Text -->
                 <TextView
@@ -90,14 +89,13 @@
                     android:textSize="14sp" />
 
                 <!-- Plus Button -->
-                <Button
+                <ImageView
                     android:id="@+id/plusButton"
-                    android:layout_width="40dp"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/circle"
-                    android:text="+"
-                    android:textColor="@android:color/white"
-                    android:textSize="16sp" />
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/add"
+                    android:contentDescription="@string/design_desc"
+                    android:background="@drawable/add_subtract_corners" />
             </LinearLayout>
         </LinearLayout>
 

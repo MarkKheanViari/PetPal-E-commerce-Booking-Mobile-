@@ -52,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="BOOK NOW"
-            android:backgroundTint="@color/orange"
+            android:backgroundTint="@color/darker_orange"
             android:textColor="@android:color/white"
             android:textSize="16sp"
             android:padding="12dp"

@@ -52,7 +52,14 @@ class GroomingAppointmentActivity : AppCompatActivity() {
             (it.context as MainActivity).findViewById<BottomNavigationView>(R.id.bottomNavigation)
                 .selectedItemId = R.id.menu_service // ID of the tab for ServiceFragment
         } */
-
+        backBtn.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java).apply {
+                putExtra("SELECTED_TAB", "menu_service") // Pass the tab to select
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+            startActivity(intent)
+            finish() // Close the current activity
+        }
         // Get service name from intent and display it as non-editable, bold, and centered
         val serviceName = intent.getStringExtra("SERVICE_NAME")
         serviceName?.let {
@@ -85,7 +92,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
     }
 
     private fun submitAppointment() {
-        val url = "http://192.168.1.12/backend/schedule_appointment.php"
+        val url = "http://192.168.1.15/backend/schedule_appointment.php"
 
         // Get user details from SharedPreferences
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)

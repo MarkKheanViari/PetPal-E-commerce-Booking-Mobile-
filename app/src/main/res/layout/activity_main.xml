@@ -154,7 +154,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:layout_marginEnd="8dp"
-                    android:backgroundTint="@color/orange"
+                    android:backgroundTint="@color/darker_orange"
                     android:text="All"
                     android:textColor="@android:color/white"/>
 
@@ -357,7 +357,7 @@
         android:layout_gravity="start"
         android:background="@color/white"
         app:headerLayout="@layout/nav_header"
-        app:itemIconTint="@color/smth_orange"
+        app:itemIconTint="@color/darker_orange"
         app:itemTextColor="@color/orange"
         app:menu="@menu/nav_menu" />
 

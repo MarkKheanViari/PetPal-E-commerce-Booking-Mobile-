@@ -46,6 +46,14 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
         spinnerPaymentMethod = findViewById(R.id.spinnerPaymentMethod)
         val scheduleButton: Button = findViewById(R.id.btnScheduleAppointment)
 
+        backBtn.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java).apply {
+                putExtra("SELECTED_TAB", "menu_service") // Pass the tab to select
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+            startActivity(intent)
+            finish() // Close the current activity
+        }
         // Get service name from intent and display it as non-editable, bold, and centered
         val serviceName = intent.getStringExtra("SERVICE_NAME")
         serviceName?.let {
@@ -78,7 +86,7 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
     }
 
     private fun submitAppointment() {
-        val url = "http://192.168.1.12/backend/schedule_appointment.php"
+        val url = "http://192.168.1.15/backend/schedule_appointment.php"
 
         // Get user details from SharedPreferences
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)

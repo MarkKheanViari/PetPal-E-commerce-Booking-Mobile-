@@ -41,6 +41,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Book Now"
-        android:backgroundTint="@android:color/holo_orange_dark"
+        android:backgroundTint="@color/darker_orange"
         android:textColor="@android:color/white"/>
 </LinearLayout>
