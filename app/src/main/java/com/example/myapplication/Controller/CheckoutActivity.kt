@@ -45,6 +45,8 @@ class CheckoutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_checkout)
 
+        handleDeepLink(intent)
+
         val backBtn = findViewById<ImageView>(R.id.backBtn)
         backBtn.setOnClickListener { finish() }
 
@@ -115,6 +117,29 @@ class CheckoutActivity : AppCompatActivity() {
         // Make address section clickable to navigate to address selection
         addressSection.setOnClickListener {
             navigateToAddressSelection(it)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        handleDeepLink(intent)
+    }
+
+    private fun handleDeepLink(intent: Intent?) {
+        intent?.data?.let { uri ->
+            when (uri.path) {
+                "/payment/success" -> {
+                    val orderId = uri.getQueryParameter("order_id")
+                    Toast.makeText(this, "✅ Payment successful for Order #$orderId", Toast.LENGTH_LONG).show()
+                    setResult(RESULT_OK) // Optional: Set result for parent activity
+                    finish() // Close CheckoutActivity and return to previous screen
+                }
+                "/payment/cancel" -> {
+                    val orderId = uri.getQueryParameter("order_id")
+                    Toast.makeText(this, "⚠ Payment canceled for Order #$orderId", Toast.LENGTH_LONG).show()
+                    // Optionally, allow the user to retry payment by staying in CheckoutActivity
+                }
+            }
         }
     }
 
