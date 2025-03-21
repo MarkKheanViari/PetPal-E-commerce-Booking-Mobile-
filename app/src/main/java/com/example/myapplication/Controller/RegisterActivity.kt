@@ -95,7 +95,7 @@ class RegisterActivity : AppCompatActivity() {
             }
 
             if (password.length < 6 || password.length > 16) { // Fixed password length validation
-                passwordInput.error = "Password must be between 6 and 16 characters"
+                passwordInput.error = "Password must be between 6 to 16 characters"
                 passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
                 isValid = false
             } else if (password.contains(" ")) {
@@ -298,7 +298,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun registerUser(username: String, email: String, location: String, contact: String, age: String, password: String) {
-        val url = "http://192.168.1.65/backend/mobile_register.php"
+        val url = "http://192.168.1.15/backend/mobile_register.php"
 
         val jsonObject = JSONObject().apply {
             put("username", username)

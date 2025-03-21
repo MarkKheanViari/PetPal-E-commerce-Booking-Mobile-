@@ -25,8 +25,8 @@
 
             <ImageView
                 android:id="@+id/intro"
-                android:layout_width="300dp"
-                android:layout_height="300dp"
+                android:layout_width="280dp"
+                android:layout_height="280dp"
                 android:src="@drawable/cat"
                 android:contentDescription="@string/design_desc" />
 
@@ -38,7 +38,7 @@
 
             <Space
                 android:layout_width="wrap_content"
-                android:layout_height="30dp" />
+                android:layout_height="25dp" />
 
             <TextView
                 android:layout_width="wrap_content"
