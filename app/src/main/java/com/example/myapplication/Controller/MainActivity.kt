@@ -24,6 +24,7 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.myapplication.Controller.SettingsActivity
 import com.example.myapplication.Controller.WelcomeActivity
+import com.example.myapplication.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import okhttp3.*
@@ -48,15 +49,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Initialize bottomNavigation
+        // Initialize bottom navigation.
         bottomNavigation = findViewById(R.id.bottomNavigation)
         bottomNavigation.selectedItemId = R.id.nav_products
 
-        // Set initial UI
+        // Set initial UI.
         showMainUI(true)
         findViewById<TextView>(R.id.toolbarTitle).text = "Catalog"
 
-        // Search bar logic
+        // Search bar logic.
         val searchBar = findViewById<EditText>(R.id.search_bar)
         searchBar.setOnFocusChangeListener { _, hasFocus ->
             bottomNavigation.visibility = if (hasFocus) View.GONE else View.VISIBLE
@@ -68,14 +69,14 @@ class MainActivity : AppCompatActivity() {
         rootLayout = findViewById(R.id.rootLayout)
         checkUserAndResetIfNeeded()
 
-        // Drawer layout & menu icon
+        // Drawer layout & menu icon.
         drawerLayout = findViewById(R.id.drawer_layout)
         val menuIcon = findViewById<ImageView>(R.id.menuIcon)
         menuIcon.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
 
-        // NavigationView header
+        // NavigationView header.
         val navView = findViewById<NavigationView>(R.id.nav_view)
         val headerView = navView.getHeaderView(0)
         val headerName = headerView.findViewById<TextView>(R.id.headerName)
@@ -86,7 +87,7 @@ class MainActivity : AppCompatActivity() {
 
         headerView.setOnClickListener {
             showMainUI(false)
-            loadFragment(ProfileFragment(), true) // Load into fragment_container1
+            loadFragment(ProfileFragment(), true) // Load into fragment_container1.
             drawerLayout.closeDrawer(GravityCompat.START)
         }
 
@@ -94,7 +95,7 @@ class MainActivity : AppCompatActivity() {
             when (menuItem.itemId) {
                 R.id.nav_profile -> {
                     showMainUI(false)
-                    loadFragment(ProfileFragment(), true) // Load into fragment_container1
+                    loadFragment(ProfileFragment(), true)
                     true
                 }
                 R.id.nav_settings -> {
@@ -115,7 +116,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.menu_service -> {
                     showMainUI(false)
-                    loadFragment(ServiceFragment(), true) // Load into fragment_container1
+                    loadFragment(ServiceFragment(), true)
                     true
                 }
                 else -> false
@@ -125,13 +126,19 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        // Cart button in the toolbar
+        // Cart button in the toolbar.
         val viewCartButton = findViewById<ImageView>(R.id.viewCartButton)
         viewCartButton.setOnClickListener {
-            startActivity(Intent(this, CartActivity::class.java))
+            // Block cart access if the user is a guest.
+            val isGuest = sharedPreferences.getBoolean("isGuest", false)
+            if (isGuest) {
+                Toast.makeText(this, "Guest users cannot order. Please log in to access your cart.", Toast.LENGTH_SHORT).show()
+            } else {
+                startActivity(Intent(this, CartActivity::class.java))
+            }
         }
 
-        // Setup products RecyclerView and adapter
+        // Setup products RecyclerView and adapter.
         productsRecyclerView = findViewById(R.id.productsRecyclerView)
         productsRecyclerView.layoutManager = GridLayoutManager(this, 2)
         productAdapter = ProductAdapter(this, displayedProducts) { product ->
@@ -142,7 +149,7 @@ class MainActivity : AppCompatActivity() {
         setupCategoryButtons()
         setupBottomNavigation()
 
-        // Search bar behavior
+        // Search bar behavior.
         searchBar.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
                 hideKeyboardAndClearFocus(searchBar)
@@ -165,15 +172,22 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Fetch initial products
+        // Fetch initial products.
         fetchProducts()
 
+        // Check if the user is logged in or browsing as a guest.
         val mobileUserId = sharedPreferences.getInt("user_id", -1)
-        if (mobileUserId == -1) {
+        val isGuest = sharedPreferences.getBoolean("isGuest", false)
+        if (mobileUserId == -1 && !isGuest) {
             Toast.makeText(this, "❌ User not logged in!", Toast.LENGTH_SHORT).show()
-            return
+            finish()
+        } else {
+            currentUserId = mobileUserId
         }
-        checkForApprovedAppointments(mobileUserId)
+
+        if (mobileUserId != -1) {
+            checkForApprovedAppointments(mobileUserId)
+        }
     }
 
     override fun onBackPressed() {
@@ -204,7 +218,13 @@ class MainActivity : AppCompatActivity() {
         bottomNavigation.visibility = View.VISIBLE
     }
 
+    // When a guest tries to add a product to the wishlist, show a prompt instead.
     private fun addToWishlist(product: Product) {
+        val isGuest = sharedPreferences.getBoolean("isGuest", false)
+        if (isGuest) {
+            Toast.makeText(this, "Guest users cannot order. Please log in to add products to your wishlist.", Toast.LENGTH_SHORT).show()
+            return
+        }
         LikedProductsStore.addProduct(product)
         Toast.makeText(this, "Added ${product.name} to Wishlist!", Toast.LENGTH_SHORT).show()
         startActivity(Intent(this, LikedProductsActivity::class.java))
@@ -234,7 +254,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkUserAndResetIfNeeded() {
         val userId = sharedPreferences.getInt("user_id", -1)
-        if (userId == -1) {
+        val isGuest = sharedPreferences.getBoolean("isGuest", false)
+        if (userId == -1 && !isGuest) {
             Toast.makeText(this, "❌ User not logged in!", Toast.LENGTH_SHORT).show()
             finish()
         } else {
@@ -258,10 +279,10 @@ class MainActivity : AppCompatActivity() {
             Pair(R.id.trainingButton, "Training")
         )
 
-        // Store all buttons in a list for easy access
+        // Store all buttons for easy access.
         val buttons = categories.map { (buttonId, _) -> findViewById<Button>(buttonId) }
 
-        // Set initial state: "All" button highlighted by default
+        // Set initial state: "All" button highlighted.
         buttons.forEach { button ->
             if (button.id == R.id.allButton) {
                 button.backgroundTintList = ContextCompat.getColorStateList(this, R.color.darker_orange)
@@ -272,21 +293,19 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Set click listeners
+        // Set click listeners.
         categories.forEach { (buttonId, category) ->
             val button = findViewById<Button>(buttonId)
             button.setOnClickListener {
-                // Reset all buttons to unselected state
+                // Reset all buttons.
                 buttons.forEach { btn ->
                     btn.backgroundTintList = ContextCompat.getColorStateList(this, R.color.light_smth)
                     btn.setTextColor(ContextCompat.getColor(this, R.color.black))
                 }
-
-                // Highlight the clicked button
+                // Highlight the clicked button.
                 button.backgroundTintList = ContextCompat.getColorStateList(this, R.color.darker_orange)
                 button.setTextColor(ContextCompat.getColor(this, android.R.color.white))
-
-                // Perform the category fetch
+                // Fetch products by category.
                 supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                 showMainUI(true)
                 bottomNavigation.selectedItemId = R.id.nav_products
@@ -296,7 +315,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkForApprovedAppointments(userId: Int) {
-        val url = "http://192.168.1.65/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
+        val url = "http://192.168.1.12/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
         val request = JsonObjectRequest(
             com.android.volley.Request.Method.GET, url, null,
             { response ->
@@ -352,21 +371,21 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.menu_service -> {
                     showMainUI(false)
-                    loadFragment(ServiceFragment(), true) // Load into fragment_container1
+                    loadFragment(ServiceFragment(), true)
                     findViewById<FrameLayout>(R.id.fragment_container1).visibility = View.VISIBLE
                     findViewById<FrameLayout>(R.id.fragment_container).visibility = View.GONE
                     true
                 }
                 R.id.nav_cart -> {
                     showMainUI(false)
-                    loadFragment(CartFragment(), true) // Load into fragment_container1
+                    loadFragment(CartFragment(), true)
                     findViewById<FrameLayout>(R.id.fragment_container1).visibility = View.VISIBLE
                     findViewById<FrameLayout>(R.id.fragment_container).visibility = View.GONE
                     true
                 }
                 R.id.nav_profile -> {
                     showMainUI(false)
-                    loadFragment(ProfileFragment(), true) // Load into fragment_container1
+                    loadFragment(ProfileFragment(), true)
                     findViewById<FrameLayout>(R.id.fragment_container1).visibility = View.VISIBLE
                     findViewById<FrameLayout>(R.id.fragment_container).visibility = View.GONE
                     true
@@ -397,7 +416,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchProducts() {
-        val url = "http://192.168.1.65/backend/fetch_product.php"
+        val url = "http://192.168.1.12/backend/fetch_product.php"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -422,7 +441,7 @@ class MainActivity : AppCompatActivity() {
 
                     val productsArray = json.optJSONArray("products") ?: JSONArray()
                     val fetchedProducts = mutableListOf<Product>()
-                    val baseImageUrl = "http://192.168.1.65/backend/uploads/"
+                    val baseImageUrl = "http://192.168.1.12/backend/uploads/"
 
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)
@@ -474,7 +493,7 @@ class MainActivity : AppCompatActivity() {
         displayedProducts.clear()
         productAdapter.notifyDataSetChanged()
 
-        val url = "http://192.168.1.65/backend/fetch_product.php?category=$category"
+        val url = "http://192.168.1.12/backend/fetch_product.php?category=$category"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -508,11 +527,11 @@ class MainActivity : AppCompatActivity() {
                         val productJson = productsArray.getJSONObject(i)
                         val rawImage = productJson.optString("image", "").trim()
                         val fullImageUrl = if (rawImage.isNotEmpty() && !rawImage.startsWith("http")) {
-                            "http://192.168.1.65/backend/uploads/$rawImage"
+                            "http://192.168.1.12/backend/uploads/$rawImage"
                         } else {
                             rawImage
                         }
-                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.1.65/backend/uploads/default.jpg"
+                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.1.12/backend/uploads/default.jpg"
 
                         categoryProducts.add(
                             Product(

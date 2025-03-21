@@ -1,5 +1,6 @@
 package com.example.myapplication.Controller
 
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
@@ -15,9 +16,9 @@ import com.example.myapplication.RegisterActivity
 
 class WelcomeActivity : AppCompatActivity() {
 
-    private lateinit var loginBtn : ImageView
-    private lateinit var signUpBtn : ImageView
-    private lateinit var skipBtn : TextView
+    private lateinit var loginBtn: ImageView
+    private lateinit var signUpBtn: ImageView
+    private lateinit var skipBtn: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,9 +42,12 @@ class WelcomeActivity : AppCompatActivity() {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 
+        // When the user taps "Skip", mark them as a guest and start MainActivity.
         skipBtn.setOnClickListener {
+            val sharedPrefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+            sharedPrefs.edit().putBoolean("isGuest", true).apply()
             startActivity(Intent(this, MainActivity::class.java))
+            finish() // Close WelcomeActivity so guest users can't navigate back to it.
         }
-
     }
 }

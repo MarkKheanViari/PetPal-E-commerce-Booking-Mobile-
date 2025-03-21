@@ -70,9 +70,21 @@
 
         </LinearLayout>
 
-        <!-- "Slide to continue" TextView positioned above the divider -->
+        <!-- "Press to Skip" clickable text at the top-right corner -->
+        <TextView
+            android:id="@+id/skipText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Press to Skip"
+            android:textColor="@color/smth_orange"
+            android:textSize="14sp"
+            android:padding="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Divider line now anchored to the bottom of the parent -->
+        <!-- Divider or additional views can be added here as needed -->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
