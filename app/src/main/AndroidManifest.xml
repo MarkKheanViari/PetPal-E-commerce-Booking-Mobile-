@@ -70,8 +70,40 @@
             android:name=".AddressSelectionActivity"
             android:exported="false" />
         <activity android:name=".AddAddressActivity" android:exported="false" />
-        <activity android:name=".GroomingAppointmentActivity" android:exported="false" />
-        <activity android:name=".VeterinaryAppointmentActivity" android:exported="false" />
+        <activity
+            android:name=".GroomingAppointmentActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="petpal"
+                    android:host="appointment"
+                    android:pathPrefix="/success" />
+                <data
+                    android:scheme="petpal"
+                    android:host="appointment"
+                    android:pathPrefix="/cancel" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".VeterinaryAppointmentActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="petpal"
+                    android:host="appointment"
+                    android:pathPrefix="/success" />
+                <data
+                    android:scheme="petpal"
+                    android:host="appointment"
+                    android:pathPrefix="/cancel" />
+            </intent-filter>
+        </activity>
         <activity android:name=".ProfileActivity" android:exported="false" />
         <activity android:name=".LikedProductsActivity" android:exported="false" />
         <activity android:name=".Controller.SettingsActivity" android:exported="false" />
@@ -101,5 +133,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

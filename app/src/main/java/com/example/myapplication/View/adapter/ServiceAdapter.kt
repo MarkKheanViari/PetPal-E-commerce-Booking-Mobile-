@@ -23,14 +23,15 @@ class ServiceAdapter(private val context: Context, private val serviceList: List
         holder.servicePrice.text = "Price: ₱${service.price}"
         holder.serviceDescription.text = service.description
 
-        // ✅ Handle Book Now button click
+        // Handle Book Now button click
         holder.bookNowButton.setOnClickListener {
             val intent = if (service.type == "Grooming") {
                 Intent(context, GroomingAppointmentActivity::class.java)
             } else {
                 Intent(context, VeterinaryAppointmentActivity::class.java)
             }
-            intent.putExtra("SERVICE_NAME", service.name) // ✅ Pass the service name
+            intent.putExtra("SERVICE_NAME", service.name)
+            intent.putExtra("SERVICE_PRICE", service.price)
             context.startActivity(intent)
         }
     }

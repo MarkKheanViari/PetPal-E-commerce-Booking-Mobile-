@@ -10,14 +10,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import org.json.JSONObject
 import java.util.Calendar
 
@@ -34,6 +32,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
     private lateinit var spinnerPaymentMethod: Spinner
     private lateinit var groomTypeField: EditText
     private var selectedDate: String? = null
+    private lateinit var servicePrice: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +50,9 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         btnPickDate = findViewById(R.id.btnPickDate)
         spinnerPaymentMethod = findViewById(R.id.spinnerPaymentMethod)
         val scheduleButton: Button = findViewById(R.id.btnScheduleAppointment)
+
+        // Retrieve the service price from the Intent
+        servicePrice = intent.getStringExtra("SERVICE_PRICE") ?: "500.00"
 
         backBtn.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java).apply {
@@ -82,9 +84,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
                 btnPickDate.text = selectedDate
             }, year, month, day)
 
-            // Set the minimum date to today to prevent selecting past dates
             datePickerDialog.datePicker.minDate = System.currentTimeMillis()
-
             datePickerDialog.show()
         }
 
@@ -95,9 +95,28 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         }
     }
 
-    private fun submitAppointment() {
-        val url = "http://192.168.1.65/backend/schedule_appointment.php"
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        handleDeepLink(intent)
+    }
 
+    private fun handleDeepLink(intent: Intent?) {
+        intent?.data?.let { uri ->
+            when (uri.path) {
+                "/appointment/success" -> {
+                    val appointmentId = uri.getQueryParameter("appointment_id")
+                    Toast.makeText(this, "✅ Payment successful for Appointment #$appointmentId", Toast.LENGTH_LONG).show()
+                    finish()
+                }
+                "/appointment/cancel" -> {
+                    Toast.makeText(this, "⚠ Payment canceled", Toast.LENGTH_LONG).show()
+                    // Stay in the activity to allow retry
+                }
+            }
+        }
+    }
+
+    private fun submitAppointment() {
         // Get user details from SharedPreferences
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
         val mobileUserId = sharedPreferences.getInt("user_id", -1).toString()
@@ -118,7 +137,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         val address = if (etAddress.text.toString().trim().isEmpty()) savedLocation else etAddress.text.toString().trim()
         val phoneNumber = if (etPhone.text.toString().trim().isEmpty()) savedPhoneNumber else etPhone.text.toString().trim()
 
-        // Prepare data with service_name, ensuring non-null values
+        // Prepare appointment data
         val params = mapOf(
             "mobile_user_id" to mobileUserId,
             "service_type" to "Grooming",
@@ -130,41 +149,80 @@ class GroomingAppointmentActivity : AppCompatActivity() {
             "pet_breed" to etPetBreed.text.toString().trim(),
             "appointment_date" to selectedDate!!,
             "payment_method" to spinnerPaymentMethod.selectedItem.toString().trim(),
-            "notes" to etNotes.text.toString().trim()
+            "notes" to etNotes.text.toString().trim(),
+            "price" to servicePrice
         )
 
         val jsonObject = JSONObject(params)
 
-        val request = JsonObjectRequest(
-            Request.Method.POST, url, jsonObject,
-            { response ->
-                Log.d("Appointment", "Appointment scheduled: $response")
-                Toast.makeText(this, "Appointment Scheduled!", Toast.LENGTH_SHORT).show()
+        // Check payment method
+        val paymentMethod = spinnerPaymentMethod.selectedItem.toString().trim()
+        Log.d("Appointment", "Selected Payment Method: '$paymentMethod'")
 
-                // Show receipt popup
-                showReceiptDialog(params)
-                clearFields()
-            },
-            { error ->
-                error.printStackTrace()
-                val statusCode = error.networkResponse?.statusCode
-                Log.e("Appointment", "Error scheduling (status code $statusCode): ${error.message}")
-                val data = error.networkResponse?.data
-                if (data != null) {
-                    val body = String(data, Charsets.UTF_8)
-                    Log.e("Appointment", "Error body: $body")
+        if (paymentMethod.equals("GCASH", ignoreCase = true)) {
+            Log.d("Appointment", "GCash payment method selected, initiating PayMongo flow")
+            val url = "http://192.168.1.65/backend/paymongo_appointment_checkout.php"
+            val request = JsonObjectRequest(
+                Request.Method.POST, url, jsonObject,
+                { response ->
+                    Log.d("Appointment", "PayMongo response received: $response")
+                    if (response.optBoolean("success", false)) {
+                        val checkoutUrl = response.optString("checkout_url", "")
+                        Log.d("Appointment", "Checkout URL: $checkoutUrl")
+                        if (checkoutUrl.isNotEmpty()) {
+                            Log.d("Appointment", "Redirecting to WebViewActivity with URL: $checkoutUrl")
+                            val intent = Intent(this, WebViewActivity::class.java)
+                            intent.putExtra("url", checkoutUrl)
+                            intent.putExtra("source", "appointment") // Indicate this is for an appointment
+                            startActivity(intent)
+                        } else {
+                            Log.e("Appointment", "Missing checkout URL in response")
+                            Toast.makeText(this, "❌ Error: Missing checkout URL", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        val errorMessage = response.optString("message", "Unknown error")
+                        Log.e("Appointment", "PayMongo request failed: $errorMessage")
+                        Toast.makeText(this, "❌ $errorMessage", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                { error ->
+                    error.printStackTrace()
+                    val statusCode = error.networkResponse?.statusCode
+                    val errorBody = error.networkResponse?.data?.let { String(it, Charsets.UTF_8) }
+                    Log.e("Appointment", "Error with PayMongo: ${error.message}, Status Code: $statusCode, Body: $errorBody")
+                    Toast.makeText(this, "Failed to initiate GCash payment: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
-                Toast.makeText(this, "Failed to schedule appointment", Toast.LENGTH_SHORT).show()
-                clearFields()
-            }
-        )
-
-        Volley.newRequestQueue(this).add(request)
+            )
+            Volley.newRequestQueue(this).add(request)
+        } else {
+            Log.d("Appointment", "Non-GCash payment method selected: $paymentMethod, using schedule_appointment.php")
+            val url = "http://192.168.1.65/backend/schedule_appointment.php"
+            val request = JsonObjectRequest(
+                Request.Method.POST, url, jsonObject,
+                { response ->
+                    Log.d("Appointment", "Appointment scheduled: $response")
+                    if (response.optBoolean("success", false)) {
+                        Toast.makeText(this, "Appointment Scheduled!", Toast.LENGTH_SHORT).show()
+                        showReceiptDialog(params)
+                        clearFields()
+                    } else {
+                        val errorMessage = response.optString("message", "Unknown error")
+                        Log.e("Appointment", "Failed to schedule appointment: $errorMessage")
+                        Toast.makeText(this, "❌ $errorMessage", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                { error ->
+                    error.printStackTrace()
+                    Log.e("Appointment", "Error scheduling: ${error.message}")
+                    Toast.makeText(this, "Failed to schedule appointment", Toast.LENGTH_SHORT).show()
+                    clearFields()
+                }
+            )
+            Volley.newRequestQueue(this).add(request)
+        }
     }
 
     private fun showReceiptDialog(params: Map<String, String>) {
-        Log.d("ReceiptDialog", "Params: $params")
-
         val dialog = Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
         dialog.setContentView(R.layout.layout_receipt_dialog)
         dialog.setCancelable(false)
@@ -182,34 +240,15 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         window?.decorView?.setPadding(0, 0, 0, 0)
 
         dialog.findViewById<TextView>(R.id.tvReceiptServiceType).text = "Service Type: ${params["service_type"] ?: "N/A"}"
-        Log.d("ReceiptDialog", "Service Type: ${params["service_type"]}")
-
         dialog.findViewById<TextView>(R.id.tvReceiptServiceName).text = "Service Name: ${params["service_name"] ?: "N/A"}"
-        Log.d("ReceiptDialog", "Service Name: ${params["service_name"]}")
-
         dialog.findViewById<TextView>(R.id.tvReceiptName).text = "Name: ${params["name"] ?: "N/A"}"
-        Log.d("ReceiptDialog", "Name: ${params["name"]}")
-
         dialog.findViewById<TextView>(R.id.tvReceiptAddress).text = "Address: ${params["address"] ?: "N/A"}"
-        Log.d("ReceiptDialog", "Address: ${params["address"]}")
-
         dialog.findViewById<TextView>(R.id.tvReceiptPhone).text = "Phone: ${params["phone_number"] ?: "N/A"}"
-        Log.d("ReceiptDialog", "Phone: ${params["phone_number"]}")
-
         dialog.findViewById<TextView>(R.id.tvReceiptPetName).text = "Pet Name: ${params["pet_name"] ?: "N/A"}"
-        Log.d("ReceiptDialog", "Pet Name: ${params["pet_name"]}")
-
         dialog.findViewById<TextView>(R.id.tvReceiptPetBreed).text = "Pet Breed: ${params["pet_breed"] ?: "N/A"}"
-        Log.d("ReceiptDialog", "Pet Breed: ${params["pet_breed"]}")
-
         dialog.findViewById<TextView>(R.id.tvReceiptDate).text = "Date: ${params["appointment_date"] ?: "N/A"}"
-        Log.d("ReceiptDialog", "Date: ${params["appointment_date"]}")
-
         dialog.findViewById<TextView>(R.id.tvReceiptPaymentMethod).text = "Payment Method: ${params["payment_method"] ?: "N/A"}"
-        Log.d("ReceiptDialog", "Payment Method: ${params["payment_method"]}")
-
         dialog.findViewById<TextView>(R.id.tvReceiptNotes).text = "Notes: ${params["notes"] ?: "N/A"}"
-        Log.d("ReceiptDialog", "Notes: ${params["notes"]}")
 
         dialog.findViewById<Button>(R.id.btnCloseReceipt).setOnClickListener {
             dialog.dismiss()
