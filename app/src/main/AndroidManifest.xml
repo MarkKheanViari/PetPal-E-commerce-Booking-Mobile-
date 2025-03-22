@@ -107,7 +107,15 @@
         <activity android:name=".ProfileActivity" android:exported="false" />
         <activity android:name=".LikedProductsActivity" android:exported="false" />
         <activity android:name=".Controller.SettingsActivity" android:exported="false" />
-        <activity android:name=".OnboardingActivity" android:exported="false" />
+        <activity
+            android:name=".OnboardingActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".TermsActivity" android:exported="false" />
         <activity android:name=".PrivacyPolicyActivity" android:exported="false" />
         <activity android:name=".OrderDetailsActivity" android:exported="false" />

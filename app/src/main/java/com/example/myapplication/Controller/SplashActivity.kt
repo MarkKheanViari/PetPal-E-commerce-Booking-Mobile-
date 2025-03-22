@@ -3,7 +3,6 @@ package com.example.myapplication
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.Controller.WelcomeActivity
 
@@ -13,28 +12,16 @@ class SplashActivity : AppCompatActivity() {
 
         val sharedPrefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
 
-        // Check if the user has seen the intro screens.
-        val hasSeenIntro = sharedPrefs.getBoolean("hasSeenIntro", false)
-
         // Check if the user is already logged in.
         val isLoggedIn = sharedPrefs.getBoolean("isLoggedIn", false)
 
-        Log.d("SplashActivity", "hasSeenIntro = $hasSeenIntro, isLoggedIn = $isLoggedIn")
-
-        when {
-            isLoggedIn -> {
-                // User is already logged in, go directly to the main activity.
-                startActivity(Intent(this, MainActivity::class.java))
-            }
-            hasSeenIntro -> {
-                // User has seen intro but not logged in, go to login.
-                startActivity(Intent(this, WelcomeActivity::class.java))
-            }
-            else -> {
-                // First time user, show onboarding.
-                startActivity(Intent(this, OnboardingActivity::class.java))
-            }
+        if (isLoggedIn) {
+            // User is logged in, go directly to MainActivity.
+            startActivity(Intent(this, MainActivity::class.java))
+        } else {
+            // User is not logged in, show the onboarding (intro fragment) first.
+            startActivity(Intent(this, OnboardingActivity::class.java))
         }
-        finish()
+        finish() // Prevents returning to the SplashActivity when pressing back.
     }
 }
