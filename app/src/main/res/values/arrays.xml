@@ -4,4 +4,16 @@
         <item>COD</item>
         <item>GCASH</item>
     </string-array>
+
+    <string-array name="appointment_times">
+        <item>8:00 AM</item>
+        <item>9:00 AM</item>
+        <item>10:00 AM</item>
+        <item>11:00 AM</item>
+        <item>12:00 PM</item>
+        <item>1:00 PM</item>
+        <item>2:00 PM</item>
+        <item>3:00 PM</item>
+        <item>4:00 PM</item>
+    </string-array>
 </resources>

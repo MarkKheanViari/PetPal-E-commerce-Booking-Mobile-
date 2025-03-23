@@ -24,6 +24,8 @@ android:elevation="4dp">
     android:gravity="center"
     android:paddingBottom="16dp"/>
 
+
+
 <TextView
     android:id="@+id/tvReceiptServiceType"
     android:layout_width="match_parent"
@@ -87,6 +89,13 @@ android:elevation="4dp">
     android:text="Date: "
     android:textSize="16sp"
     android:paddingBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/tvReceiptTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Time: "
+        android:textSize="16sp"/>
 
 <TextView
     android:id="@+id/tvReceiptPaymentMethod"

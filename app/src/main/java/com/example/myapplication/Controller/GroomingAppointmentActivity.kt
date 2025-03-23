@@ -30,6 +30,8 @@ class GroomingAppointmentActivity : AppCompatActivity() {
     private lateinit var etNotes: EditText
     private lateinit var btnPickDate: Button
     private lateinit var spinnerPaymentMethod: Spinner
+    private var selectedTime: String? = null
+    private lateinit var spinnerPickTime: Spinner
     private lateinit var groomTypeField: EditText
     private var selectedDate: String? = null
     private lateinit var servicePrice: String
@@ -93,11 +95,29 @@ class GroomingAppointmentActivity : AppCompatActivity() {
             Log.d("Appointment", "Schedule Appointment clicked")
             submitAppointment()
         }
+
+        spinnerPickTime = findViewById(R.id.spinnerPickTime)
+        spinnerPickTime.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                selectedTime = parent.getItemAtPosition(position).toString()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                selectedTime = null
+            }
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         handleDeepLink(intent)
+    }
+
+    private fun convertTo24HourFormat(time: String): String {
+        val (hourMin, period) = time.split(" ")
+        var (hour, min) = hourMin.split(":").map { it.toInt() }
+        if (period == "PM" && hour != 12) hour += 12
+        if (period == "AM" && hour == 12) hour = 0
+        return String.format("%02d:%02d:00", hour, min)
     }
 
     private fun handleDeepLink(intent: Intent?) {
@@ -133,35 +153,38 @@ class GroomingAppointmentActivity : AppCompatActivity() {
             return
         }
 
-        // Auto-fill address & phone number if blank
+        if (selectedTime.isNullOrEmpty()) {
+            Toast.makeText(this, "Please select a time!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val address = if (etAddress.text.toString().trim().isEmpty()) savedLocation else etAddress.text.toString().trim()
         val phoneNumber = if (etPhone.text.toString().trim().isEmpty()) savedPhoneNumber else etPhone.text.toString().trim()
+        val appointmentTime = convertTo24HourFormat(selectedTime!!)
 
-        // Prepare appointment data
         val params = mapOf(
             "mobile_user_id" to mobileUserId,
-            "service_type" to "Grooming",
-            "service_name" to groomTypeField.text.toString().trim(),
+            "service_type" to "Grooming", // "Veterinary" in VeterinaryAppointmentActivity
+            "service_name" to groomTypeField.text.toString().trim(), // checkupTypeField in Veterinary
             "name" to etName.text.toString().trim(),
             "address" to (address ?: ""),
             "phone_number" to (phoneNumber ?: ""),
             "pet_name" to etPetName.text.toString().trim(),
             "pet_breed" to etPetBreed.text.toString().trim(),
             "appointment_date" to selectedDate!!,
+            "appointment_time" to appointmentTime,
             "payment_method" to spinnerPaymentMethod.selectedItem.toString().trim(),
             "notes" to etNotes.text.toString().trim(),
             "price" to servicePrice
         )
 
         val jsonObject = JSONObject(params)
-
-        // Check payment method
         val paymentMethod = spinnerPaymentMethod.selectedItem.toString().trim()
         Log.d("Appointment", "Selected Payment Method: '$paymentMethod'")
 
         if (paymentMethod.equals("GCASH", ignoreCase = true)) {
             Log.d("Appointment", "GCash payment method selected, initiating PayMongo flow")
-            val url = "http://192.168.1.12/backend/paymongo_appointment_checkout.php"
+            val url = "http://192.168.1.65/backend/paymongo_appointment_checkout.php"
             val request = JsonObjectRequest(
                 Request.Method.POST, url, jsonObject,
                 { response ->
@@ -196,7 +219,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
             Volley.newRequestQueue(this).add(request)
         } else {
             Log.d("Appointment", "Non-GCash payment method selected: $paymentMethod, using schedule_appointment.php")
-            val url = "http://192.168.1.12/backend/schedule_appointment.php"
+            val url = "http://192.168.1.65/backend/schedule_appointment.php"
             val request = JsonObjectRequest(
                 Request.Method.POST, url, jsonObject,
                 { response ->
@@ -247,6 +270,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         dialog.findViewById<TextView>(R.id.tvReceiptPetName).text = "Pet Name: ${params["pet_name"] ?: "N/A"}"
         dialog.findViewById<TextView>(R.id.tvReceiptPetBreed).text = "Pet Breed: ${params["pet_breed"] ?: "N/A"}"
         dialog.findViewById<TextView>(R.id.tvReceiptDate).text = "Date: ${params["appointment_date"] ?: "N/A"}"
+        dialog.findViewById<TextView>(R.id.tvReceiptTime).text = "Time: $selectedTime"
         dialog.findViewById<TextView>(R.id.tvReceiptPaymentMethod).text = "Payment Method: ${params["payment_method"] ?: "N/A"}"
         dialog.findViewById<TextView>(R.id.tvReceiptNotes).text = "Notes: ${params["notes"] ?: "N/A"}"
 
@@ -266,6 +290,8 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         etNotes.text.clear()
         btnPickDate.text = "Pick Date"
         spinnerPaymentMethod.setSelection(0)
+        spinnerPickTime.setSelection(0)
         selectedDate = null
+        selectedTime = null
     }
 }
