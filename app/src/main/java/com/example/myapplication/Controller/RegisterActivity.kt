@@ -94,7 +94,7 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
 
-            if (password.length < 6 || password.length > 16) { // Fixed password length validation
+            if (password.length < 6 || password.length > 16) {
                 passwordInput.error = "Password must be between 6 to 16 characters"
                 passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
                 isValid = false
@@ -134,8 +134,6 @@ class RegisterActivity : AppCompatActivity() {
                 if (username.isBlank()) {
                     usernameInput.error = "Username is Required"
                     usernameInput.setBackgroundResource(R.drawable.edittext_error_background)
-                } else {
-                    usernameInput.setBackgroundResource(R.drawable.login_design)
                 }
             }
         }
@@ -146,8 +144,6 @@ class RegisterActivity : AppCompatActivity() {
                 if (email.isBlank()) {
                     emailInput.error = "Email is Required"
                     emailInput.setBackgroundResource(R.drawable.edittext_error_background)
-                } else {
-                    emailInput.setBackgroundResource(R.drawable.login_design)
                 }
             }
         }
@@ -158,8 +154,6 @@ class RegisterActivity : AppCompatActivity() {
                 if (location.isBlank()) {
                     locationInput.error = "Location is Required"
                     locationInput.setBackgroundResource(R.drawable.edittext_error_background)
-                } else {
-                    locationInput.setBackgroundResource(R.drawable.login_design)
                 }
             }
         }
@@ -170,8 +164,6 @@ class RegisterActivity : AppCompatActivity() {
                 if (age.isBlank()) {
                     ageInput.error = "Age is Required"
                     ageInput.setBackgroundResource(R.drawable.edittext_error_background)
-                } else {
-                    ageInput.setBackgroundResource(R.drawable.login_design)
                 }
             }
         }
@@ -182,8 +174,6 @@ class RegisterActivity : AppCompatActivity() {
                 if (contact.isBlank()) {
                     contactInput.error = "Contact Number is Required"
                     contactInput.setBackgroundResource(R.drawable.edittext_error_background)
-                } else {
-                    contactInput.setBackgroundResource(R.drawable.login_design)
                 }
             }
         }
@@ -194,8 +184,6 @@ class RegisterActivity : AppCompatActivity() {
                 if (password.isBlank()) {
                     passwordInput.error = "Password is Required"
                     passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
-                } else {
-                    passwordInput.setBackgroundResource(R.drawable.login_design)
                 }
             }
         }
@@ -206,8 +194,6 @@ class RegisterActivity : AppCompatActivity() {
                 if (confirmPassword.isBlank()) {
                     confirmPasswordInput.error = "Confirm Password is Required"
                     confirmPasswordInput.setBackgroundResource(R.drawable.edittext_error_background)
-                } else {
-                    confirmPasswordInput.setBackgroundResource(R.drawable.login_design)
                 }
             }
         }
@@ -215,37 +201,37 @@ class RegisterActivity : AppCompatActivity() {
         // Text change listeners to clear errors
         usernameInput.addTextChangedListener {
             usernameInput.error = null
-            usernameInput.setBackgroundResource(R.drawable.login_design)
+            usernameInput.setBackgroundResource(R.drawable.login_design_selector)
         }
 
         emailInput.addTextChangedListener {
             emailInput.error = null
-            emailInput.setBackgroundResource(R.drawable.login_design)
+            emailInput.setBackgroundResource(R.drawable.login_design_selector)
         }
 
         locationInput.addTextChangedListener {
             locationInput.error = null
-            locationInput.setBackgroundResource(R.drawable.login_design)
+            locationInput.setBackgroundResource(R.drawable.login_design_selector)
         }
 
         contactInput.addTextChangedListener {
             contactInput.error = null
-            contactInput.setBackgroundResource(R.drawable.login_design)
+            contactInput.setBackgroundResource(R.drawable.login_design_selector)
         }
 
         ageInput.addTextChangedListener {
             ageInput.error = null
-            ageInput.setBackgroundResource(R.drawable.login_design)
+            ageInput.setBackgroundResource(R.drawable.login_design_selector)
         }
 
         passwordInput.addTextChangedListener {
             passwordInput.error = null
-            passwordInput.setBackgroundResource(R.drawable.login_design)
+            passwordInput.setBackgroundResource(R.drawable.login_design_selector)
         }
 
         confirmPasswordInput.addTextChangedListener {
             confirmPasswordInput.error = null
-            confirmPasswordInput.setBackgroundResource(R.drawable.login_design)
+            confirmPasswordInput.setBackgroundResource(R.drawable.login_design_selector)
         }
 
         // Click listeners for Terms, Privacy Policy, and Login suggestion

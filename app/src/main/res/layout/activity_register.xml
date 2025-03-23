@@ -9,7 +9,6 @@
     android:background="@color/white"
     tools:context=".RegisterActivity">
 
-    <!-- AppBarLayout for sticky header -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -17,7 +16,6 @@
         android:background="@color/white"
         app:elevation="0dp">
 
-        <!-- Top Section with Back Button and Sticky TextViews -->
         <LinearLayout
             android:id="@+id/toplayout"
             android:layout_width="match_parent"
@@ -25,7 +23,7 @@
             android:orientation="vertical"
             android:gravity="start"
             android:padding="16dp"
-            app:layout_scrollFlags="noScroll"> <!-- Disable scrolling for AppBarLayout -->
+            app:layout_scrollFlags="noScroll">
 
             <ImageView
                 android:id="@+id/backBtn"
@@ -34,7 +32,6 @@
                 android:src="@drawable/back_button"
                 android:contentDescription="@string/back_buttonDesc" />
 
-            <!-- Sticky TextViews -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -63,7 +60,6 @@
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -75,394 +71,378 @@
         android:scrollbarTrackVertical="@drawable/scrollbar_track"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingHorizontal="16dp">
-
-        <!-- Dog Image (Scrollable) -->
-        <ImageView
-            android:layout_width="149dp"
-            android:layout_height="159dp"
-            android:contentDescription="@string/design_desc"
-            android:src="@drawable/doggy"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp" />
-
-        <!-- User Input Fields -->
         <LinearLayout
-            android:id="@+id/user_inputs1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="10dp">
+            android:paddingHorizontal="16dp">
 
-            <!-- Username Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Username"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:fontFamily="@font/alata" />
+            <ImageView
+                android:layout_width="149dp"
+                android:layout_height="159dp"
+                android:contentDescription="@string/design_desc"
+                android:src="@drawable/doggy"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp" />
 
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="10dp"/>
-
-            <EditText
-                android:id="@+id/usernameInput"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@drawable/login_design"
-                android:fontFamily="@font/alata"
-                android:hint="  Enter your username"
-                android:inputType="text"
-                android:lines="1"
-                android:paddingHorizontal="20dp"
-                android:textColor="@color/black"
-                android:textSize="15sp"/>
-
-            <!-- Spacer -->
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="15dp"/>
-
-            <!-- Email and Address Section -->
             <LinearLayout
+                android:id="@+id/user_inputs1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
+                android:orientation="vertical"
+                android:paddingTop="10dp">
 
-                <!-- Email Column -->
-                <LinearLayout
-                    android:layout_width="0dp"
+                <!-- Username Section -->
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:text="Username"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/alata" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="10dp"/>
+
+                <EditText
+                    android:id="@+id/usernameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/login_design_selector"
+                    android:fontFamily="@font/alata"
+                    android:hint="  Enter your username"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:paddingHorizontal="20dp"
+                    android:textColor="@color/black"
+                    android:textSize="15sp"/>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="15dp"/>
+
+                <!-- Email and Address Section -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Email"
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
-                        android:fontFamily="@font/alata" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Email"
+                            android:textColor="@color/black"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/alata" />
+
+                        <Space
+                            android:layout_width="match_parent"
+                            android:layout_height="10dp"/>
+
+                        <EditText
+                            android:id="@+id/emailInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:background="@drawable/login_design_selector"
+                            android:fontFamily="@font/alata"
+                            android:hint="  Enter your email"
+                            android:inputType="textEmailAddress"
+                            android:lines="1"
+                            android:maxLength="50"
+                            android:paddingHorizontal="20dp"
+                            android:textColor="@color/black"
+                            android:textSize="15sp"/>
+                    </LinearLayout>
 
                     <Space
-                        android:layout_width="match_parent"
-                        android:layout_height="10dp"/>
+                        android:layout_width="10dp"
+                        android:layout_height="match_parent"/>
 
-                    <EditText
-                        android:id="@+id/emailInput"
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:background="@drawable/login_design"
-                        android:fontFamily="@font/alata"
-                        android:hint="  Enter your email"
-                        android:inputType="textEmailAddress"
-                        android:lines="1"
-                        android:maxLength="50"
-                        android:paddingHorizontal="20dp"
-                        android:textColor="@color/black"
-                        android:textSize="15sp"/>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Address"
+                            android:textColor="@color/black"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/alata" />
+
+                        <Space
+                            android:layout_width="match_parent"
+                            android:layout_height="10dp"/>
+
+                        <EditText
+                            android:id="@+id/locationInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:background="@drawable/login_design_selector"
+                            android:fontFamily="@font/alata"
+                            android:hint="  Enter your location"
+                            android:inputType="text"
+                            android:lines="1"
+                            android:maxLength="100"
+                            android:paddingHorizontal="20dp"
+                            android:textColor="@color/black"
+                            android:textSize="15sp"/>
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
-                    android:layout_width="10dp"
-                    android:layout_height="match_parent"/>
+                    android:layout_width="match_parent"
+                    android:layout_height="15dp"/>
 
-                <!-- Address Column -->
+                <!-- Contact and Age Section -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Address"
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
-                        android:fontFamily="@font/alata" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Contact Number"
+                            android:textColor="@color/black"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/alata" />
+
+                        <Space
+                            android:layout_width="match_parent"
+                            android:layout_height="10dp"/>
+
+                        <EditText
+                            android:id="@+id/contactInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:background="@drawable/login_design_selector"
+                            android:fontFamily="@font/alata"
+                            android:hint="  Enter your contact number"
+                            android:inputType="phone"
+                            android:lines="1"
+                            android:maxLength="11"
+                            android:paddingHorizontal="20dp"
+                            android:textColor="@color/black"
+                            android:textSize="15sp"/>
+                    </LinearLayout>
 
                     <Space
-                        android:layout_width="match_parent"
-                        android:layout_height="10dp"/>
+                        android:layout_width="10dp"
+                        android:layout_height="match_parent"/>
 
-                    <EditText
-                        android:id="@+id/locationInput"
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:background="@drawable/login_design"
-                        android:fontFamily="@font/alata"
-                        android:hint="  Enter your location"
-                        android:inputType="text"
-                        android:lines="1"
-                        android:maxLength="100"
-                        android:paddingHorizontal="20dp"
-                        android:textColor="@color/black"
-                        android:textSize="15sp"/>
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Spacer -->
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="15dp"/>
-
-            <!-- Contact and Age Section -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
-
-                <!-- Contact Number Column -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Contact Number"
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
-                        android:fontFamily="@font/alata" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                    <Space
-                        android:layout_width="match_parent"
-                        android:layout_height="10dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Age"
+                            android:textColor="@color/black"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/alata" />
 
-                    <EditText
-                        android:id="@+id/contactInput"
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:background="@drawable/login_design"
-                        android:fontFamily="@font/alata"
-                        android:hint="  Enter your contact number"
-                        android:inputType="phone"
-                        android:lines="1"
-                        android:maxLength="11"
-                        android:paddingHorizontal="20dp"
-                        android:textColor="@color/black"
-                        android:textSize="15sp"/>
+                        <Space
+                            android:layout_width="match_parent"
+                            android:layout_height="10dp"/>
+
+                        <EditText
+                            android:id="@+id/ageInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:background="@drawable/login_design_selector"
+                            android:fontFamily="@font/alata"
+                            android:hint="  Enter your age"
+                            android:inputType="number"
+                            android:lines="1"
+                            android:maxLength="2"
+                            android:paddingHorizontal="20dp"
+                            android:textColor="@color/black"
+                            android:textSize="15sp"/>
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
-                    android:layout_width="10dp"
-                    android:layout_height="match_parent"/>
+                    android:layout_width="match_parent"
+                    android:layout_height="15dp"/>
 
-                <!-- Age Column -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Age"
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
-                        android:fontFamily="@font/alata" />
-
-                    <Space
-                        android:layout_width="match_parent"
-                        android:layout_height="10dp"/>
-
-                    <EditText
-                        android:id="@+id/ageInput"
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:background="@drawable/login_design"
-                        android:fontFamily="@font/alata"
-                        android:hint="  Enter your age"
-                        android:inputType="number"
-                        android:lines="1"
-                        android:maxLength="2"
-                        android:paddingHorizontal="20dp"
-                        android:textColor="@color/black"
-                        android:textSize="15sp"/>
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Spacer -->
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="15dp"/>
-
-            <!-- Password Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Password"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:fontFamily="@font/alata" />
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="10dp"/>
-
-            <EditText
-                android:id="@+id/passwordInput"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@drawable/login_design"
-                android:fontFamily="@font/alata"
-                android:hint="  Enter your password"
-                android:inputType="textPassword"
-                android:lines="1"
-                android:maxLength="16"
-                android:textColor="@color/black"
-                android:textSize="15sp"
-                android:paddingHorizontal="20dp"
-                android:drawableEnd="@drawable/show_password"/>
-
-            <!-- Spacer -->
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="15dp"/>
-
-            <!-- Confirm Password Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Confirm Password"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:fontFamily="@font/alata" />
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="10dp"/>
-
-            <EditText
-                android:id="@+id/confirmPasswordInput"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@drawable/login_design"
-                android:fontFamily="@font/alata"
-                android:hint="  Enter your password"
-                android:inputType="textPassword"
-                android:lines="1"
-                android:maxLength="16"
-                android:textColor="@color/black"
-                android:textSize="15sp"
-                android:paddingHorizontal="20dp"
-                android:drawableEnd="@drawable/show_password"/>
-
-            <!-- Terms and Conditions and Privacy Policy -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="start|center_vertical">
-
-                <CheckBox
-                    android:id="@+id/termsCheckbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="I accept "
-                    android:textSize="13sp"
-                    android:fontFamily="@font/alata" />
-
-                <TextView
-                    android:id="@+id/termsLink"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Terms and Conditions"
-                    android:textColor="@color/smth_orange"
-                    android:textSize="13sp"
-                    android:fontFamily="@font/alata" />
-
+                <!-- Password Section -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=" and "
-                    android:textColor="@color/smth_black"
-                    android:textSize="13sp"
+                    android:text="Password"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
                     android:fontFamily="@font/alata" />
 
-                <TextView
-                    android:id="@+id/privacyPolicyLink"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Privacy Policy"
-                    android:textColor="@color/smth_orange"
-                    android:textSize="13sp"
-                    android:fontFamily="@font/alata" />
-            </LinearLayout>
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"/>
 
-            <!-- Spacer -->
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="20dp"/>
-
-            <!-- Register Button -->
-            <Button
-                android:id="@+id/registerButton"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginEnd="32dp"
-                android:background="@drawable/button_background"
-                android:text="SIGN UP"
-                android:textAllCaps="true"
-                android:textColor="@android:color/white"
-                android:fontFamily="@font/alata"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:elevation="4dp" />
-
-            <!-- Spacer -->
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="10dp"/>
-
-            <!-- Login Suggestion -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/login_suggestion"
+                <EditText
+                    android:id="@+id/passwordInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/login_design_selector"
+                    android:fontFamily="@font/alata"
+                    android:hint="  Enter your password"
+                    android:inputType="textPassword"
+                    android:lines="1"
+                    android:maxLength="16"
                     android:textColor="@color/black"
                     android:textSize="15sp"
+                    android:paddingHorizontal="20dp"
+                    android:drawableEnd="@drawable/show_password"/>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="15dp"/>
+
+                <!-- Confirm Password Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Confirm Password"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
                     android:fontFamily="@font/alata" />
 
                 <Space
-                    android:layout_width="5dp"
-                    android:layout_height="wrap_content"/>
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"/>
 
-                <TextView
-                    android:id="@+id/loginSugg"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Log In"
-                    android:textColor="@color/smth_orange"
+                <EditText
+                    android:id="@+id/confirmPasswordInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/login_design_selector"
+                    android:fontFamily="@font/alata"
+                    android:hint="  Enter your password"
+                    android:inputType="textPassword"
+                    android:lines="1"
+                    android:maxLength="16"
+                    android:textColor="@color/black"
                     android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/alata" />
-            </LinearLayout>
+                    android:paddingHorizontal="20dp"
+                    android:drawableEnd="@drawable/show_password"/>
 
-            <!-- Final Spacer -->
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="25dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="start|center_vertical">
+
+                    <CheckBox
+                        android:id="@+id/termsCheckbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="I accept "
+                        android:textSize="13sp"
+                        android:fontFamily="@font/alata" />
+
+                    <TextView
+                        android:id="@+id/termsLink"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Terms and Conditions"
+                        android:textColor="@color/smth_orange"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/alata" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" and "
+                        android:textColor="@color/smth_black"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/alata" />
+
+                    <TextView
+                        android:id="@+id/privacyPolicyLink"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Privacy Policy"
+                        android:textColor="@color/smth_orange"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/alata" />
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"/>
+
+                <Button
+                    android:id="@+id/registerButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginEnd="32dp"
+                    android:background="@drawable/button_background"
+                    android:text="SIGN UP"
+                    android:textAllCaps="true"
+                    android:textColor="@android:color/white"
+                    android:fontFamily="@font/alata"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:elevation="4dp" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/login_suggestion"
+                        android:textColor="@color/black"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/alata" />
+
+                    <Space
+                        android:layout_width="5dp"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/loginSugg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Log In"
+                        android:textColor="@color/smth_orange"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/alata" />
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="25dp"/>
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

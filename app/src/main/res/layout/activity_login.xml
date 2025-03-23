@@ -70,12 +70,12 @@
             android:layout_width="match_parent"
             android:layout_height="10dp"/>
 
-        <!-- Username Input wrapped in TextInputLayout -->
+        <!-- Username Input -->
         <EditText
             android:id="@+id/usernameInput"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="@drawable/login_design"
+            android:background="@drawable/login_design_selector"
             android:fontFamily="@font/alata"
             android:hint="    Enter your username"
             android:inputType="text"
@@ -84,6 +84,7 @@
             android:paddingEnd="20dp"
             android:textColor="@color/black"
             android:textSize="15sp"/>
+
         <Space
             android:layout_width="wrap_content"
             android:layout_height="25dp"/>
@@ -106,7 +107,7 @@
             android:id="@+id/passwordInput"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="@drawable/login_design"
+            android:background="@drawable/login_design_selector"
             android:fontFamily="@font/alata"
             android:hint="    Enter your password"
             android:inputType="textPassword"

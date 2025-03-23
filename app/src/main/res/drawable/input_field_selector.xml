@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Focused state -->
+    <item android:state_focused="true">
+        <shape>
+            <stroke
+                android:width="2dp"
+                android:color="#CF7627" /> <!-- Orange when focused -->
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+
+    <!-- Default state -->
+    <item>
+        <shape>
+            <stroke
+                android:width="1dp"
+                android:color="#CCCCCC" /> <!-- Gray when unfocused -->
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+</selector>

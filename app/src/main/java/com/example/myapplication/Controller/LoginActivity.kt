@@ -100,11 +100,11 @@ class LoginActivity : AppCompatActivity() {
 
         // Remove error when user fixes input
         usernameInput.addTextChangedListener {
-            usernameInput.setBackgroundResource(R.drawable.login_design)
+            usernameInput.setBackgroundResource(R.drawable.login_design_selector)
             usernameInput.error = null
         }
         passwordInput.addTextChangedListener {
-            passwordInput.setBackgroundResource(R.drawable.login_design)
+            passwordInput.setBackgroundResource(R.drawable.login_design_selector)
             passwordInput.error = null
         }
 
