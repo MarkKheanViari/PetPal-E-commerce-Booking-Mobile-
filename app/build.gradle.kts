@@ -50,6 +50,12 @@ android {
 }
 
 dependencies {
+
+    implementation ("com.github.bumptech.glide:glide:4.12.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    implementation ("com.android.volley:volley:1.2.1")
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
     // Twilio for SMS
     implementation("com.twilio.sdk:twilio:9.2.3")
 

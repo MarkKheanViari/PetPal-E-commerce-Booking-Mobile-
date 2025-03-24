@@ -2,12 +2,17 @@ package com.example.myapplication
 
 import android.content.Context
 import android.content.Intent
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.BackgroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 
 class ProductAdapter(
     private val context: Context,
@@ -15,12 +20,15 @@ class ProductAdapter(
     private val wishlistListener: (Product) -> Unit
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
+    private var lastQuery: String? = null
+
     inner class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val itemName: TextView = view.findViewById(R.id.productName)
         val itemPrice: TextView = view.findViewById(R.id.productPrice)
         val itemStock: TextView = view.findViewById(R.id.productStock)
         val itemImage: ImageView = view.findViewById(R.id.productImage)
         val buyNowButton: Button = view.findViewById(R.id.buyNowButton)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
@@ -33,19 +41,43 @@ class ProductAdapter(
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = products[position]
 
-        // Display product details
-        holder.itemName.text = product.name
-        holder.itemPrice.text = "₱${product.price}"
-        holder.itemStock.text = "Stock: ${product.quantity}"
+        holder.itemName.text = if (!lastQuery.isNullOrBlank()) {
+            SpannableString(product.name).apply {
+                val query = lastQuery!!.lowercase()
+                val start = product.name.lowercase().indexOf(query)
+                if (start != -1) {
+                    setSpan(
+                        BackgroundColorSpan(ContextCompat.getColor(context, android.R.color.holo_orange_light)),
+                        start,
+                        start + query.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+            }
+        } else {
+            product.name
+        }
 
-        // Load image with Glide
+        holder.itemPrice.text = try {
+            "₱${String.format("%,.2f", product.price.toFloat())}" // Fixed formatting
+        } catch (e: NumberFormatException) {
+            "₱${product.price}"
+        }
+
+        holder.itemStock.text = when {
+            product.quantity > 0 -> "Stock: ${product.quantity}"
+            product.quantity == 0 -> "Out of Stock"
+            else -> "Stock: N/A"
+        }
+
         Glide.with(context)
             .load(product.imageUrl)
-            .placeholder(R.drawable.cat)           // your placeholder drawable
-            .error(R.drawable.oranage_header)      // your error drawable
+            .placeholder(R.drawable.cat)
+            .error(R.drawable.oranage_header)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .dontAnimate()
             .into(holder.itemImage)
 
-        // Open Product Details on item click
         holder.itemView.setOnClickListener {
             val intent = Intent(context, ProductDetailsActivity::class.java).apply {
                 putExtra("productId", product.id)
@@ -57,12 +89,11 @@ class ProductAdapter(
             context.startActivity(intent)
         }
 
-        // "Buy Now" -> create cart item & go to CheckoutActivity
         holder.buyNowButton.setOnClickListener {
             val productMap = HashMap<String, String>().apply {
                 put("product_id", product.id.toString())
                 put("name", product.name)
-                put("price", product.price.toString())
+                put("price", product.price)
                 put("image", product.imageUrl)
                 put("quantity", "1")
             }
@@ -72,11 +103,17 @@ class ProductAdapter(
             }
             context.startActivity(intent)
         }
+
+        holder.buyNowButton.isEnabled = product.quantity > 0
+        holder.buyNowButton.alpha = if (product.quantity > 0) 1.0f else 0.5f
     }
 
-    fun updateProducts(newProducts: List<Product>) {
+    fun updateProducts(newProducts: List<Product>, query: String? = null) {
+        lastQuery = query
         products.clear()
         products.addAll(newProducts)
         notifyDataSetChanged()
     }
+
+    fun getProducts(): List<Product> = products.toList()
 }

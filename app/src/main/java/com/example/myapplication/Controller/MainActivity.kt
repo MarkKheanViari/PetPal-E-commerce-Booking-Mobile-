@@ -24,9 +24,9 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.myapplication.Controller.SettingsActivity
 import com.example.myapplication.Controller.WelcomeActivity
-import com.example.myapplication.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.*
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -44,24 +44,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private val allProducts = mutableListOf<Product>()
     private val displayedProducts = mutableListOf<Product>()
+    private var searchJob: Job? = null
+    private val searchScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Initialize bottom navigation.
         bottomNavigation = findViewById(R.id.bottomNavigation)
         bottomNavigation.selectedItemId = R.id.nav_products
 
-        // Set initial UI.
         showMainUI(true)
         findViewById<TextView>(R.id.toolbarTitle).text = "Catalog"
-
-        // Search bar logic.
-        val searchBar = findViewById<EditText>(R.id.search_bar)
-        searchBar.setOnFocusChangeListener { _, hasFocus ->
-            bottomNavigation.visibility = if (hasFocus) View.GONE else View.VISIBLE
-        }
 
         sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
@@ -69,25 +63,22 @@ class MainActivity : AppCompatActivity() {
         rootLayout = findViewById(R.id.rootLayout)
         checkUserAndResetIfNeeded()
 
-        // Drawer layout & menu icon.
         drawerLayout = findViewById(R.id.drawer_layout)
         val menuIcon = findViewById<ImageView>(R.id.menuIcon)
         menuIcon.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
 
-        // NavigationView header.
         val navView = findViewById<NavigationView>(R.id.nav_view)
         val headerView = navView.getHeaderView(0)
         val headerName = headerView.findViewById<TextView>(R.id.headerName)
         val headerEmail = headerView.findViewById<TextView>(R.id.headerEmail)
-        val sharedPrefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
-        headerName.text = sharedPrefs.getString("username", "User Name")
-        headerEmail.text = sharedPrefs.getString("user_email", "user@example.com")
+        headerName.text = sharedPreferences.getString("username", "User Name")
+        headerEmail.text = sharedPreferences.getString("user_email", "user@example.com")
 
         headerView.setOnClickListener {
             showMainUI(false)
-            loadFragment(ProfileFragment(), true) // Load into fragment_container1.
+            loadFragment(ProfileFragment(), true)
             drawerLayout.closeDrawer(GravityCompat.START)
         }
 
@@ -126,10 +117,8 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        // Cart button in the toolbar.
         val viewCartButton = findViewById<ImageView>(R.id.viewCartButton)
         viewCartButton.setOnClickListener {
-            // Block cart access if the user is a guest.
             val isGuest = sharedPreferences.getBoolean("isGuest", false)
             if (isGuest) {
                 Toast.makeText(this, "Guest users cannot order. Please log in to access your cart.", Toast.LENGTH_SHORT).show()
@@ -138,7 +127,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Setup products RecyclerView and adapter.
         productsRecyclerView = findViewById(R.id.productsRecyclerView)
         productsRecyclerView.layoutManager = GridLayoutManager(this, 2)
         productAdapter = ProductAdapter(this, displayedProducts) { product ->
@@ -148,34 +136,10 @@ class MainActivity : AppCompatActivity() {
 
         setupCategoryButtons()
         setupBottomNavigation()
+        setupSearchBar()
 
-        // Search bar behavior.
-        searchBar.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
-                hideKeyboardAndClearFocus(searchBar)
-                true
-            } else {
-                false
-            }
-        }
-        searchBar.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                filterProducts(s.toString())
-            }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-
-        rootLayout.setOnClickListener {
-            if (searchBar.hasFocus()) {
-                hideKeyboardAndClearFocus(searchBar)
-            }
-        }
-
-        // Fetch initial products.
         fetchProducts()
 
-        // Check if the user is logged in or browsing as a guest.
         val mobileUserId = sharedPreferences.getInt("user_id", -1)
         val isGuest = sharedPreferences.getBoolean("isGuest", false)
         if (mobileUserId == -1 && !isGuest) {
@@ -188,6 +152,86 @@ class MainActivity : AppCompatActivity() {
         if (mobileUserId != -1) {
             checkForApprovedAppointments(mobileUserId)
         }
+    }
+
+    private fun setupSearchBar() {
+        val searchBar = findViewById<EditText>(R.id.search_bar)
+        searchBar.setOnFocusChangeListener { _, hasFocus ->
+            bottomNavigation.visibility = if (hasFocus) View.GONE else View.VISIBLE
+        }
+
+        searchBar.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                searchJob?.cancel()
+                searchJob = searchScope.launch {
+                    delay(300)
+                    val query = s.toString().trim()
+                    if (query.isNotEmpty()) {
+                        filterProducts(query)
+                    } else {
+                        displayedProducts.clear()
+                        displayedProducts.addAll(allProducts)
+                        productAdapter.updateProducts(ArrayList(displayedProducts))
+                    }
+                }
+            }
+        })
+
+        searchBar.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
+                hideKeyboardAndClearFocus(searchBar)
+                true
+            } else {
+                false
+            }
+        }
+
+        rootLayout.setOnClickListener {
+            if (searchBar.hasFocus()) {
+                hideKeyboardAndClearFocus(searchBar)
+            }
+        }
+    }
+
+    private fun filterProducts(query: String) {
+        val filteredList = allProducts.filter { product ->
+            val searchText = query.lowercase()
+            val nameMatch = product.name.lowercase().contains(searchText)
+            val descMatch = product.description.lowercase().contains(searchText)
+            val priceMatch = product.price.lowercase().contains(searchText)
+            val fuzzyMatch = levenshteinDistance(product.name.lowercase(), searchText) <= 3 && searchText.length > 2
+            nameMatch || descMatch || priceMatch || fuzzyMatch
+        }.sortedWith(compareBy(
+            { !it.name.lowercase().startsWith(query.lowercase()) },
+            { it.name }
+        ))
+
+        displayedProducts.clear()
+        displayedProducts.addAll(filteredList)
+        productAdapter.updateProducts(ArrayList(displayedProducts), query)
+
+        if (filteredList.isEmpty()) {
+            Toast.makeText(this, "No products found for '$query'", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun levenshteinDistance(s1: String, s2: String): Int {
+        val dp = Array(s1.length + 1) { IntArray(s2.length + 1) }
+        for (i in 0..s1.length) dp[i][0] = i
+        for (j in 0..s2.length) dp[0][j] = j
+        for (i in 1..s1.length) {
+            for (j in 1..s2.length) {
+                val cost = if (s1[i - 1] == s2[j - 1]) 0 else 1
+                dp[i][j] = minOf(
+                    dp[i - 1][j] + 1,
+                    dp[i][j - 1] + 1,
+                    dp[i - 1][j - 1] + cost
+                )
+            }
+        }
+        return dp[s1.length][s2.length]
     }
 
     override fun onBackPressed() {
@@ -218,7 +262,6 @@ class MainActivity : AppCompatActivity() {
         bottomNavigation.visibility = View.VISIBLE
     }
 
-    // When a guest tries to add a product to the wishlist, show a prompt instead.
     private fun addToWishlist(product: Product) {
         val isGuest = sharedPreferences.getBoolean("isGuest", false)
         if (isGuest) {
@@ -230,22 +273,11 @@ class MainActivity : AppCompatActivity() {
         startActivity(Intent(this, LikedProductsActivity::class.java))
     }
 
-    private fun filterProducts(query: String) {
-        val filteredList = allProducts.filter { product ->
-            product.name.contains(query, ignoreCase = true)
-        }
-        displayedProducts.clear()
-        displayedProducts.addAll(filteredList)
-        productAdapter.updateProducts(ArrayList(displayedProducts))
-    }
-
     private fun loadFragment(fragment: Fragment, useContainer1: Boolean = false) {
         val containerId = if (useContainer1) R.id.fragment_container1 else R.id.fragment_container
         val fragmentTag = fragment.javaClass.simpleName
         val existingFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
-        if (existingFragment != null && existingFragment.isAdded) {
-            return
-        }
+        if (existingFragment != null && existingFragment.isAdded) return
         supportFragmentManager.beginTransaction()
             .replace(containerId, fragment, fragmentTag)
             .addToBackStack(fragmentTag)
@@ -279,10 +311,7 @@ class MainActivity : AppCompatActivity() {
             Pair(R.id.trainingButton, "Training")
         )
 
-        // Store all buttons for easy access.
         val buttons = categories.map { (buttonId, _) -> findViewById<Button>(buttonId) }
-
-        // Set initial state: "All" button highlighted.
         buttons.forEach { button ->
             if (button.id == R.id.allButton) {
                 button.backgroundTintList = ContextCompat.getColorStateList(this, R.color.darker_orange)
@@ -293,19 +322,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Set click listeners.
         categories.forEach { (buttonId, category) ->
             val button = findViewById<Button>(buttonId)
             button.setOnClickListener {
-                // Reset all buttons.
                 buttons.forEach { btn ->
                     btn.backgroundTintList = ContextCompat.getColorStateList(this, R.color.light_smth)
                     btn.setTextColor(ContextCompat.getColor(this, R.color.black))
                 }
-                // Highlight the clicked button.
                 button.backgroundTintList = ContextCompat.getColorStateList(this, R.color.darker_orange)
                 button.setTextColor(ContextCompat.getColor(this, android.R.color.white))
-                // Fetch products by category.
                 supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                 showMainUI(true)
                 bottomNavigation.selectedItemId = R.id.nav_products
@@ -348,9 +373,7 @@ class MainActivity : AppCompatActivity() {
                 message += "❌ Your appointment for $serviceName on $appointmentDate has been **DECLINED**.\n\n"
             }
         }
-        if (message.isEmpty()) {
-            message = "No new appointment updates."
-        }
+        if (message.isEmpty()) message = "No new appointment updates."
         builder.setMessage(message)
         builder.setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
         builder.show()
@@ -359,7 +382,6 @@ class MainActivity : AppCompatActivity() {
     private fun setupBottomNavigation() {
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
             findViewById<TextView>(R.id.toolbarTitle).text = item.title
-
             when (item.itemId) {
                 R.id.nav_products -> {
                     showMainUI(true)
@@ -427,14 +449,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                val responseBody = response.body?.string()
-                if (responseBody.isNullOrEmpty()) {
-                    runOnUiThread {
-                        Toast.makeText(this@MainActivity, "❌ Empty response from server", Toast.LENGTH_SHORT).show()
-                    }
-                    return
-                }
-
+                val responseBody = response.body?.string() ?: return
                 try {
                     val json = JSONObject(responseBody)
                     if (!json.optBoolean("success", false)) return
@@ -505,17 +520,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                val responseData = response.body?.string()
-
-                if (responseData.isNullOrEmpty() || responseData.contains("\"products\":[]")) {
-                    runOnUiThread {
-                        progressBar.visibility = View.GONE
-                        productsRecyclerView.visibility = View.GONE
-                        noProductsContainer.visibility = View.VISIBLE
-                    }
-                    return
-                }
-
+                val responseData = response.body?.string() ?: return
                 try {
                     val jsonResponse = JSONObject(responseData)
                     if (!jsonResponse.optBoolean("success", false)) return
@@ -569,10 +574,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun doLogout() {
-        val sharedPrefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
-        sharedPrefs.edit().clear().apply()
+        sharedPreferences.edit().clear().apply()
         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
         startActivity(Intent(this, WelcomeActivity::class.java))
         finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        searchScope.cancel()
     }
 }

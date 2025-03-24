@@ -3,11 +3,15 @@ package com.example.myapplication
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 
 class ProfileFragment : Fragment() {
+
+    private lateinit var userEmailTextView: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -21,16 +25,12 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Retrieve the username and email from SharedPreferences
-        val sharedPrefs = requireContext().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-        val savedUserName = sharedPrefs.getString("username", "Default Name")
-        val savedUserEmail = sharedPrefs.getString("user_email", "user@example.com")
-
-        // Set the retrieved data to the TextViews
+        // Initialize the TextViews
         val userNameTextView = view.findViewById<TextView>(R.id.user_name)
-        val userEmailTextView = view.findViewById<TextView>(R.id.user_email)
-        userNameTextView.text = savedUserName
-        userEmailTextView.text = savedUserEmail
+        userEmailTextView = view.findViewById<TextView>(R.id.user_email)
+
+        // Update the UI with the latest data
+        updateUserProfile()
 
         // Set up click listeners for additional functions
         view.findViewById<TextView>(R.id.scheduled_services).setOnClickListener {
@@ -46,12 +46,27 @@ class ProfileFragment : Fragment() {
             startActivity(Intent(requireContext(), AboutActivity::class.java))
         }
         view.findViewById<TextView>(R.id.liked_products).setOnClickListener {
-            startActivity(Intent(requireContext(),LikedProductsActivity::class.java))
+            startActivity(Intent(requireContext(), LikedProductsActivity::class.java))
         }
         view.findViewById<TextView>(R.id.profile_details).setOnClickListener {
-            startActivity(Intent(requireContext(),ProfileActivity::class.java))
+            startActivity(Intent(requireContext(), ProfileActivity::class.java))
         }
+    }
 
+    override fun onResume() {
+        super.onResume()
+        // Refresh the email when the fragment resumes (e.g., after returning from ProfileActivity)
+        updateUserProfile()
+    }
 
+    private fun updateUserProfile() {
+        // Retrieve the username and email from SharedPreferences
+        val sharedPrefs = requireContext().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        val savedUserName = sharedPrefs.getString("username", "Default Name") ?: "Default Name"
+        val savedUserEmail = sharedPrefs.getString("user_email", "user@example.com") ?: "user@example.com"
+
+        // Set the retrieved data to the TextViews
+        view?.findViewById<TextView>(R.id.user_name)?.text = savedUserName
+        userEmailTextView.text = savedUserEmail
     }
 }
