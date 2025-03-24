@@ -117,6 +117,15 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
+        // --- Logout functionality from custom footer ---
+        // Find the footer logout TextView (from your drawer's custom footer layout)
+        val footerLogout = findViewById<TextView>(R.id.footerLogout)
+        footerLogout.setOnClickListener {
+            doLogout()
+            drawerLayout.closeDrawer(GravityCompat.START)
+        }
+        // --------------------------------------------------
+
         val viewCartButton = findViewById<ImageView>(R.id.viewCartButton)
         viewCartButton.setOnClickListener {
             val isGuest = sharedPreferences.getBoolean("isGuest", false)
