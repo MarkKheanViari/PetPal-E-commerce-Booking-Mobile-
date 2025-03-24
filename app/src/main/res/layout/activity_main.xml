@@ -77,7 +77,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- OPTIONAL: If you really want a small gap below the toolbar, keep it minimal (e.g. 8dp) -->
+        <!-- Optional gap below the toolbar -->
         <Space
             android:id="@+id/spacer"
             android:layout_width="match_parent"
@@ -115,7 +115,7 @@
                 android:inputType="text"
                 android:imeOptions="actionSearch"/>
 
-            <!-- OPTIONAL: A tiny gap below the search bar -->
+            <!-- Tiny gap below search bar -->
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="8dp" />
@@ -349,16 +349,50 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Navigation Drawer -->
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
+    <!-- Navigation Drawer Container -->
+    <LinearLayout
         android:layout_width="250dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@color/white"
-        app:headerLayout="@layout/nav_header"
-        app:itemIconTint="@color/darker_orange"
-        app:itemTextColor="@color/black"
-        app:menu="@menu/nav_menu" />
+        android:orientation="vertical"
+        android:background="@color/white">
+
+        <!-- NavigationView without footerLayout -->
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/nav_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            app:headerLayout="@layout/nav_header"
+            app:itemIconTint="@color/darker_orange"
+            app:itemTextColor="@color/black"
+            app:menu="@menu/nav_menu" />
+
+        <!-- Footer Layout -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:gravity="center_vertical"
+            android:background="@android:color/white">
+
+            <TextView
+                android:id="@+id/footerLogout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Logout"
+                android:drawableLeft="@drawable/logout"
+                android:drawablePadding="8dp"
+                android:drawableTint="@color/darker_orange"
+                android:drawableTintMode="src_in"
+
+                android:textColor="@color/black"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
+        </LinearLayout>
+
+
+
+    </LinearLayout>
 
 </androidx.drawerlayout.widget.DrawerLayout>

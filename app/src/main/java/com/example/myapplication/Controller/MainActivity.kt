@@ -201,12 +201,15 @@ class MainActivity : AppCompatActivity() {
             val nameMatch = product.name.lowercase().contains(searchText)
             val descMatch = product.description.lowercase().contains(searchText)
             val priceMatch = product.price.lowercase().contains(searchText)
+            // Simple fuzzy check with Levenshtein
             val fuzzyMatch = levenshteinDistance(product.name.lowercase(), searchText) <= 3 && searchText.length > 2
             nameMatch || descMatch || priceMatch || fuzzyMatch
-        }.sortedWith(compareBy(
-            { !it.name.lowercase().startsWith(query.lowercase()) },
-            { it.name }
-        ))
+        }.sortedWith(
+            compareBy(
+                { !it.name.lowercase().startsWith(query.lowercase()) },
+                { it.name }
+            )
+        )
 
         displayedProducts.clear()
         displayedProducts.addAll(filteredList)
@@ -325,10 +328,12 @@ class MainActivity : AppCompatActivity() {
         categories.forEach { (buttonId, category) ->
             val button = findViewById<Button>(buttonId)
             button.setOnClickListener {
+                // Reset all buttons to default
                 buttons.forEach { btn ->
                     btn.backgroundTintList = ContextCompat.getColorStateList(this, R.color.light_smth)
                     btn.setTextColor(ContextCompat.getColor(this, R.color.black))
                 }
+                // Highlight the selected button
                 button.backgroundTintList = ContextCompat.getColorStateList(this, R.color.darker_orange)
                 button.setTextColor(ContextCompat.getColor(this, android.R.color.white))
                 supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
@@ -340,7 +345,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkForApprovedAppointments(userId: Int) {
-        val url = "http://192.168.1.65/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
+        val url = "http://192.168.1.12/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
         val request = JsonObjectRequest(
             com.android.volley.Request.Method.GET, url, null,
             { response ->
@@ -438,7 +443,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchProducts() {
-        val url = "http://192.168.1.65/backend/fetch_product.php"
+        val url = "http://192.168.1.12/backend/fetch_product.php"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -456,7 +461,7 @@ class MainActivity : AppCompatActivity() {
 
                     val productsArray = json.optJSONArray("products") ?: JSONArray()
                     val fetchedProducts = mutableListOf<Product>()
-                    val baseImageUrl = "http://192.168.1.65/backend/uploads/"
+                    val baseImageUrl = "http://192.168.1.12/backend/uploads/"
 
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)
@@ -508,7 +513,7 @@ class MainActivity : AppCompatActivity() {
         displayedProducts.clear()
         productAdapter.notifyDataSetChanged()
 
-        val url = "http://192.168.1.65/backend/fetch_product.php?category=$category"
+        val url = "http://192.168.1.12/backend/fetch_product.php?category=$category"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -532,11 +537,11 @@ class MainActivity : AppCompatActivity() {
                         val productJson = productsArray.getJSONObject(i)
                         val rawImage = productJson.optString("image", "").trim()
                         val fullImageUrl = if (rawImage.isNotEmpty() && !rawImage.startsWith("http")) {
-                            "http://192.168.1.65/backend/uploads/$rawImage"
+                            "http://192.168.1.12/backend/uploads/$rawImage"
                         } else {
                             rawImage
                         }
-                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.1.65/backend/uploads/default.jpg"
+                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.1.12/backend/uploads/default.jpg"
 
                         categoryProducts.add(
                             Product(

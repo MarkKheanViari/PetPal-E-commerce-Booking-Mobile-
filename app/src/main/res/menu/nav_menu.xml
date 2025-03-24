@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- Group of top items -->
     <group
@@ -20,12 +21,16 @@
             android:id="@+id/nav_faq"
             android:icon="@drawable/help"
             android:title="FAQ" />
+
+        <!-- Remove the logout item from here -->
+        <!-- <item
+             android:id="@+id/nav_logout"
+             android:icon="@drawable/logout"
+             android:title="Logout"
+             android:layout_gravity="bottom" /> -->
+
     </group>
 
-    <!-- Attempt to pin Logout at the bottom -->
-    <item
-        android:id="@+id/nav_logout"
-        android:icon="@drawable/logout"
-        android:title="Logout"
-        android:layout_gravity="bottom" />
+    <!-- Any other items you want in the menu -->
+
 </menu>

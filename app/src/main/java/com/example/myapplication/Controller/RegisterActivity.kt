@@ -284,7 +284,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun registerUser(username: String, email: String, location: String, contact: String, age: String, password: String) {
-        val url = "http://192.168.1.65/backend/mobile_register.php"
+        val url = "http://192.168.1.12/backend/mobile_register.php"
 
         val jsonObject = JSONObject().apply {
             put("username", username)
