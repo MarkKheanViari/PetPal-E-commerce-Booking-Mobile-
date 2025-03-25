@@ -93,258 +93,223 @@
                 android:paddingTop="10dp">
 
                 <!-- Username Section -->
-                <TextView
-                    android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/usernameLayout"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Username"
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/alata" />
+                    app:errorEnabled="true"
+                    app:counterEnabled="true"
+                    app:counterMaxLength="16"
+                    app:startIconDrawable="@drawable/username_logo"
+                    app:errorTextColor="@android:color/holo_red_dark"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="10dp"/>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/usernameInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="      Enter your username"
+                        android:fontFamily="@font/alata"
+                        android:textColor="@color/black"
+                        android:textSize="15sp"
+                        android:inputType="text"
+                        android:lines="1"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"/>
 
-                <EditText
-                    android:id="@+id/usernameInput"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:background="@drawable/login_design_selector"
-                    android:fontFamily="@font/alata"
-                    android:hint="  Enter your username"
-                    android:inputType="text"
-                    android:lines="1"
-                    android:paddingHorizontal="20dp"
-                    android:textColor="@color/black"
-                    android:textSize="15sp"/>
-
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="15dp"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Email and Address Section -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:baselineAligned="false">
+                    android:weightSum="2">
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/emailLayout"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        app:errorEnabled="true"
                         android:layout_weight="1"
-                        android:orientation="vertical">
+                        app:startIconDrawable="@drawable/email"
+                        app:errorTextColor="@android:color/holo_red_dark"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Email"
-                            android:textColor="@color/black"
-                            android:textSize="18sp"
-                            android:fontFamily="@font/alata" />
-
-                        <Space
-                            android:layout_width="match_parent"
-                            android:layout_height="10dp"/>
-
-                        <EditText
+                        <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/emailInput"
                             android:layout_width="match_parent"
-                            android:layout_height="50dp"
-                            android:background="@drawable/login_design_selector"
+                            android:layout_height="match_parent"
+                            android:hint="      Enter your email"
                             android:fontFamily="@font/alata"
-                            android:hint="  Enter your email"
-                            android:inputType="textEmailAddress"
-                            android:lines="1"
-                            android:maxLength="50"
-                            android:paddingHorizontal="20dp"
                             android:textColor="@color/black"
-                            android:textSize="15sp"/>
-                    </LinearLayout>
+                            android:textSize="15sp"
+                            android:inputType="text"
+                            android:lines="1"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp"/>
+
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <Space
                         android:layout_width="10dp"
                         android:layout_height="match_parent"/>
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/locationLayout"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        app:errorEnabled="true"
                         android:layout_weight="1"
-                        android:orientation="vertical">
+                        app:startIconDrawable="@drawable/location"
+                        app:errorTextColor="@android:color/holo_red_dark"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Address"
-                            android:textColor="@color/black"
-                            android:textSize="18sp"
-                            android:fontFamily="@font/alata" />
-
-                        <Space
-                            android:layout_width="match_parent"
-                            android:layout_height="10dp"/>
-
-                        <EditText
+                        <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/locationInput"
                             android:layout_width="match_parent"
-                            android:layout_height="50dp"
-                            android:background="@drawable/login_design_selector"
+                            android:layout_height="match_parent"
+                            android:hint="      Enter your location"
                             android:fontFamily="@font/alata"
-                            android:hint="  Enter your location"
+                            android:textColor="@color/black"
+                            android:textSize="15sp"
                             android:inputType="text"
                             android:lines="1"
-                            android:maxLength="100"
-                            android:paddingHorizontal="20dp"
-                            android:textColor="@color/black"
-                            android:textSize="15sp"/>
-                    </LinearLayout>
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp"/>
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
                 </LinearLayout>
 
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="15dp"/>
-
-                <!-- Contact and Age Section -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:baselineAligned="false">
+                    android:weightSum="2">
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/contactLayout"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        app:errorEnabled="true"
                         android:layout_weight="1"
-                        android:orientation="vertical">
+                        app:startIconDrawable="@drawable/contact"
+                        app:counterEnabled="true"
+                        app:counterMaxLength="11"
+                        app:errorTextColor="@android:color/holo_red_dark"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Contact Number"
-                            android:textColor="@color/black"
-                            android:textSize="18sp"
-                            android:fontFamily="@font/alata" />
-
-                        <Space
-                            android:layout_width="match_parent"
-                            android:layout_height="10dp"/>
-
-                        <EditText
+                        <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/contactInput"
                             android:layout_width="match_parent"
-                            android:layout_height="50dp"
-                            android:background="@drawable/login_design_selector"
+                            android:layout_height="match_parent"
+                            android:hint="      Enter your contact number"
                             android:fontFamily="@font/alata"
-                            android:hint="  Enter your contact number"
-                            android:inputType="phone"
-                            android:lines="1"
-                            android:maxLength="11"
-                            android:paddingHorizontal="20dp"
                             android:textColor="@color/black"
-                            android:textSize="15sp"/>
-                    </LinearLayout>
+                            android:textSize="15sp"
+                            android:inputType="text"
+                            android:lines="1"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp"/>
+
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <Space
                         android:layout_width="10dp"
                         android:layout_height="match_parent"/>
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/ageLayout"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        app:errorEnabled="true"
                         android:layout_weight="1"
-                        android:orientation="vertical">
+                        app:startIconDrawable="@drawable/location"
+                        app:errorTextColor="@android:color/holo_red_dark"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Age"
-                            android:textColor="@color/black"
-                            android:textSize="18sp"
-                            android:fontFamily="@font/alata" />
-
-                        <Space
-                            android:layout_width="match_parent"
-                            android:layout_height="10dp"/>
-
-                        <EditText
+                        <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/ageInput"
                             android:layout_width="match_parent"
-                            android:layout_height="50dp"
-                            android:background="@drawable/login_design_selector"
+                            android:layout_height="match_parent"
+                            android:hint="      Enter your age"
                             android:fontFamily="@font/alata"
-                            android:hint="  Enter your age"
-                            android:inputType="number"
-                            android:lines="1"
-                            android:maxLength="2"
-                            android:paddingHorizontal="20dp"
                             android:textColor="@color/black"
-                            android:textSize="15sp"/>
-                    </LinearLayout>
+                            android:textSize="15sp"
+                            android:inputType="text"
+                            android:lines="1"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp"/>
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
                 </LinearLayout>
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="15dp"/>
+                    android:layout_height="10dp"/>
 
-                <!-- Password Section -->
-                <TextView
-                    android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/passwordLayout"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Password"
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/alata" />
+                    app:errorEnabled="true"
+                    app:counterEnabled="true"
+                    app:counterMaxLength="16"
+                    app:startIconDrawable="@drawable/pass"
+                    app:errorTextColor="@android:color/holo_red_dark"
+                    app:passwordToggleEnabled="true"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/passwordInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="      Enter your password"
+                        android:fontFamily="@font/alata"
+                        android:textColor="@color/black"
+                        android:textSize="15sp"
+                        android:lines="1"
+                        android:maxLength="16"
+                        android:inputType="textPassword"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="10dp"/>
 
-                <EditText
-                    android:id="@+id/passwordInput"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/confirmPasswordLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:background="@drawable/login_design_selector"
-                    android:fontFamily="@font/alata"
-                    android:hint="  Enter your password"
-                    android:inputType="textPassword"
-                    android:lines="1"
-                    android:maxLength="16"
-                    android:textColor="@color/black"
-                    android:textSize="15sp"
-                    android:paddingHorizontal="20dp"
-                    android:drawableEnd="@drawable/show_password"/>
-
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="15dp"/>
-
-                <!-- Confirm Password Section -->
-                <TextView
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Confirm Password"
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/alata" />
+                    app:errorEnabled="true"
+                    app:counterEnabled="true"
+                    app:counterMaxLength="16"
+                    app:startIconDrawable="@drawable/pass"
+                    app:errorTextColor="@android:color/holo_red_dark"
+                    app:passwordToggleEnabled="true"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="10dp"/>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/confirmPasswordInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="      Confirm your password"
+                        android:fontFamily="@font/alata"
+                        android:textColor="@color/black"
+                        android:textSize="15sp"
+                        android:lines="1"
+                        android:maxLength="16"
+                        android:inputType="textPassword"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"/>
 
-                <EditText
-                    android:id="@+id/confirmPasswordInput"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:background="@drawable/login_design_selector"
-                    android:fontFamily="@font/alata"
-                    android:hint="  Enter your password"
-                    android:inputType="textPassword"
-                    android:lines="1"
-                    android:maxLength="16"
-                    android:textColor="@color/black"
-                    android:textSize="15sp"
-                    android:paddingHorizontal="20dp"
-                    android:drawableEnd="@drawable/show_password"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
 
                 <LinearLayout
                     android:layout_width="match_parent"

@@ -4,11 +4,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
+import android.util.Patterns
 import android.view.MotionEvent
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import com.example.myapplication.Controller.WelcomeActivity
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -17,16 +20,22 @@ import java.io.IOException
 
 class RegisterActivity : AppCompatActivity() {
 
-    private var isPasswordVisible = false // Track visibility state
 
     private lateinit var backBtn: ImageView
-    private lateinit var usernameInput: EditText
-    private lateinit var emailInput: EditText
-    private lateinit var locationInput: EditText
-    private lateinit var contactInput: EditText
-    private lateinit var ageInput: EditText
-    private lateinit var passwordInput: EditText
-    private lateinit var confirmPasswordInput: EditText
+    private lateinit var usernameLayout : TextInputLayout
+    private lateinit var usernameInput: TextInputEditText
+    private lateinit var emailLayout: TextInputLayout
+    private lateinit var emailInput: TextInputEditText
+    private lateinit var locationLayout: TextInputLayout
+    private lateinit var locationInput: TextInputEditText
+    private lateinit var contactLayout: TextInputLayout
+    private lateinit var contactInput: TextInputEditText
+    private lateinit var ageLayout: TextInputLayout
+    private lateinit var ageInput: TextInputEditText
+    private lateinit var passwordLayout: TextInputLayout
+    private lateinit var passwordInput: TextInputEditText
+    private lateinit var confirmPasswordLayout: TextInputLayout
+    private lateinit var confirmPasswordInput: TextInputEditText
     private lateinit var termsCheckbox: CheckBox
     private lateinit var termsLink: TextView
     private lateinit var privacyLink: TextView
@@ -39,12 +48,19 @@ class RegisterActivity : AppCompatActivity() {
 
         // Initialize views
         backBtn = findViewById(R.id.backBtn)
+        usernameLayout = findViewById(R.id.usernameLayout)
         usernameInput = findViewById(R.id.usernameInput)
+        emailLayout = findViewById(R.id.emailLayout)
         emailInput = findViewById(R.id.emailInput)
+        locationLayout = findViewById(R.id.locationLayout)
         locationInput = findViewById(R.id.locationInput)
+        contactLayout = findViewById(R.id.contactLayout)
         contactInput = findViewById(R.id.contactInput)
+        ageLayout = findViewById(R.id.ageLayout)
         ageInput = findViewById(R.id.ageInput)
+        passwordLayout = findViewById(R.id.passwordLayout)
         passwordInput = findViewById(R.id.passwordInput)
+        confirmPasswordLayout = findViewById(R.id.confirmPasswordLayout)
         confirmPasswordInput = findViewById(R.id.confirmPasswordInput)
         termsCheckbox = findViewById(R.id.termsCheckbox)
         termsLink = findViewById(R.id.termsLink)
@@ -70,41 +86,45 @@ class RegisterActivity : AppCompatActivity() {
             var isValid = true
 
             if (username.contains(" ")) {
-                usernameInput.error = "Username cannot contain spaces"
-                usernameInput.setBackgroundResource(R.drawable.edittext_error_background)
+                usernameLayout.error = "Username cannot contain spaces"
+                isValid = false
+            } else if (username.length < 8 || username.length > 16) {
+                usernameLayout.error = "Username must be between 8 to 16 characters"
+                isValid = false
+            }
+
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                emailLayout.error = "Invalid email address"
+                isValid = false
+            } else if (email.contains(" ")) {
+                emailLayout.error = "Email cannot contain spaces"
                 isValid = false
             }
 
             if (contact.length != 11) {
-                contactInput.error = "Invalid contact number"
-                contactInput.setBackgroundResource(R.drawable.edittext_error_background)
+                contactLayout.error = "Invalid contact number"
                 isValid = false
             }
 
             if (age.contains(" ")) {
-                ageInput.error = "Age cannot contain spaces"
-                ageInput.setBackgroundResource(R.drawable.edittext_error_background)
+                ageLayout.error = "Age cannot contain spaces"
                 isValid = false
             } else {
                 val ageInt = age.toIntOrNull()
                 if (ageInt == null || ageInt < 9 || ageInt > 80) {
-                    ageInput.error = "Age must be between 9 and 80"
-                    ageInput.setBackgroundResource(R.drawable.edittext_error_background)
+                    ageLayout.error = "Age must be between 9 and 80"
                     isValid = false
                 }
             }
 
             if (password.length < 6 || password.length > 16) {
-                passwordInput.error = "Password must be between 6 to 16 characters"
-                passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                passwordLayout.error = "Password must be between 6 to 16 characters"
                 isValid = false
             } else if (password.contains(" ")) {
-                passwordInput.error = "Password cannot contain spaces"
-                passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                passwordLayout.error = "Password cannot contain spaces"
                 isValid = false
             } else if (password != confirmPassword) {
-                confirmPasswordInput.error = "Passwords do not match"
-                confirmPasswordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                passwordLayout.error = "Passwords do not match"
                 isValid = false
             }
 
@@ -132,8 +152,7 @@ class RegisterActivity : AppCompatActivity() {
             if (!hasFocus) {
                 val username = usernameInput.text.toString().trim()
                 if (username.isBlank()) {
-                    usernameInput.error = "Username is Required"
-                    usernameInput.setBackgroundResource(R.drawable.edittext_error_background)
+                    usernameLayout.error = "Username is Required"
                 }
             }
         }
@@ -142,8 +161,7 @@ class RegisterActivity : AppCompatActivity() {
             if (!hasFocus) {
                 val email = emailInput.text.toString().trim()
                 if (email.isBlank()) {
-                    emailInput.error = "Email is Required"
-                    emailInput.setBackgroundResource(R.drawable.edittext_error_background)
+                    emailLayout.error = "Email is Required"
                 }
             }
         }
@@ -152,8 +170,7 @@ class RegisterActivity : AppCompatActivity() {
             if (!hasFocus) {
                 val location = locationInput.text.toString().trim()
                 if (location.isBlank()) {
-                    locationInput.error = "Location is Required"
-                    locationInput.setBackgroundResource(R.drawable.edittext_error_background)
+                    locationLayout.error = "Location is Required"
                 }
             }
         }
@@ -162,8 +179,7 @@ class RegisterActivity : AppCompatActivity() {
             if (!hasFocus) {
                 val age = ageInput.text.toString().trim()
                 if (age.isBlank()) {
-                    ageInput.error = "Age is Required"
-                    ageInput.setBackgroundResource(R.drawable.edittext_error_background)
+                    ageLayout.error = "Age is Required"
                 }
             }
         }
@@ -172,8 +188,7 @@ class RegisterActivity : AppCompatActivity() {
             if (!hasFocus) {
                 val contact = contactInput.text.toString().trim()
                 if (contact.isBlank()) {
-                    contactInput.error = "Contact Number is Required"
-                    contactInput.setBackgroundResource(R.drawable.edittext_error_background)
+                    contactLayout.error = "Contact Number is Required"
                 }
             }
         }
@@ -182,8 +197,7 @@ class RegisterActivity : AppCompatActivity() {
             if (!hasFocus) {
                 val password = passwordInput.text.toString().trim()
                 if (password.isBlank()) {
-                    passwordInput.error = "Password is Required"
-                    passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                    passwordLayout.error = "Password is Required"
                 }
             }
         }
@@ -192,46 +206,38 @@ class RegisterActivity : AppCompatActivity() {
             if (!hasFocus) {
                 val confirmPassword = confirmPasswordInput.text.toString().trim()
                 if (confirmPassword.isBlank()) {
-                    confirmPasswordInput.error = "Confirm Password is Required"
-                    confirmPasswordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                    confirmPasswordLayout.error = "Confirm Password is Required"
                 }
             }
         }
 
         // Text change listeners to clear errors
         usernameInput.addTextChangedListener {
-            usernameInput.error = null
-            usernameInput.setBackgroundResource(R.drawable.login_design_selector)
+            usernameLayout.error = null
         }
 
         emailInput.addTextChangedListener {
-            emailInput.error = null
-            emailInput.setBackgroundResource(R.drawable.login_design_selector)
+            emailLayout.error = null
         }
 
         locationInput.addTextChangedListener {
-            locationInput.error = null
-            locationInput.setBackgroundResource(R.drawable.login_design_selector)
+            locationLayout.error = null
         }
 
         contactInput.addTextChangedListener {
-            contactInput.error = null
-            contactInput.setBackgroundResource(R.drawable.login_design_selector)
+            contactLayout.error = null
         }
 
         ageInput.addTextChangedListener {
-            ageInput.error = null
-            ageInput.setBackgroundResource(R.drawable.login_design_selector)
+            ageLayout.error = null
         }
 
         passwordInput.addTextChangedListener {
-            passwordInput.error = null
-            passwordInput.setBackgroundResource(R.drawable.login_design_selector)
+            passwordLayout.error = null
         }
 
         confirmPasswordInput.addTextChangedListener {
-            confirmPasswordInput.error = null
-            confirmPasswordInput.setBackgroundResource(R.drawable.login_design_selector)
+            confirmPasswordLayout.error = null
         }
 
         // Click listeners for Terms, Privacy Policy, and Login suggestion
@@ -247,44 +253,10 @@ class RegisterActivity : AppCompatActivity() {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
-
-        setupPasswordToggle()
-    }
-
-    private fun EditText.setCompoundDrawableClickListener(onDrawableEndClick: () -> Unit) {
-        setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_UP) {
-                val drawableEnd = compoundDrawablesRelative[2]
-                if (drawableEnd != null && event.rawX >= (right - paddingEnd - drawableEnd.bounds.width())) {
-                    onDrawableEndClick()
-                    performClick()
-                    return@setOnTouchListener true
-                }
-            }
-            false
-        }
-    }
-
-    private fun setupPasswordToggle() {
-        passwordInput.setCompoundDrawableClickListener {
-            isPasswordVisible = !isPasswordVisible
-            passwordInput.transformationMethod =
-                if (isPasswordVisible) HideReturnsTransformationMethod.getInstance()
-                else PasswordTransformationMethod.getInstance()
-            passwordInput.setSelection(passwordInput.text?.length ?: 0)
-        }
-
-        confirmPasswordInput.setCompoundDrawableClickListener {
-            isPasswordVisible = !isPasswordVisible
-            confirmPasswordInput.transformationMethod =
-                if (isPasswordVisible) HideReturnsTransformationMethod.getInstance()
-                else PasswordTransformationMethod.getInstance()
-            confirmPasswordInput.setSelection(confirmPasswordInput.text?.length ?: 0)
-        }
     }
 
     private fun registerUser(username: String, email: String, location: String, contact: String, age: String, password: String) {
-        val url = "http://192.168.1.12/backend/mobile_register.php"
+        val url = "http://192.168.1.15/backend/mobile_register.php"
 
         val jsonObject = JSONObject().apply {
             put("username", username)

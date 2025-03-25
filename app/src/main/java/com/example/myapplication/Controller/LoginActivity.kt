@@ -11,6 +11,8 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import com.example.myapplication.Controller.WelcomeActivity
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -19,10 +21,10 @@ import java.io.IOException
 
 class LoginActivity : AppCompatActivity() {
 
-    private var isPasswordVisible = false // Track visibility state
-
     private lateinit var backBtn: ImageView
-    private lateinit var usernameInput: EditText
+    private lateinit var usernameLayout : TextInputLayout
+    private lateinit var usernameInput: TextInputEditText
+    private lateinit var passwordLayout : TextInputLayout
     private lateinit var passwordInput: EditText
     private lateinit var loginButton: Button
     private lateinit var forgotpass: TextView
@@ -52,7 +54,9 @@ class LoginActivity : AppCompatActivity() {
 
         // Initialize views
         backBtn = findViewById(R.id.backBtn)
+        usernameLayout = findViewById(R.id.usernameLayout)
         usernameInput = findViewById(R.id.usernameInput)
+        passwordLayout = findViewById(R.id.passwordLayout)
         passwordInput = findViewById(R.id.passwordInput)
         loginButton = findViewById(R.id.loginButton)
         forgotpass = findViewById(R.id.forgotPass)
@@ -82,14 +86,12 @@ class LoginActivity : AppCompatActivity() {
             var isValid = true
 
             if (username.isEmpty()) {
-                usernameInput.error = "Username is Required"
-                usernameInput.setBackgroundResource(R.drawable.edittext_error_background)
+                usernameLayout.error = "Username is Required"
                 isValid = false
             }
 
             if (password.isEmpty()) {
-                passwordInput.error = "Password is Required"
-                passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                passwordLayout.error = "Password is Required"
                 isValid = false
             }
 
@@ -100,43 +102,15 @@ class LoginActivity : AppCompatActivity() {
 
         // Remove error when user fixes input
         usernameInput.addTextChangedListener {
-            usernameInput.setBackgroundResource(R.drawable.login_design_selector)
-            usernameInput.error = null
+            usernameLayout.error = ""
         }
         passwordInput.addTextChangedListener {
-            passwordInput.setBackgroundResource(R.drawable.login_design_selector)
-            passwordInput.error = null
+            passwordLayout.error = ""
         }
 
         // Navigation to register screen
         registerLink.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
-        }
-
-        setupPasswordToggle()
-    }
-
-    private fun EditText.setCompoundDrawableClickListener(onDrawableEndClick: () -> Unit) {
-        setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_UP) {
-                val drawableEnd = compoundDrawablesRelative[2]
-                if (drawableEnd != null && event.rawX >= (right - paddingEnd - drawableEnd.bounds.width())) {
-                    onDrawableEndClick()
-                    performClick()
-                    return@setOnTouchListener true
-                }
-            }
-            false
-        }
-    }
-
-    private fun setupPasswordToggle() {
-        passwordInput.setCompoundDrawableClickListener {
-            isPasswordVisible = !isPasswordVisible
-            passwordInput.transformationMethod =
-                if (isPasswordVisible) HideReturnsTransformationMethod.getInstance()
-                else PasswordTransformationMethod.getInstance()
-            passwordInput.setSelection(passwordInput.text?.length ?: 0)
         }
     }
 
@@ -152,7 +126,7 @@ class LoginActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/mobile_login.php")
+            .url("http://192.168.1.15/backend/mobile_login.php")
             .post(requestBody)
             .build()
 
@@ -197,16 +171,14 @@ class LoginActivity : AppCompatActivity() {
                             val errorMessage = jsonResponse.optString("message", "Login failed")
                             when {
                                 errorMessage.contains("password", ignoreCase = true) -> {
-                                    passwordInput.error = "Wrong password"
-                                    passwordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                                    passwordLayout.error = "Wrong password"
                                 }
                                 errorMessage.contains("username", ignoreCase = true) -> {
-                                    usernameInput.error = "Wrong username"
-                                    usernameInput.setBackgroundResource(R.drawable.edittext_error_background)
+                                    usernameLayout.error = "Wrong username"
                                 }
                                 else -> {
-                                    usernameInput.error = errorMessage
-                                    passwordInput.error = errorMessage
+                                    usernameLayout.error = errorMessage
+                                    passwordLayout.error = errorMessage
                                 }
                             }
                         }
