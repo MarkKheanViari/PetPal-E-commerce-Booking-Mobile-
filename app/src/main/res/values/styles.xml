@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="RatingBarTheme" parent="Widget.AppCompat.RatingBar">
+        <item name="android:progressTint">@color/darker_orange</item>
+        <item name="android:secondaryProgressTint">@color/light_smth</item>
+    </style>
+</resources>

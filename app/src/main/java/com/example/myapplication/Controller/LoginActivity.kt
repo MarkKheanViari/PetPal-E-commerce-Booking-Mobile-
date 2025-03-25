@@ -126,7 +126,7 @@ class LoginActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.15/backend/mobile_login.php")
+            .url("http://10.40.70.46/backend/mobile_login.php")
             .post(requestBody)
             .build()
 

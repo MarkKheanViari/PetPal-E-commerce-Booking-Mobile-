@@ -4,9 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.google.android.material.button.MaterialButton
@@ -15,10 +14,25 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
+import java.text.DecimalFormat
 
 class ProductDetailsActivity : AppCompatActivity() {
 
     private var quantity = 1
+    private lateinit var ratingBar: RatingBar
+    private lateinit var averageRatingBar: RatingBar
+    private lateinit var averageRatingText: TextView
+    private lateinit var totalRatingsText: TextView
+    private lateinit var progress5Star: ProgressBar
+    private lateinit var progress4Star: ProgressBar
+    private lateinit var progress3Star: ProgressBar
+    private lateinit var progress2Star: ProgressBar
+    private lateinit var progress1Star: ProgressBar
+    private lateinit var percent5Star: TextView
+    private lateinit var percent4Star: TextView
+    private lateinit var percent3Star: TextView
+    private lateinit var percent2Star: TextView
+    private lateinit var percent1Star: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,11 +65,25 @@ class ProductDetailsActivity : AppCompatActivity() {
         val productNameTextView = findViewById<TextView>(R.id.productName)
         val productImageView = findViewById<ImageView>(R.id.productImageView)
         val productDescriptionTextView = findViewById<TextView>(R.id.productDescription)
-        val productPriceTextView = findViewById<TextView>(R.id.prduct_price) // Fix typo if needed
+        val productPriceTextView = findViewById<TextView>(R.id.prduct_price)
         val backBtn = findViewById<ImageView>(R.id.backBtn)
-        val likedBtn = findViewById<ImageView>(R.id.likedBtn)  // Like button
+        val likedBtn = findViewById<ImageView>(R.id.likedBtn)
         val addToCartButton = findViewById<MaterialButton>(R.id.addtocart_container)
         val buyNowButton = findViewById<MaterialButton>(R.id.buynow_container)
+        ratingBar = findViewById(R.id.ratingBar)
+        averageRatingBar = findViewById(R.id.average_rating_bar)
+        averageRatingText = findViewById(R.id.average_rating_text)
+        totalRatingsText = findViewById(R.id.total_ratings_text)
+        progress5Star = findViewById(R.id.progress_5_star)
+        progress4Star = findViewById(R.id.progress_4_star)
+        progress3Star = findViewById(R.id.progress_3_star)
+        progress2Star = findViewById(R.id.progress_2_star)
+        progress1Star = findViewById(R.id.progress_1_star)
+        percent5Star = findViewById(R.id.percent_5_star)
+        percent4Star = findViewById(R.id.percent_4_star)
+        percent3Star = findViewById(R.id.percent_3_star)
+        percent2Star = findViewById(R.id.percent_2_star)
+        percent1Star = findViewById(R.id.percent_1_star)
 
         // Display product details
         productNameTextView.text = productName ?: "N/A"
@@ -76,9 +104,7 @@ class ProductDetailsActivity : AppCompatActivity() {
         // Back button
         backBtn.setOnClickListener { finish() }
 
-        // Like button functionality:
-        // Create a Product instance from the current product details,
-        // add it to LikedProductsStore, then navigate to LikedProductsActivity.
+        // Like button functionality
         likedBtn.setOnClickListener {
             if (productId != -1 && productName != null && productDescription != null) {
                 val product = Product(
@@ -86,7 +112,7 @@ class ProductDetailsActivity : AppCompatActivity() {
                     name = productName,
                     price = productPrice.toString(),
                     description = productDescription,
-                    quantity = 1, // default value for liked products
+                    quantity = 1,
                     imageUrl = productImage ?: ""
                 )
                 LikedProductsStore.addProduct(product)
@@ -113,7 +139,7 @@ class ProductDetailsActivity : AppCompatActivity() {
                     productId,
                     productName,
                     productDescription,
-                    productPrice, // Pass the corrected price
+                    productPrice,
                     quantity,
                     productImage
                 )
@@ -121,6 +147,133 @@ class ProductDetailsActivity : AppCompatActivity() {
                 Toast.makeText(this, "❌ Failed to proceed to checkout", Toast.LENGTH_SHORT).show()
             }
         }
+
+        // RatingBar listener to submit or update rating
+        ratingBar.setOnRatingBarChangeListener { _, rating, fromUser ->
+            if (fromUser && productId != -1) {
+                submitReview(productId, rating.toInt())
+            }
+        }
+
+        // Fetch and display rating statistics
+        if (productId != -1) {
+            fetchRatingStats(productId)
+            // Fetch the user's current rating
+            val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+            val mobileUserId = sharedPreferences.getInt("user_id", -1)
+            if (mobileUserId != -1) {
+                fetchUserRating(productId, mobileUserId)
+            }
+        }
+    }
+
+    /**
+     * Fetch the user's current rating for the product.
+     */
+    private fun fetchUserRating(productId: Int, mobileUserId: Int) {
+        val url = "http://10.40.70.46/backend/fetch_user_rating.php?mobile_user_id=$mobileUserId&product_id=$productId"
+        val request = Request.Builder().url(url).build()
+        val client = OkHttpClient()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@ProductDetailsActivity, "❌ Failed to fetch user rating: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string() ?: return
+                try {
+                    val json = JSONObject(responseBody)
+                    if (!json.optBoolean("success", false)) {
+                        runOnUiThread {
+                            Toast.makeText(this@ProductDetailsActivity, "❌ Error: ${json.optString("message")}", Toast.LENGTH_SHORT).show()
+                        }
+                        return
+                    }
+
+                    val userRating = json.optInt("rating", 0)
+                    runOnUiThread {
+                        if (userRating > 0) {
+                            ratingBar.rating = userRating.toFloat()
+                        }
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        Toast.makeText(this@ProductDetailsActivity, "❌ Error parsing user rating: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
+    /**
+     * Fetch rating statistics for the product.
+     */
+    private fun fetchRatingStats(productId: Int) {
+        val url = "http://10.40.70.46/backend/fetch_product_rating_stats.php?product_id=$productId"
+        val request = Request.Builder().url(url).build()
+        val client = OkHttpClient()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@ProductDetailsActivity, "❌ Failed to fetch rating stats: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string() ?: return
+                try {
+                    val json = JSONObject(responseBody)
+                    if (!json.optBoolean("success", false)) {
+                        runOnUiThread {
+                            Toast.makeText(this@ProductDetailsActivity, "❌ Error: ${json.optString("message")}", Toast.LENGTH_SHORT).show()
+                        }
+                        return
+                    }
+
+                    val totalRatings = json.optInt("total_ratings", 0)
+                    val averageRating = json.optDouble("average_rating", 0.0)
+                    val ratingDistribution = json.optJSONObject("rating_distribution") ?: JSONObject()
+
+                    runOnUiThread {
+                        // Update average rating
+                        averageRatingBar.rating = averageRating.toFloat()
+                        val df = DecimalFormat("#.#")
+                        averageRatingText.text = "${df.format(averageRating)} out of 5"
+
+                        // Update total ratings
+                        totalRatingsText.text = "$totalRatings customer ratings"
+
+                        // Update rating distribution
+                        percent5Star.text = "${ratingDistribution.optInt("5", 0)}%"
+                        percent4Star.text = "${ratingDistribution.optInt("4", 0)}%"
+                        percent3Star.text = "${ratingDistribution.optInt("3", 0)}%"
+                        percent2Star.text = "${ratingDistribution.optInt("2", 0)}%"
+                        percent1Star.text = "${ratingDistribution.optInt("1", 0)}%"
+
+                        progress5Star.progress = ratingDistribution.optInt("5", 0)
+                        progress4Star.progress = ratingDistribution.optInt("4", 0)
+                        progress3Star.progress = ratingDistribution.optInt("3", 0)
+                        progress2Star.progress = ratingDistribution.optInt("2", 0)
+                        progress1Star.progress = ratingDistribution.optInt("1", 0)
+
+                        // Optional: Hide rating distribution if there are no ratings
+                        if (totalRatings == 0) {
+                            findViewById<LinearLayout>(R.id.rating_distribution_container).visibility = View.GONE
+                        } else {
+                            findViewById<LinearLayout>(R.id.rating_distribution_container).visibility = View.VISIBLE
+                        }
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        Toast.makeText(this@ProductDetailsActivity, "❌ Error parsing rating stats: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
     }
 
     /**
@@ -132,6 +285,15 @@ class ProductDetailsActivity : AppCompatActivity() {
         val toast = Toast(applicationContext)
         toast.duration = Toast.LENGTH_SHORT
         toast.view = layout
+        toast.setGravity(Gravity.TOP or Gravity.END, 16, 16)
+        toast.show()
+    }
+
+    /**
+     * Display a custom toast for rating submission or update.
+     */
+    private fun showRatingToast(message: String) {
+        val toast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
         toast.setGravity(Gravity.TOP or Gravity.END, 16, 16)
         toast.show()
     }
@@ -158,7 +320,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.1.15/backend/add_to_cart.php")
+            .url("http://10.40.70.46/backend/add_to_cart.php")
             .post(requestBody)
             .build()
 
@@ -187,6 +349,65 @@ class ProductDetailsActivity : AppCompatActivity() {
     }
 
     /**
+     * Submits or updates a rating for the product by sending a POST request.
+     */
+    private fun submitReview(productId: Int, rating: Int) {
+        val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        val mobileUserId = sharedPreferences.getInt("user_id", -1)
+
+        if (mobileUserId == -1) {
+            Toast.makeText(this, "❌ Please login to submit a rating", Toast.LENGTH_SHORT).show()
+            ratingBar.rating = 0f // Reset the rating if user is not logged in
+            return
+        }
+
+        if (rating == 0) {
+            Toast.makeText(this, "❌ Please select a rating", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val jsonObject = JSONObject().apply {
+            put("mobile_user_id", mobileUserId)
+            put("product_id", productId)
+            put("rating", rating)
+        }
+
+        val requestBody = jsonObject.toString()
+            .toRequestBody("application/json; charset=utf-8".toMediaType())
+
+        val request = Request.Builder()
+            .url("http://10.40.70.46/backend/add_product_review.php")
+            .post(requestBody)
+            .build()
+
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@ProductDetailsActivity, "❌ Failed to connect to server", Toast.LENGTH_SHORT).show()
+                    ratingBar.rating = 0f // Reset on failure
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                runOnUiThread {
+                    if (responseBody != null) {
+                        val jsonResponse = JSONObject(responseBody)
+                        if (jsonResponse.optBoolean("success", false)) {
+                            showRatingToast(jsonResponse.optString("message"))
+                            fetchRatingStats(productId) // Refresh rating stats after submission
+                        } else {
+                            Toast.makeText(this@ProductDetailsActivity, "❌ Error: ${jsonResponse.optString("message")}", Toast.LENGTH_SHORT).show()
+                            ratingBar.rating = 0f // Reset on error
+                        }
+                    }
+                }
+            }
+        })
+    }
+
+    /**
      * Create a single-item cart and start CheckoutActivity.
      */
     private fun goToCheckout(
@@ -200,7 +421,7 @@ class ProductDetailsActivity : AppCompatActivity() {
         val productMap = HashMap<String, String>().apply {
             put("product_id", productId.toString())
             put("name", productName ?: "")
-            put("price", productPrice.toString()) // Ensure price is passed as a string
+            put("price", productPrice.toString())
             put("image", productImage ?: "")
             put("quantity", quantity.toString())
         }

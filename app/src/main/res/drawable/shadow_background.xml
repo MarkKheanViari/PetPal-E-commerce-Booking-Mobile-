@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Shadow Layer -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#20000000" /> <!-- Shadow color (black with 12.5% opacity) -->
+            <corners android:radius="16dp" /> <!-- Match the CardView's corner radius -->
+            <padding
+                android:left="2dp"
+                android:top="2dp"
+                android:right="2dp"
+                android:bottom="4dp" /> <!-- Adjust shadow offset -->
+        </shape>
+    </item>
+    <!-- Background Layer -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/light_orange" /> <!-- Background color -->
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+</layer-list>
