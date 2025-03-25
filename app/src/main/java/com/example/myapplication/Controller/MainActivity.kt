@@ -22,12 +22,13 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.example.myapplication.Controller.SettingsActivity
 import com.example.myapplication.Controller.WelcomeActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.*
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
@@ -89,10 +90,6 @@ class MainActivity : AppCompatActivity() {
                     loadFragment(ProfileFragment(), true)
                     true
                 }
-                R.id.nav_settings -> {
-                    startActivity(Intent(this, SettingsActivity::class.java))
-                    true
-                }
                 R.id.nav_notif -> {
                     startActivity(Intent(this, NotificationActivity::class.java))
                     true
@@ -118,7 +115,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         // --- Logout functionality from custom footer ---
-        // Find the footer logout TextView (from your drawer's custom footer layout)
         val footerLogout = findViewById<TextView>(R.id.footerLogout)
         footerLogout.setOnClickListener {
             doLogout()
@@ -280,9 +276,48 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Guest users cannot order. Please log in to add products to your wishlist.", Toast.LENGTH_SHORT).show()
             return
         }
-        LikedProductsStore.addProduct(product)
-        Toast.makeText(this, "Added ${product.name} to Wishlist!", Toast.LENGTH_SHORT).show()
-        startActivity(Intent(this, LikedProductsActivity::class.java))
+
+        val mobileUserId = sharedPreferences.getInt("user_id", -1)
+        if (mobileUserId == -1) {
+            Toast.makeText(this, "❌ Please login to add to wishlist", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val jsonObject = JSONObject().apply {
+            put("mobile_user_id", mobileUserId)
+            put("product_id", product.id)
+        }
+
+        val requestBody = jsonObject.toString()
+            .toRequestBody("application/json; charset=utf-8".toMediaType())
+
+        val request = Request.Builder()
+            .url("http://10.40.70.46/backend/add_to_liked_products.php")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "❌ Failed to connect to server", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                runOnUiThread {
+                    if (responseBody != null) {
+                        val jsonResponse = JSONObject(responseBody)
+                        if (jsonResponse.optBoolean("success", false)) {
+                            Toast.makeText(this@MainActivity, "Added ${product.name} to Wishlist!", Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(this@MainActivity, LikedProductsActivity::class.java))
+                        } else {
+                            Toast.makeText(this@MainActivity, "❌ Error: ${jsonResponse.optString("message")}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        })
     }
 
     private fun loadFragment(fragment: Fragment, useContainer1: Boolean = false) {

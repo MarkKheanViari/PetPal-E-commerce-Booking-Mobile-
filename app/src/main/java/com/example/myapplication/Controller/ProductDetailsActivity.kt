@@ -33,6 +33,8 @@ class ProductDetailsActivity : AppCompatActivity() {
     private lateinit var percent3Star: TextView
     private lateinit var percent2Star: TextView
     private lateinit var percent1Star: TextView
+    private lateinit var likedBtn: ImageView
+    private var isLiked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,7 +69,7 @@ class ProductDetailsActivity : AppCompatActivity() {
         val productDescriptionTextView = findViewById<TextView>(R.id.productDescription)
         val productPriceTextView = findViewById<TextView>(R.id.prduct_price)
         val backBtn = findViewById<ImageView>(R.id.backBtn)
-        val likedBtn = findViewById<ImageView>(R.id.likedBtn)
+        likedBtn = findViewById(R.id.likedBtn)
         val addToCartButton = findViewById<MaterialButton>(R.id.addtocart_container)
         val buyNowButton = findViewById<MaterialButton>(R.id.buynow_container)
         ratingBar = findViewById(R.id.ratingBar)
@@ -106,20 +108,14 @@ class ProductDetailsActivity : AppCompatActivity() {
 
         // Like button functionality
         likedBtn.setOnClickListener {
-            if (productId != -1 && productName != null && productDescription != null) {
-                val product = Product(
-                    id = productId,
-                    name = productName,
-                    price = productPrice.toString(),
-                    description = productDescription,
-                    quantity = 1,
-                    imageUrl = productImage ?: ""
-                )
-                LikedProductsStore.addProduct(product)
-                val intent = Intent(this, LikedProductsActivity::class.java)
-                startActivity(intent)
+            if (productId != -1) {
+                if (isLiked) {
+                    removeFromLikedProducts(productId)
+                } else {
+                    addToLikedProducts(productId)
+                }
             } else {
-                Toast.makeText(this, "Failed to add product to likes", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "❌ Failed to update liked products", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -163,8 +159,165 @@ class ProductDetailsActivity : AppCompatActivity() {
             val mobileUserId = sharedPreferences.getInt("user_id", -1)
             if (mobileUserId != -1) {
                 fetchUserRating(productId, mobileUserId)
+                // Check if the product is liked
+                checkIfProductIsLiked(productId, mobileUserId)
             }
         }
+    }
+
+    /**
+     * Check if the product is already liked by the user.
+     */
+    private fun checkIfProductIsLiked(productId: Int, mobileUserId: Int) {
+        val url = "http://10.40.70.46/backend/check_if_liked.php?mobile_user_id=$mobileUserId&product_id=$productId"
+        val request = Request.Builder().url(url).build()
+        val client = OkHttpClient()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@ProductDetailsActivity, "❌ Failed to check like status: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string() ?: return
+                try {
+                    val json = JSONObject(responseBody)
+                    if (!json.optBoolean("success", false)) {
+                        runOnUiThread {
+                            Toast.makeText(this@ProductDetailsActivity, "❌ Error: ${json.optString("message")}", Toast.LENGTH_SHORT).show()
+                        }
+                        return
+                    }
+
+                    isLiked = json.optBoolean("is_liked", false)
+                    runOnUiThread {
+                        updateLikeButton()
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        Toast.makeText(this@ProductDetailsActivity, "❌ Error parsing like status: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
+    /**
+     * Update the like button icon based on the like status.
+     */
+    private fun updateLikeButton() {
+        if (isLiked) {
+            likedBtn.setImageResource(R.drawable.fill_heart)
+        } else {
+            likedBtn.setImageResource(R.drawable.empty_heart)
+        }
+    }
+
+    /**
+     * Add the product to the user's liked products via API.
+     */
+    private fun addToLikedProducts(productId: Int) {
+        val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        val mobileUserId = sharedPreferences.getInt("user_id", -1)
+
+        if (mobileUserId == -1) {
+            Toast.makeText(this, "❌ Please login to like a product", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val jsonObject = JSONObject().apply {
+            put("mobile_user_id", mobileUserId)
+            put("product_id", productId)
+        }
+
+        val requestBody = jsonObject.toString()
+            .toRequestBody("application/json; charset=utf-8".toMediaType())
+
+        val request = Request.Builder()
+            .url("http://10.40.70.46/backend/add_to_liked_products.php")
+            .post(requestBody)
+            .build()
+
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@ProductDetailsActivity, "❌ Failed to connect to server", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                runOnUiThread {
+                    if (responseBody != null) {
+                        val jsonResponse = JSONObject(responseBody)
+                        if (jsonResponse.optBoolean("success", false)) {
+                            isLiked = true
+                            updateLikeButton()
+                            Toast.makeText(this@ProductDetailsActivity, "✅ Added to liked products!", Toast.LENGTH_SHORT).show()
+                            // Navigate to LikedProductsActivity
+                            val intent = Intent(this@ProductDetailsActivity, LikedProductsActivity::class.java)
+                            startActivity(intent)
+                        } else {
+                            Toast.makeText(this@ProductDetailsActivity, "❌ Error: ${jsonResponse.optString("message")}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        })
+    }
+
+    /**
+     * Remove the product from the user's liked products via API.
+     */
+    private fun removeFromLikedProducts(productId: Int) {
+        val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        val mobileUserId = sharedPreferences.getInt("user_id", -1)
+
+        if (mobileUserId == -1) {
+            Toast.makeText(this, "❌ Please login to unlike a product", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val jsonObject = JSONObject().apply {
+            put("mobile_user_id", mobileUserId)
+            put("product_id", productId)
+        }
+
+        val requestBody = jsonObject.toString()
+            .toRequestBody("application/json; charset=utf-8".toMediaType())
+
+        val request = Request.Builder()
+            .url("http://10.40.70.46/backend/remove_from_liked_products.php")
+            .post(requestBody)
+            .build()
+
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@ProductDetailsActivity, "❌ Failed to connect to server", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                runOnUiThread {
+                    if (responseBody != null) {
+                        val jsonResponse = JSONObject(responseBody)
+                        if (jsonResponse.optBoolean("success", false)) {
+                            isLiked = false
+                            updateLikeButton()
+                            Toast.makeText(this@ProductDetailsActivity, "✅ Removed from liked products!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this@ProductDetailsActivity, "❌ Error: ${jsonResponse.optString("message")}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        })
     }
 
     /**
