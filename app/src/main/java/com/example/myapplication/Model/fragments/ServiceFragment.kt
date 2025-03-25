@@ -114,12 +114,12 @@ class ServiceFragment : Fragment(R.layout.fragment_service) {
         groomTypeField?.setText("")
         checkupTypeField?.setText("")
 
-        view.findViewById<EditText>(R.id.etName)?.setText("")
+        view.findViewById<EditText>(R.id.etNameInput)?.setText("")
         view.findViewById<EditText>(R.id.etAddress)?.setText("")
         view.findViewById<EditText>(R.id.etPhone)?.setText("")
-        view.findViewById<EditText>(R.id.etPetName)?.setText("")
-        view.findViewById<EditText>(R.id.etPetBreed)?.setText("")
-        view.findViewById<EditText>(R.id.etNotes)?.setText("")
+        view.findViewById<EditText>(R.id.etPetNameInput)?.setText("")
+        view.findViewById<EditText>(R.id.etPetBreedInput)?.setText("")
+        view.findViewById<EditText>(R.id.etNotesInput)?.setText("")
 
         view.findViewById<RadioGroup>(R.id.radioPetType)?.clearCheck()
         view.findViewById<Spinner>(R.id.spinnerPaymentMethod)?.setSelection(0)

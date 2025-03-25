@@ -103,91 +103,128 @@
                 android:layout_width="match_parent"
                 android:layout_height="10dp"/>
 
-            <EditText
-                android:id="@+id/etName"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/etNameLayout"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:textSize="15sp"
-                android:textColor="@color/black"
-                android:fontFamily="@font/alata"
-                android:hint="  Enter your name"
-                android:paddingStart="15dp"
-                android:paddingEnd="15dp"
-                android:maxLines="1"
-                android:inputType="textPersonName"
-                android:background="@drawable/appointment_input_design"/>
+                android:layout_height="wrap_content"
+                app:errorEnabled="true"
+                app:errorTextColor="@android:color/holo_red_dark"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etNameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="      Enter your name"
+                    android:fontFamily="@font/alata"
+                    android:textColor="@color/black"
+                    android:textSize="15sp"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/etPhoneLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:errorEnabled="true"
+                app:errorTextColor="@android:color/holo_red_dark"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPhoneInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/alata"
+                    android:hint="      Enter your phone number"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="10dp"/>
 
-            <EditText
-                android:id="@+id/etPhone"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/etAddressLayout"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:textSize="15sp"
-                android:textColor="@color/black"
-                android:fontFamily="@font/alata"
-                android:hint="  Enter your phone number"
-                android:paddingStart="15dp"
-                android:paddingEnd="15dp"
-                android:maxLines="1"
-                android:inputType="phone"
-                android:background="@drawable/appointment_input_design"/>
+                android:layout_height="wrap_content"
+                app:errorEnabled="true"
+                app:errorTextColor="@android:color/holo_red_dark"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etAddressInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/alata"
+                    android:hint="      Enter your phone Address"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="10dp"/>
 
-            <EditText
-                android:id="@+id/etAddress"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/etPetNameLayout"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:hint="  Enter your Address"
-                android:textSize="15sp"
-                android:textColor="@color/black"
-                android:fontFamily="@font/alata"
-                android:paddingStart="15dp"
-                android:paddingEnd="15dp"
-                android:maxLines="1"
-                android:inputType="textEmailAddress"
-                android:background="@drawable/appointment_input_design"/>
+                android:layout_height="wrap_content"
+                app:errorEnabled="true"
+                app:errorTextColor="@android:color/holo_red_dark"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="20dp"/>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPetNameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/alata"
+                    android:hint="      Enter your pet's name"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
 
-            <EditText
-                android:id="@+id/etPetName"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:hint="  Enter your pet’s name"
-                android:textSize="15sp"
-                android:textColor="@color/black"
-                android:fontFamily="@font/alata"
-                android:paddingStart="15dp"
-                android:paddingEnd="15dp"
-                android:maxLines="1"
-                android:inputType="textPersonName"
-                android:background="@drawable/appointment_input_design"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <Space
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/etPetBreedLayout"
                 android:layout_width="match_parent"
-                android:layout_height="10dp"/>
+                android:layout_height="wrap_content"
+                app:errorEnabled="true"
+                app:errorTextColor="@android:color/holo_red_dark"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-            <EditText
-                android:id="@+id/etPetBreed"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:hint="  Enter your pet’s breed"
-                android:textSize="15sp"
-                android:textColor="@color/black"
-                android:fontFamily="@font/alata"
-                android:paddingStart="15dp"
-                android:paddingEnd="15dp"
-                android:maxLines="1"
-                android:inputType="textPersonName"
-                android:background="@drawable/appointment_input_design"/>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPetBreedInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/alata"
+                    android:hint="      Enter your pet's breed"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
             <Space
                 android:layout_width="match_parent"
@@ -232,20 +269,32 @@
                 android:layout_width="match_parent"
                 android:layout_height="10dp"/>
 
-            <EditText
-                android:id="@+id/etNotes"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/etNotesLayout"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:hint="  Notes"
-                android:textSize="15sp"
-                android:textColor="@color/black"
-                android:fontFamily="@font/alata"
-                android:paddingStart="15dp"
-                android:paddingEnd="15dp"
-                android:maxLines="1"
-                android:inputType="text"
-                android:background="@drawable/appointment_input_design"
-                android:minHeight="80dp"/>
+                android:layout_height="wrap_content"
+                app:errorEnabled="true"
+                app:counterEnabled="true"
+                app:counterMaxLength="100"
+                app:endIconMode="clear_text"
+                app:errorTextColor="@android:color/holo_red_dark"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etNotesInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/alata"
+                    android:hint="      Notes"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:minHeight="80dp"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
             <Space
                 android:layout_width="match_parent"

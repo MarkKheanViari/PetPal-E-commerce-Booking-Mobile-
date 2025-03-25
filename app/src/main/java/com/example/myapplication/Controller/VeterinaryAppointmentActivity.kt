@@ -16,18 +16,26 @@ import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import org.json.JSONObject
 import java.util.Calendar
 
 class VeterinaryAppointmentActivity : AppCompatActivity() {
 
     private lateinit var backBtn: ImageView
-    private lateinit var etName: EditText
-    private lateinit var etAddress: EditText
-    private lateinit var etPhone: EditText
-    private lateinit var etPetName: EditText
-    private lateinit var etPetBreed: EditText
-    private lateinit var etNotes: EditText
+    private lateinit var etNameLayout : TextInputLayout
+    private lateinit var etNameInput: TextInputEditText
+    private lateinit var etAddresslayout : TextInputLayout
+    private lateinit var etAddressInput: TextInputEditText
+    private lateinit var etPhoneLayout : TextInputLayout
+    private lateinit var etPhoneInput: TextInputEditText
+    private lateinit var etPetNameLayout : TextInputLayout
+    private lateinit var etPetNameInput: TextInputEditText
+    private lateinit var etPetBreedLayout : TextInputLayout
+    private lateinit var etPetBreedInput: TextInputEditText
+    private lateinit var etNoteslayout : TextInputLayout
+    private lateinit var etNotesInput: TextInputEditText
     private lateinit var btnPickDate: Button
     private var selectedTime: String? = null
     private lateinit var spinnerPickTime: Spinner
@@ -43,12 +51,18 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
         // Initialize views
         backBtn = findViewById(R.id.backBtn)
         checkupTypeField = findViewById(R.id.checkupTypeField)
-        etName = findViewById(R.id.etName)
-        etAddress = findViewById(R.id.etAddress)
-        etPhone = findViewById(R.id.etPhone)
-        etPetName = findViewById(R.id.etPetName)
-        etPetBreed = findViewById(R.id.etPetBreed)
-        etNotes = findViewById(R.id.etNotes)
+        etNameLayout = findViewById(R.id.etNameLayout)
+        etNameInput = findViewById(R.id.etNameInput)
+        etAddresslayout = findViewById(R.id.etAddressLayout)
+        etAddressInput = findViewById(R.id.etAddressInput)
+        etPhoneLayout = findViewById(R.id.etPhoneLayout)
+        etPhoneInput = findViewById(R.id.etPhoneInput)
+        etPetNameLayout = findViewById(R.id.etPetNameLayout)
+        etPetNameInput = findViewById(R.id.etPetNameInput)
+        etPetBreedLayout = findViewById(R.id.etPetBreedLayout)
+        etPetBreedInput = findViewById(R.id.etPetBreedInput)
+        etNoteslayout = findViewById(R.id.etNotesLayout)
+        etNotesInput = findViewById(R.id.etNotesInput)
         btnPickDate = findViewById(R.id.btnPickDate)
         spinnerPaymentMethod = findViewById(R.id.spinnerPaymentMethod)
         val scheduleButton: Button = findViewById(R.id.btnScheduleAppointment)
@@ -158,23 +172,23 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
             return
         }
 
-        val address = if (etAddress.text.toString().trim().isEmpty()) savedLocation else etAddress.text.toString().trim()
-        val phoneNumber = if (etPhone.text.toString().trim().isEmpty()) savedPhoneNumber else etPhone.text.toString().trim()
+        val address = if (etAddressInput.text.toString().trim().isEmpty()) savedLocation else etAddressInput.text.toString().trim()
+        val phoneNumber = if (etPhoneInput.text.toString().trim().isEmpty()) savedPhoneNumber else etPhoneInput.text.toString().trim()
         val appointmentTime = convertTo24HourFormat(selectedTime!!)
 
         val params = mapOf(
             "mobile_user_id" to mobileUserId,
             "service_type" to "Veterinary", // "Veterinary" in VeterinaryAppointmentActivity
             "service_name" to checkupTypeField.text.toString().trim(), // checkupTypeField in Veterinary
-            "name" to etName.text.toString().trim(),
+            "name" to etNameInput.text.toString().trim(),
             "address" to (address ?: ""),
             "phone_number" to (phoneNumber ?: ""),
-            "pet_name" to etPetName.text.toString().trim(),
-            "pet_breed" to etPetBreed.text.toString().trim(),
+            "pet_name" to etPetNameInput.text.toString().trim(),
+            "pet_breed" to etPetBreedInput.text.toString().trim(),
             "appointment_date" to selectedDate!!,
             "appointment_time" to appointmentTime,
             "payment_method" to spinnerPaymentMethod.selectedItem.toString().trim(),
-            "notes" to etNotes.text.toString().trim(),
+            "notes" to etNotesInput.text.toString().trim(),
             "price" to servicePrice
         )
 
@@ -282,12 +296,12 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
     }
 
     private fun clearFields() {
-        etName.text.clear()
-        etAddress.text.clear()
-        etPhone.text.clear()
-        etPetName.text.clear()
-        etPetBreed.text.clear()
-        etNotes.text.clear()
+        etNameInput.text?.clear()
+        etAddressInput.text?.clear()
+        etPhoneInput.text?.clear()
+        etPetNameInput.text?.clear()
+        etPetBreedInput.text?.clear()
+        etNotesInput.text?.clear()
         btnPickDate.text = "Pick Date"
         spinnerPaymentMethod.setSelection(0)
         spinnerPickTime.setSelection(0)
