@@ -1,36 +1,24 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <!-- Group of top items -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group
         android:id="@+id/top_group"
-        android:checkableBehavior="single">
+        android:checkableBehavior="none"> <!-- Make them non-checkable -->
 
         <item
             android:id="@+id/nav_likedProducts"
+            android:title="Liked Products"
             android:icon="@drawable/ic_favorite_border"
-            android:title="Liked Products" />
+            android:checkable="false" />
 
         <item
             android:id="@+id/nav_notif"
+            android:title="Notifications"
             android:icon="@drawable/notif"
-            android:title="Notifications" />
+            android:checkable="false" />
 
         <item
             android:id="@+id/nav_faq"
+            android:title="FAQ"
             android:icon="@drawable/help"
-            android:title="FAQ" />
-
-        <!-- Remove the logout item from here -->
-        <!-- <item
-             android:id="@+id/nav_logout"
-             android:icon="@drawable/logout"
-             android:title="Logout"
-             android:layout_gravity="bottom" /> -->
-
+            android:checkable="false" />
     </group>
-
-    <!-- Any other items you want in the menu -->
-
 </menu>

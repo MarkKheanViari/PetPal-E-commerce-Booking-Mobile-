@@ -59,7 +59,7 @@
 
             <!-- View Cart Button -->
             <ImageView
-                android:id="@+id/viewCartButton"
+                android:id="@+id/viewNotifButton"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_gravity="end"

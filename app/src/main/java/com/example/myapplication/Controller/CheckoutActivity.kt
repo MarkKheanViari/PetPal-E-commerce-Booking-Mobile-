@@ -161,7 +161,7 @@ class CheckoutActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://10.40.70.46/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.12/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
         Log.d("CheckoutActivity", "Request URL: $url")
         val request = Request.Builder().url(url).get().build()
 
@@ -214,6 +214,14 @@ class CheckoutActivity : AppCompatActivity() {
 
     private fun submitOrder() {
         Log.d("CheckoutActivity", "🚀 submitOrder() function triggered!")
+
+        // Check if a payment method has been selected
+        val paymentMethod = paymentMethodText.text.toString().trim()
+        if (paymentMethod.equals("Select Payment Method", ignoreCase = true) || paymentMethod.isEmpty()) {
+            Toast.makeText(this, "Please select a payment method", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         val userId = sharedPreferences.getInt("user_id", -1)
 
@@ -222,8 +230,6 @@ class CheckoutActivity : AppCompatActivity() {
             Toast.makeText(this, "User not logged in!", Toast.LENGTH_SHORT).show()
             return
         }
-
-        val paymentMethod = paymentMethodText.text.toString()
 
         val jsonObject = JSONObject().apply {
             put("mobile_user_id", userId)
@@ -252,7 +258,7 @@ class CheckoutActivity : AppCompatActivity() {
             Log.d("CheckoutActivity", "⚡ Using PayMongo GCASH Payment")
 
             val request = Request.Builder()
-                .url("http://10.40.70.46/backend/paymongo_checkout.php")
+                .url("http://192.168.1.12/backend/paymongo_checkout.php")
                 .post(requestBody)
                 .build()
 
@@ -298,7 +304,7 @@ class CheckoutActivity : AppCompatActivity() {
         } else {
             // Normal COD order submission
             val request = Request.Builder()
-                .url("http://10.40.70.46/backend/submit_order.php")
+                .url("http://192.168.1.12/backend/submit_order.php")
                 .post(requestBody)
                 .build()
 

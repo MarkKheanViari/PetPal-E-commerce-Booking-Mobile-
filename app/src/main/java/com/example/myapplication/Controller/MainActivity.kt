@@ -85,32 +85,20 @@ class MainActivity : AppCompatActivity() {
 
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.nav_profile -> {
-                    showMainUI(false)
-                    loadFragment(ProfileFragment(), true)
-                    true
+                R.id.nav_likedProducts -> {
+                    startActivity(Intent(this, LikedProductsActivity::class.java))
                 }
                 R.id.nav_notif -> {
                     startActivity(Intent(this, NotificationActivity::class.java))
-                    true
                 }
                 R.id.nav_faq -> {
                     startActivity(Intent(this, FaqActivity::class.java))
-                    true
                 }
-                R.id.nav_logout -> {
-                    doLogout()
-                    true
-                }
-                R.id.menu_service -> {
-                    showMainUI(false)
-                    loadFragment(ServiceFragment(), true)
-                    true
-                }
-                else -> false
-            }.also {
-                drawerLayout.closeDrawer(GravityCompat.START)
             }
+            // Uncheck the item so it doesn't stay highlighted
+            menuItem.isChecked = false
+            // Close the drawer
+            drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
 
@@ -122,14 +110,10 @@ class MainActivity : AppCompatActivity() {
         }
         // --------------------------------------------------
 
-        val viewCartButton = findViewById<ImageView>(R.id.viewCartButton)
-        viewCartButton.setOnClickListener {
-            val isGuest = sharedPreferences.getBoolean("isGuest", false)
-            if (isGuest) {
-                Toast.makeText(this, "Guest users cannot order. Please log in to access your cart.", Toast.LENGTH_SHORT).show()
-            } else {
-                startActivity(Intent(this, CartActivity::class.java))
-            }
+        // Change: Using viewNotifButton to go to NotificationActivity
+        val viewNotifButton = findViewById<ImageView>(R.id.viewNotifButton)
+        viewNotifButton.setOnClickListener {
+            startActivity(Intent(this, NotificationActivity::class.java))
         }
 
         productsRecyclerView = findViewById(R.id.productsRecyclerView)
@@ -292,7 +276,7 @@ class MainActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://10.40.70.46/backend/add_to_liked_products.php")
+            .url("http://192.168.1.12/backend/add_to_liked_products.php")
             .post(requestBody)
             .build()
 
@@ -389,7 +373,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkForApprovedAppointments(userId: Int) {
-        val url = "http://10.40.70.46/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
+        val url = "http://192.168.1.12/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
         val request = JsonObjectRequest(
             com.android.volley.Request.Method.GET, url, null,
             { response ->
@@ -487,7 +471,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchProducts() {
-        val url = "http://10.40.70.46/backend/fetch_product.php"
+        val url = "http://192.168.1.12/backend/fetch_product.php"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -505,7 +489,7 @@ class MainActivity : AppCompatActivity() {
 
                     val productsArray = json.optJSONArray("products") ?: JSONArray()
                     val fetchedProducts = mutableListOf<Product>()
-                    val baseImageUrl = "http://10.40.70.46/backend/uploads/"
+                    val baseImageUrl = "http://192.168.1.12/backend/uploads/"
 
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)
@@ -557,7 +541,7 @@ class MainActivity : AppCompatActivity() {
         displayedProducts.clear()
         productAdapter.notifyDataSetChanged()
 
-        val url = "http://10.40.70.46/backend/fetch_product.php?category=$category"
+        val url = "http://192.168.1.12/backend/fetch_product.php?category=$category"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -581,11 +565,11 @@ class MainActivity : AppCompatActivity() {
                         val productJson = productsArray.getJSONObject(i)
                         val rawImage = productJson.optString("image", "").trim()
                         val fullImageUrl = if (rawImage.isNotEmpty() && !rawImage.startsWith("http")) {
-                            "http://10.40.70.46/backend/uploads/$rawImage"
+                            "http://192.168.1.12/backend/uploads/$rawImage"
                         } else {
                             rawImage
                         }
-                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://10.40.70.46/backend/uploads/default.jpg"
+                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.1.12/backend/uploads/default.jpg"
 
                         categoryProducts.add(
                             Product(

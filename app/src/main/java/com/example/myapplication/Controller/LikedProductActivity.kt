@@ -73,7 +73,7 @@ class LikedProductsActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://10.40.70.46/backend/fetch_liked_products.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.12/backend/fetch_liked_products.php?mobile_user_id=$mobileUserId"
         val request = Request.Builder().url(url).build()
         val client = OkHttpClient()
 

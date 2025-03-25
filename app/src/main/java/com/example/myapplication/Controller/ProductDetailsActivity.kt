@@ -169,7 +169,7 @@ class ProductDetailsActivity : AppCompatActivity() {
      * Check if the product is already liked by the user.
      */
     private fun checkIfProductIsLiked(productId: Int, mobileUserId: Int) {
-        val url = "http://10.40.70.46/backend/check_if_liked.php?mobile_user_id=$mobileUserId&product_id=$productId"
+        val url = "http://192.168.1.12/backend/check_if_liked.php?mobile_user_id=$mobileUserId&product_id=$productId"
         val request = Request.Builder().url(url).build()
         val client = OkHttpClient()
 
@@ -236,7 +236,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://10.40.70.46/backend/add_to_liked_products.php")
+            .url("http://192.168.1.12/backend/add_to_liked_products.php")
             .post(requestBody)
             .build()
 
@@ -290,7 +290,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://10.40.70.46/backend/remove_from_liked_products.php")
+            .url("http://192.168.1.12/backend/remove_from_liked_products.php")
             .post(requestBody)
             .build()
 
@@ -324,7 +324,7 @@ class ProductDetailsActivity : AppCompatActivity() {
      * Fetch the user's current rating for the product.
      */
     private fun fetchUserRating(productId: Int, mobileUserId: Int) {
-        val url = "http://10.40.70.46/backend/fetch_user_rating.php?mobile_user_id=$mobileUserId&product_id=$productId"
+        val url = "http://192.168.1.12/backend/fetch_user_rating.php?mobile_user_id=$mobileUserId&product_id=$productId"
         val request = Request.Builder().url(url).build()
         val client = OkHttpClient()
 
@@ -365,7 +365,7 @@ class ProductDetailsActivity : AppCompatActivity() {
      * Fetch rating statistics for the product.
      */
     private fun fetchRatingStats(productId: Int) {
-        val url = "http://10.40.70.46/backend/fetch_product_rating_stats.php?product_id=$productId"
+        val url = "http://192.168.1.12/backend/fetch_product_rating_stats.php?product_id=$productId"
         val request = Request.Builder().url(url).build()
         val client = OkHttpClient()
 
@@ -473,7 +473,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://10.40.70.46/backend/add_to_cart.php")
+            .url("http://192.168.1.12/backend/add_to_cart.php")
             .post(requestBody)
             .build()
 
@@ -529,7 +529,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://10.40.70.46/backend/add_product_review.php")
+            .url("http://192.168.1.12/backend/add_product_review.php")
             .post(requestBody)
             .build()
 
