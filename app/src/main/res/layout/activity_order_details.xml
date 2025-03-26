@@ -57,7 +57,7 @@
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/tab_pending"
-                android:text="Pending"/> <!-- ✅ Updated ID -->
+                android:text="Pending"/>
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/tab_to_ship"
@@ -69,7 +69,11 @@
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/tab_delivered"
-                android:text="Delivered"/> <!-- ✅ Added "Delivered" tab -->
+                android:text="Delivered"/>
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/tab_cancelled"
+                android:text="Cancelled"/>
 
         </com.google.android.material.tabs.TabLayout>
 
