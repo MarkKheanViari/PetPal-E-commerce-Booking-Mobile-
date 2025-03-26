@@ -22,9 +22,9 @@ import java.io.IOException
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var backBtn: ImageView
-    private lateinit var usernameLayout : TextInputLayout
+    private lateinit var usernameLayout: TextInputLayout
     private lateinit var usernameInput: TextInputEditText
-    private lateinit var passwordLayout : TextInputLayout
+    private lateinit var passwordLayout: TextInputLayout
     private lateinit var passwordInput: EditText
     private lateinit var loginButton: Button
     private lateinit var forgotpass: TextView
@@ -75,7 +75,8 @@ class LoginActivity : AppCompatActivity() {
         }
 
         forgotpass.setOnClickListener {
-            startActivity(Intent(this, ForgotPasswordActivity::class.java))
+            startActivity(Intent(this, ForgotPasswordStep1Activity::class.java))
+            finish() // Optional: Prevents returning to LoginActivity
         }
 
         // Set up click listener for login button

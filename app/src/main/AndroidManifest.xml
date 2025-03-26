@@ -126,6 +126,10 @@
         <activity android:name=".NotificationActivity" android:exported="false" />
         <activity android:name=".WebViewActivity" android:exported="true" />
 
+        <activity android:name=".ForgotPasswordStep1Activity"/>
+        <activity android:name=".ForgotPasswordStep2Activity"/>
+        <activity android:name=".ForgotPasswordStep3Activity"/>
+
         <!-- Deep Link Configuration for Payment Success -->
         <activity
             android:name=".PaymentSuccessActivity"
