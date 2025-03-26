@@ -24,22 +24,23 @@ import java.util.Calendar
 class VeterinaryAppointmentActivity : AppCompatActivity() {
 
     private lateinit var backBtn: ImageView
-    private lateinit var etNameLayout : TextInputLayout
+    private lateinit var receiptIcon: ImageView  // Receipt icon in the toolbar
+    private lateinit var etNameLayout: TextInputLayout
     private lateinit var etNameInput: TextInputEditText
-    private lateinit var etAddresslayout : TextInputLayout
+    private lateinit var etAddresslayout: TextInputLayout
     private lateinit var etAddressInput: TextInputEditText
-    private lateinit var etPhoneLayout : TextInputLayout
+    private lateinit var etPhoneLayout: TextInputLayout
     private lateinit var etPhoneInput: TextInputEditText
-    private lateinit var etPetNameLayout : TextInputLayout
+    private lateinit var etPetNameLayout: TextInputLayout
     private lateinit var etPetNameInput: TextInputEditText
-    private lateinit var etPetBreedLayout : TextInputLayout
+    private lateinit var etPetBreedLayout: TextInputLayout
     private lateinit var etPetBreedInput: TextInputEditText
-    private lateinit var etNoteslayout : TextInputLayout
+    private lateinit var etNoteslayout: TextInputLayout
     private lateinit var etNotesInput: TextInputEditText
     private lateinit var btnPickDate: Button
+    private lateinit var spinnerPaymentMethod: Spinner
     private var selectedTime: String? = null
     private lateinit var spinnerPickTime: Spinner
-    private lateinit var spinnerPaymentMethod: Spinner
     private lateinit var checkupTypeField: EditText
     private var selectedDate: String? = null
     private lateinit var servicePrice: String
@@ -50,6 +51,7 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
 
         // Initialize views
         backBtn = findViewById(R.id.backBtn)
+        receiptIcon = findViewById(R.id.appointment_order)  // Reference to the receipt icon
         checkupTypeField = findViewById(R.id.checkupTypeField)
         etNameLayout = findViewById(R.id.etNameLayout)
         etNameInput = findViewById(R.id.etNameInput)
@@ -70,6 +72,7 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
         // Retrieve the service price from the Intent
         servicePrice = intent.getStringExtra("SERVICE_PRICE") ?: "500.00"
 
+        // Back button navigation
         backBtn.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java).apply {
                 putExtra("SELECTED_TAB", "menu_service")
@@ -79,7 +82,13 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
             finish()
         }
 
-        // Get service name from intent and display it as non-editable, bold, and centered
+        // Set click listener for the receipt icon to view saved receipt details later
+        receiptIcon.setOnClickListener {
+            val intent = Intent(this, ReceiptActivity::class.java)
+            startActivity(intent)
+        }
+
+        // Display service name as non-editable, bold, and centered
         val serviceName = intent.getStringExtra("SERVICE_NAME")
         serviceName?.let {
             checkupTypeField.setText(it)
@@ -144,7 +153,6 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
                 }
                 "/appointment/cancel" -> {
                     Toast.makeText(this, "⚠ Payment canceled", Toast.LENGTH_LONG).show()
-                    // Stay in the activity to allow retry
                 }
             }
         }
@@ -178,8 +186,8 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
 
         val params = mapOf(
             "mobile_user_id" to mobileUserId,
-            "service_type" to "Veterinary", // "Veterinary" in VeterinaryAppointmentActivity
-            "service_name" to checkupTypeField.text.toString().trim(), // checkupTypeField in Veterinary
+            "service_type" to "Veterinary",
+            "service_name" to checkupTypeField.text.toString().trim(),
             "name" to etNameInput.text.toString().trim(),
             "address" to (address ?: ""),
             "phone_number" to (phoneNumber ?: ""),
@@ -198,7 +206,7 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
 
         if (paymentMethod.equals("GCASH", ignoreCase = true)) {
             Log.d("Appointment", "GCash payment method selected, initiating PayMongo flow")
-            val url = "http://192.168.1.65/backend/paymongo_appointment_checkout.php"
+            val url = "http://192.168.1.12/backend/paymongo_appointment_checkout.php"
             val request = JsonObjectRequest(
                 Request.Method.POST, url, jsonObject,
                 { response ->
@@ -210,7 +218,7 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
                             Log.d("Appointment", "Redirecting to WebViewActivity with URL: $checkoutUrl")
                             val intent = Intent(this, WebViewActivity::class.java)
                             intent.putExtra("url", checkoutUrl)
-                            intent.putExtra("source", "appointment") // Indicate this is for an appointment
+                            intent.putExtra("source", "appointment")
                             startActivity(intent)
                         } else {
                             Log.e("Appointment", "Missing checkout URL in response")
@@ -233,13 +241,16 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
             Volley.newRequestQueue(this).add(request)
         } else {
             Log.d("Appointment", "Non-GCash payment method selected: $paymentMethod, using schedule_appointment.php")
-            val url = "http://192.168.1.65/backend/schedule_appointment.php"
+            val url = "http://192.168.1.12/backend/schedule_appointment.php"
             val request = JsonObjectRequest(
                 Request.Method.POST, url, jsonObject,
                 { response ->
                     Log.d("Appointment", "Appointment scheduled: $response")
                     if (response.optBoolean("success", false)) {
                         Toast.makeText(this, "Appointment Scheduled!", Toast.LENGTH_SHORT).show()
+                        // Save the receipt details for later viewing
+                        saveReceiptDetails(params)
+                        // Show the receipt dialog immediately
                         showReceiptDialog(params)
                         clearFields()
                     } else {
@@ -259,7 +270,15 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
         }
     }
 
+    private fun saveReceiptDetails(params: Map<String, String>) {
+        // Save the receipt details in SharedPreferences as a JSON string for later viewing
+        val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        val jsonString = JSONObject(params).toString()
+        sharedPreferences.edit().putString("receipt_details", jsonString).apply()
+    }
+
     private fun showReceiptDialog(params: Map<String, String>) {
+        // Create and display a dialog showing the receipt details
         val dialog = Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
         dialog.setContentView(R.layout.layout_receipt_dialog)
         dialog.setCancelable(false)
@@ -273,7 +292,6 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
         window?.setBackgroundDrawable(ColorDrawable(Color.WHITE))
         window?.setGravity(Gravity.CENTER)
         window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-
         window?.decorView?.setPadding(0, 0, 0, 0)
 
         dialog.findViewById<TextView>(R.id.tvReceiptServiceType).text = "Service Type: ${params["service_type"] ?: "N/A"}"

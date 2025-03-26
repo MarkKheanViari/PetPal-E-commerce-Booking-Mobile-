@@ -115,7 +115,7 @@ class OrderAdapter(private var orders: List<Order>) :
 
     // Send Cancel Request to Backend
     private fun cancelOrder(context: Context, order: Order) {
-        val url = "http://192.168.1.65/backend/cancel_order.php?order_id=${order.id}"
+        val url = "http://192.168.1.12/backend/cancel_order.php?order_id=${order.id}"
         val requestQueue = Volley.newRequestQueue(context)
 
         val request = JsonObjectRequest(Request.Method.POST, url, null,

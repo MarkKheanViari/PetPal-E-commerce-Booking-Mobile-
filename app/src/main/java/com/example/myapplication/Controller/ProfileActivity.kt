@@ -82,7 +82,7 @@ class ProfileActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.65/backend/mobile_get_user.php")
+            .url("http://192.168.1.12/backend/mobile_get_user.php")
             .post(requestBody)
             .build()
 

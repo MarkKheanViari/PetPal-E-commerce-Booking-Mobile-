@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -36,14 +37,15 @@
             android:textColor="@color/black"
             android:fontFamily="@font/alata"/>
 
+        <!-- Receipt icon for later viewing (clickable in code) -->
         <ImageView
+            android:id="@+id/appointment_order"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="end"
             android:src="@drawable/baseline_receipt_24"
             android:layout_marginEnd="16dp"
             android:contentDescription="@string/design_desc"/>
-
     </androidx.appcompat.widget.Toolbar>
 
     <ScrollView
@@ -69,7 +71,7 @@
                 android:textSize="20sp"
                 android:textColor="@color/black"
                 android:fontFamily="@font/alata"/>
-            
+
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="10dp"/>
@@ -82,7 +84,7 @@
                 android:background="@drawable/image_container"
                 android:src="@drawable/grooming_image"
                 android:contentDescription="@string/design_desc"/>
-            
+
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="10dp"/>
@@ -123,7 +125,6 @@
                     android:lines="1"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"/>
-
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -146,7 +147,6 @@
                     android:paddingEnd="20dp"
                     android:textColor="@color/black"
                     android:textSize="15sp" />
-
             </com.google.android.material.textfield.TextInputLayout>
 
             <Space
@@ -173,7 +173,6 @@
                     android:paddingEnd="20dp"
                     android:textColor="@color/black"
                     android:textSize="15sp" />
-
             </com.google.android.material.textfield.TextInputLayout>
 
             <Space
@@ -200,7 +199,6 @@
                     android:paddingEnd="20dp"
                     android:textColor="@color/black"
                     android:textSize="15sp" />
-
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -223,7 +221,6 @@
                     android:paddingEnd="20dp"
                     android:textColor="@color/black"
                     android:textSize="15sp" />
-
             </com.google.android.material.textfield.TextInputLayout>
 
             <Space
@@ -262,7 +259,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Dog"/>
-
             </RadioGroup>
 
             <Space
@@ -293,7 +289,6 @@
                     android:paddingEnd="20dp"
                     android:textColor="@color/black"
                     android:textSize="15sp" />
-
             </com.google.android.material.textfield.TextInputLayout>
 
             <Space
@@ -345,11 +340,6 @@
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="40dp"/>
-
         </LinearLayout>
-
-
     </ScrollView>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
