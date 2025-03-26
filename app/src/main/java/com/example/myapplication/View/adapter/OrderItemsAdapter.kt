@@ -26,17 +26,15 @@ class OrderItemsAdapter(private val items: List<OrderItem>) :
         holder.productQuantity.text = "Quantity: ${item.quantity}"
         holder.productPrice.text = "₱${item.price}"
 
-        // ✅ Log Image URL to debug if the URL is correct
         Log.d("OrderItemsAdapter", "Loading Image URL: ${item.imageUrl}")
 
-        // ✅ Fix Image Loading with Glide
         Glide.with(holder.itemView.context)
-            .load(item.imageUrl.trim()) // Trim spaces
+            .load(item.imageUrl.trim())
             .apply(
                 RequestOptions()
-                    .placeholder(R.drawable.cat) // Show placeholder while loading
-                    .error(R.drawable.error_image) // Show error image if URL is broken
-                    .diskCacheStrategy(DiskCacheStrategy.ALL) // Cache images for better performance
+                    .placeholder(R.drawable.cat)
+                    .error(R.drawable.error_image)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
             )
             .into(holder.productImage)
     }

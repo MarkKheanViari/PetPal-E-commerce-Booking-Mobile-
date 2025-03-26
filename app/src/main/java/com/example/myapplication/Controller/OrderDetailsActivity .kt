@@ -85,7 +85,7 @@ class OrderDetailsActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.12/backend/fetch_orders_mobile.php?mobile_user_id=$userId"
+        val url = "http://192.168.1.65/backend/fetch_orders_mobile.php?mobile_user_id=$userId"
 
         val request = JsonObjectRequest(Request.Method.GET, url, null,
             Response.Listener { response ->
@@ -148,6 +148,7 @@ class OrderDetailsActivity : AppCompatActivity() {
             2 -> allOrders.filter { it.status == "To Ship" }
             3 -> allOrders.filter { it.status == "Shipped" }
             4 -> allOrders.filter { it.status == "Delivered" }
+            5 -> allOrders.filter { it.status == "Cancelled" } // New tab
             else -> allOrders
         }
         orderAdapter.updateOrders(filteredOrders)
