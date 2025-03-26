@@ -9,13 +9,13 @@
     android:background="@drawable/oranage_header"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
+    <!-- Name TextView -->
     <ImageView
         android:id="@+id/headerImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/logo" />
+        android:layout_width="104dp"
+        android:layout_height="82dp"
+        android:src="@drawable/doggy" />
 
-    <!-- Name TextView -->
     <TextView
         android:id="@+id/headerName"
         android:layout_width="wrap_content"
