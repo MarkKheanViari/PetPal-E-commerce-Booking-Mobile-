@@ -45,18 +45,20 @@ class AppointmentAdapter(
 
         // Load image
         Glide.with(context)
-            .load("http://192.168.1.15/backend/${appointment.image}")
+            .load("http://192.168.1.65/backend/${appointment.image}")
             .placeholder(R.drawable.cat)
             .into(holder.serviceImage)
 
+        // ✅ Update status colors, including "Cancelled"
         when (appointment.status.lowercase()) {
             "pending" -> holder.status.setTextColor(Color.parseColor("#FFD700"))
             "declined" -> holder.status.setTextColor(Color.parseColor("#FF0000"))
             "approved" -> holder.status.setTextColor(Color.parseColor("#4CAF50"))
+            "cancelled" -> holder.status.setTextColor(Color.parseColor("#FF4500")) // OrangeRed for Cancelled
             else -> holder.status.setTextColor(Color.parseColor("#757575"))
         }
 
-        // ✅ Show details dialog on click
+        // Show details dialog on click
         holder.itemView.setOnClickListener {
             showAppointmentDetailsDialog(appointment, position)
         }
@@ -64,7 +66,7 @@ class AppointmentAdapter(
 
     override fun getItemCount(): Int = appointments.size
 
-    // ✅ Show a dialog with appointment details
+    // Show a dialog with appointment details
     private fun showAppointmentDetailsDialog(appointment: Appointment, position: Int) {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Appointment Details")
@@ -102,7 +104,7 @@ class AppointmentAdapter(
         builder.show()
     }
 
-    // ✅ Show confirmation dialog before canceling an appointment
+    // Show confirmation dialog before canceling an appointment
     private fun showCancelDialog(appointment: Appointment, position: Int) {
         AlertDialog.Builder(context)
             .setTitle("Cancel Appointment")
@@ -112,7 +114,7 @@ class AppointmentAdapter(
             .show()
     }
 
-    // ✅ Send cancellation request to backend
+    // Send cancellation request to backend
     private fun cancelAppointment(appointment: Appointment, position: Int) {
         val sharedPreferences = context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
         val mobileUserId = sharedPreferences.getInt("user_id", -1)
@@ -122,7 +124,7 @@ class AppointmentAdapter(
             return
         }
 
-        val url = "http://192.168.1.15/backend/cancel_service_request.php"
+        val url = "http://192.168.1.65/backend/cancel_service_request.php"
 
         val requestData = JSONObject().apply {
             put("mobile_user_id", mobileUserId)
@@ -131,20 +133,28 @@ class AppointmentAdapter(
             put("appointment_date", appointment.appointmentDate)
         }
 
-        Log.d("CANCEL_REQUEST", "Sending request: $requestData") // ✅ Debugging
+        Log.d("CANCEL_REQUEST", "Sending request: $requestData") // Debugging
 
         val request = JsonObjectRequest(Request.Method.POST, url, requestData,
             { response ->
-                Log.d("CANCEL_RESPONSE", "Response: $response") // ✅ Debugging
+                Log.d("CANCEL_RESPONSE", "Response: $response") // Debugging
 
                 if (response.getBoolean("success")) {
                     Toast.makeText(context, "✅ Appointment canceled!", Toast.LENGTH_SHORT).show()
 
-                    // ✅ Update status in list instead of removing
-                    appointments[position] = appointment.copy(status = "Declined")
-                    notifyItemChanged(position) // ✅ Refresh UI for this item
+                    // ✅ Check the action taken by the backend
+                    val action = response.getString("action")
+                    if (action == "deleted") {
+                        // If Pending, remove the item from the list
+                        appointments.removeAt(position)
+                        notifyItemRemoved(position)
+                    } else if (action == "updated") {
+                        // If Approved, update the status to Cancelled
+                        appointments[position] = appointment.copy(status = "Cancelled")
+                        notifyItemChanged(position)
+                    }
 
-                    // ✅ Call the callback function to refresh the parent list
+                    // Call the callback to refresh the parent list
                     onAppointmentCanceled()
                 } else {
                     Toast.makeText(context, "❌ Failed to cancel: ${response.getString("message")}", Toast.LENGTH_SHORT).show()
