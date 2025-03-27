@@ -432,8 +432,18 @@ class MainActivity : AppCompatActivity() {
     private fun setupBottomNavigation() {
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
             findViewById<TextView>(R.id.toolbarTitle).text = item.title
+
+            // CHANGED: Grab the top-right icon each time a navigation item is selected
+            val viewNotifButton = findViewById<ImageView>(R.id.viewNotifButton)
+
             when (item.itemId) {
                 R.id.nav_products -> {
+                    // CHANGED: Revert to the notification icon and NotificationActivity
+                    viewNotifButton.setImageResource(R.drawable.doggy)
+                    viewNotifButton.setOnClickListener {
+                        startActivity(Intent(this, NotificationActivity::class.java))
+                    }
+
                     showMainUI(true)
                     supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                     fetchProducts()
@@ -441,31 +451,54 @@ class MainActivity : AppCompatActivity() {
                     findViewById<FrameLayout>(R.id.fragment_container).visibility = View.VISIBLE
                     true
                 }
+
                 R.id.menu_service -> {
+                    // CHANGED: Use a receipt icon and open the ReceiptActivity on click
+                    viewNotifButton.setImageResource(R.drawable.cat)
+                    viewNotifButton.setOnClickListener {
+                        startActivity(Intent(this, ReceiptActivity::class.java))
+                    }
+
                     showMainUI(false)
                     loadFragment(ServiceFragment(), true)
                     findViewById<FrameLayout>(R.id.fragment_container1).visibility = View.VISIBLE
                     findViewById<FrameLayout>(R.id.fragment_container).visibility = View.GONE
                     true
                 }
+
                 R.id.nav_cart -> {
+                    // CHANGED: Revert to notification icon again
+                    viewNotifButton.setImageResource(R.drawable.doggy)
+                    viewNotifButton.setOnClickListener {
+                        startActivity(Intent(this, NotificationActivity::class.java))
+                    }
+
                     showMainUI(false)
                     loadFragment(CartFragment(), true)
                     findViewById<FrameLayout>(R.id.fragment_container1).visibility = View.VISIBLE
                     findViewById<FrameLayout>(R.id.fragment_container).visibility = View.GONE
                     true
                 }
+
                 R.id.nav_profile -> {
+                    // CHANGED: Revert to notification icon again
+                    viewNotifButton.setImageResource(R.drawable.cat)
+                    viewNotifButton.setOnClickListener {
+                        startActivity(Intent(this, NotificationActivity::class.java))
+                    }
+
                     showMainUI(false)
                     loadFragment(ProfileFragment(), true)
                     findViewById<FrameLayout>(R.id.fragment_container1).visibility = View.VISIBLE
                     findViewById<FrameLayout>(R.id.fragment_container).visibility = View.GONE
                     true
                 }
+
                 else -> false
             }
         }
     }
+
 
     private fun updateBottomNavigation() {
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container1)
