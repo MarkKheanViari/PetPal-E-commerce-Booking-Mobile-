@@ -100,7 +100,7 @@
             android:layout_height="wrap_content"
             android:text="Submit"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@android:color/holo_orange_dark"
+            android:backgroundTint="@color/darker_orange"
             android:textColor="@android:color/white" />
     </LinearLayout>
 </ScrollView>

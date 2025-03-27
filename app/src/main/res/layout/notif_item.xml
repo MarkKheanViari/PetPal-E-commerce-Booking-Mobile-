@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardUseCompatPadding="true"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:paddingVertical="5dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/info"
+                android:contentDescription="@string/design_desc"/>
+
+            <TextView
+                android:id="@+id/notifInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Scheduled Grooming has been approved!"
+                android:textColor="@color/black"
+                android:fontFamily="@font/alata"
+                android:layout_marginStart="10dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="5dp"
+            android:weightSum="2">
+
+            <TextView
+                android:id="@+id/notifContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nail Clipping"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/notifDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="03-26-25"
+                android:gravity="end"
+                android:layout_weight="1"
+                android:textColor="@color/black"/>
+
+
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+</androidx.cardview.widget.CardView>

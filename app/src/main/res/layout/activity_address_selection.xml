@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Add Address"
-        android:backgroundTint="@android:color/holo_orange_dark"
+        android:backgroundTint="@color/darker_orange"
         android:textColor="@android:color/white"
         android:layout_marginTop="16dp" />
 </LinearLayout>
