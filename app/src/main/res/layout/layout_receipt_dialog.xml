@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:fillViewport="true"
@@ -7,126 +9,147 @@
     android:layout_marginStart="16dp"
     android:layout_marginEnd="16dp">
 
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="vertical"
-android:padding="16dp"
-android:background="@android:color/white"
-android:elevation="4dp">
-
-<TextView
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Appointment Receipt"
-    android:textSize="20sp"
-    android:textStyle="bold"
-    android:gravity="center"
-    android:paddingBottom="16dp"/>
-
-
-
-<TextView
-    android:id="@+id/tvReceiptServiceType"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Service Type: "
-    android:textSize="16sp"
-    android:paddingBottom="8dp"/>
-
-<TextView
-    android:id="@+id/tvReceiptServiceName"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Service Name: "
-    android:textSize="16sp"
-    android:paddingBottom="8dp"/>
-
-<TextView
-    android:id="@+id/tvReceiptName"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Name: "
-    android:textSize="16sp"
-    android:paddingBottom="8dp"/>
-
-<TextView
-    android:id="@+id/tvReceiptAddress"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Address: "
-    android:textSize="16sp"
-    android:paddingBottom="8dp"/>
-
-<TextView
-    android:id="@+id/tvReceiptPhone"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Phone: "
-    android:textSize="16sp"
-    android:paddingBottom="8dp"/>
-
-<TextView
-    android:id="@+id/tvReceiptPetName"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Pet Name: "
-    android:textSize="16sp"
-    android:paddingBottom="8dp"/>
-
-<TextView
-    android:id="@+id/tvReceiptPetBreed"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Pet Breed: "
-    android:textSize="16sp"
-    android:paddingBottom="8dp"/>
-
-<TextView
-    android:id="@+id/tvReceiptDate"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Date: "
-    android:textSize="16sp"
-    android:paddingBottom="8dp"/>
-
-    <TextView
-        android:id="@+id/tvReceiptTime"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Time: "
-        android:textSize="16sp"/>
+        app:cardCornerRadius="8dp"
+        app:cardElevation="6dp"
+        android:layout_margin="16dp"
+        android:background="@android:color/white">
 
-<TextView
-    android:id="@+id/tvReceiptPaymentMethod"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Payment Method: "
-    android:textSize="16sp"
-    android:paddingBottom="8dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
 
-<TextView
-    android:id="@+id/tvReceiptNotes"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Notes: "
-    android:textSize="16sp"
-    android:paddingBottom="16dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Appointment Receipt"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:gravity="center"
+                android:paddingBottom="16dp"/>
 
-<TextView
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Please take a screenshot for your records."
-    android:textSize="14sp"
-    android:textStyle="italic"
-    android:gravity="center"
-    android:paddingBottom="16dp"/>
+            <!-- Receipt details -->
+            <TextView
+                android:id="@+id/tvReceiptServiceType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Service Type: "
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:paddingBottom="8dp"/>
 
-<Button
-    android:id="@+id/btnCloseReceipt"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Close"
-    android:layout_gravity="center"/>
-</LinearLayout>
-    </ScrollView>
+            <TextView
+                android:id="@+id/tvReceiptServiceName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Service Name: "
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:paddingBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvReceiptName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Name: "
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:paddingBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvReceiptAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Address: "
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:paddingBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvReceiptPhone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Phone: "
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:paddingBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvReceiptPetName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pet Name: "
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:paddingBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvReceiptPetBreed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pet Breed: "
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:paddingBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvReceiptDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Date: "
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:paddingBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvReceiptTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Time: "
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:paddingBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvReceiptPaymentMethod"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Payment Method: "
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:paddingBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvReceiptNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Notes: "
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:paddingBottom="16dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Please take a screenshot for your records."
+                android:textSize="14sp"
+                android:textStyle="italic"
+                android:gravity="center"
+                android:paddingBottom="16dp"/>
+
+            <Button
+                android:id="@+id/btnCloseReceipt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Close"
+                android:layout_gravity="center"
+                android:backgroundTint="?attr/colorPrimary"
+                android:textColor="@android:color/white"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</ScrollView>

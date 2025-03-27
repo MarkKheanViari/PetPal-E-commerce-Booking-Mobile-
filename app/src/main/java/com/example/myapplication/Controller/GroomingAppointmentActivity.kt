@@ -13,12 +13,14 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import org.json.JSONArray
 import org.json.JSONObject
 import java.util.Calendar
 
@@ -134,7 +136,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         val serviceImageView: ImageView = findViewById(R.id.serviceImage)
 
         Glide.with(this)
-            .load("http://192.168.1.65/backend/$imageUrl") // Replace with your IP/domain if different
+            .load("http://192.168.1.12/backend/$imageUrl") // Replace with your IP/domain if different
             .placeholder(R.drawable.cat)
             .into(serviceImageView)
 
@@ -216,7 +218,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
 
         if (paymentMethod.equals("GCASH", ignoreCase = true)) {
             Log.d("Appointment", "GCash payment method selected, initiating PayMongo flow")
-            val url = "http://192.168.1.65/backend/paymongo_appointment_checkout.php"
+            val url = "http://192.168.1.12/backend/paymongo_appointment_checkout.php"
             val request = JsonObjectRequest(
                 Request.Method.POST, url, jsonObject,
                 { response ->
@@ -247,18 +249,26 @@ class GroomingAppointmentActivity : AppCompatActivity() {
                     Toast.makeText(this, "Failed to initiate GCash payment: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
             )
+            // Optional: extend timeout if needed
+            request.retryPolicy = DefaultRetryPolicy(
+                30000, // 30 seconds timeout
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            )
             Volley.newRequestQueue(this).add(request)
         } else {
             Log.d("Appointment", "Non-GCash payment method selected: $paymentMethod, using schedule_appointment.php")
-            val url = "http://192.168.1.65/backend/schedule_appointment.php"
+            val url = "http://192.168.1.12/backend/schedule_appointment.php"
             val request = JsonObjectRequest(
                 Request.Method.POST, url, jsonObject,
                 { response ->
                     Log.d("Appointment", "Appointment scheduled: $response")
                     if (response.optBoolean("success", false)) {
                         Toast.makeText(this, "Appointment Scheduled!", Toast.LENGTH_SHORT).show()
-                        saveReceiptDetails(params)      // Save receipt for later
-                        showReceiptDialog(params)       // Show pop-up receipt immediately
+                        // Append this appointment to the list of receipts (allowing multiple appointments)
+                        saveReceiptDetails(params)
+                        // Immediately show the receipt dialog for this appointment
+                        showReceiptDialog(params)
                         clearFields()
                     } else {
                         val errorMessage = response.optString("message", "Unknown error")
@@ -277,15 +287,17 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         }
     }
 
+    // Append the new appointment details to a JSON array stored in SharedPreferences
     private fun saveReceiptDetails(params: Map<String, String>) {
-        // Save the receipt details in SharedPreferences as a JSON string
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-        val jsonString = JSONObject(params).toString()
-        sharedPreferences.edit().putString("receipt_details", jsonString).apply()
+        val existingReceipts = sharedPreferences.getString("receipt_details_list", null)
+        val receiptsArray = if (existingReceipts != null) JSONArray(existingReceipts) else JSONArray()
+        receiptsArray.put(JSONObject(params))
+        sharedPreferences.edit().putString("receipt_details_list", receiptsArray.toString()).apply()
     }
 
+    // Create and display a dialog showing the details for the current appointment
     private fun showReceiptDialog(params: Map<String, String>) {
-        // Create and display a dialog showing the receipt details
         val dialog = Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
         dialog.setContentView(R.layout.layout_receipt_dialog)
         dialog.setCancelable(false)
@@ -301,17 +313,29 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
         window?.decorView?.setPadding(0, 0, 0, 0)
 
-        dialog.findViewById<TextView>(R.id.tvReceiptServiceType).text = "Service Type: ${params["service_type"] ?: "N/A"}"
-        dialog.findViewById<TextView>(R.id.tvReceiptServiceName).text = "Service Name: ${params["service_name"] ?: "N/A"}"
-        dialog.findViewById<TextView>(R.id.tvReceiptName).text = "Name: ${params["name"] ?: "N/A"}"
-        dialog.findViewById<TextView>(R.id.tvReceiptAddress).text = "Address: ${params["address"] ?: "N/A"}"
-        dialog.findViewById<TextView>(R.id.tvReceiptPhone).text = "Phone: ${params["phone_number"] ?: "N/A"}"
-        dialog.findViewById<TextView>(R.id.tvReceiptPetName).text = "Pet Name: ${params["pet_name"] ?: "N/A"}"
-        dialog.findViewById<TextView>(R.id.tvReceiptPetBreed).text = "Pet Breed: ${params["pet_breed"] ?: "N/A"}"
-        dialog.findViewById<TextView>(R.id.tvReceiptDate).text = "Date: ${params["appointment_date"] ?: "N/A"}"
-        dialog.findViewById<TextView>(R.id.tvReceiptTime).text = "Time: ${params["appointment_time"] ?: "N/A"}"
-        dialog.findViewById<TextView>(R.id.tvReceiptPaymentMethod).text = "Payment Method: ${params["payment_method"] ?: "N/A"}"
-        dialog.findViewById<TextView>(R.id.tvReceiptNotes).text = "Notes: ${params["notes"] ?: "N/A"}"
+        dialog.findViewById<TextView>(R.id.tvReceiptServiceType).text =
+            "Service Type: ${params["service_type"] ?: "N/A"}"
+        dialog.findViewById<TextView>(R.id.tvReceiptServiceName).text =
+            "Service Name: ${params["service_name"] ?: "N/A"}"
+        dialog.findViewById<TextView>(R.id.tvReceiptName).text =
+            "Name: ${params["name"] ?: "N/A"}"
+        dialog.findViewById<TextView>(R.id.tvReceiptAddress).text =
+            "Address: ${params["address"] ?: "N/A"}"
+        dialog.findViewById<TextView>(R.id.tvReceiptPhone).text =
+            "Phone: ${params["phone_number"] ?: "N/A"}"
+        dialog.findViewById<TextView>(R.id.tvReceiptPetName).text =
+            "Pet Name: ${params["pet_name"] ?: "N/A"}"
+        dialog.findViewById<TextView>(R.id.tvReceiptPetBreed).text =
+            "Pet Breed: ${params["pet_breed"] ?: "N/A"}"
+        dialog.findViewById<TextView>(R.id.tvReceiptDate).text =
+            "Date: ${params["appointment_date"] ?: "N/A"}"
+        dialog.findViewById<TextView>(R.id.tvReceiptTime).text =
+            "Time: ${params["appointment_time"] ?: "N/A"}"
+        dialog.findViewById<TextView>(R.id.tvReceiptPaymentMethod).text =
+            "Payment Method: ${params["payment_method"] ?: "N/A"}"
+        dialog.findViewById<TextView>(R.id.tvReceiptNotes).text =
+            "Notes: ${params["notes"] ?: "N/A"}"
+
         dialog.findViewById<Button>(R.id.btnCloseReceipt).setOnClickListener {
             dialog.dismiss()
         }

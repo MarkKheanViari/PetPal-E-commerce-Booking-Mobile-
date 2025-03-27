@@ -37,7 +37,7 @@
             android:textColor="@color/black"
             android:fontFamily="@font/alata"/>
 
-        <!-- Receipt icon for later viewing (clickable in code) -->
+        <!-- Receipt icon for later viewing -->
         <ImageView
             android:id="@+id/appointment_order"
             android:layout_width="30dp"

@@ -46,7 +46,7 @@ class AppointmentAdapter(
 
         // Load image
         Glide.with(context)
-            .load("http://192.168.1.65/backend/${appointment.image}")
+            .load("http://192.168.1.12/backend/${appointment.image}")
             .placeholder(R.drawable.cat)
             .into(holder.serviceImage)
 
@@ -89,7 +89,7 @@ class AppointmentAdapter(
             return
         }
 
-        val url = "http://192.168.1.65/backend/cancel_service_request.php"
+        val url = "http://192.168.1.12/backend/cancel_service_request.php"
 
         val requestData = JSONObject().apply {
             put("mobile_user_id", mobileUserId)
