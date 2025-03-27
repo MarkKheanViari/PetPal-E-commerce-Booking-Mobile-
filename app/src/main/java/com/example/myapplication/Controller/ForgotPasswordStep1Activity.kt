@@ -156,7 +156,7 @@ class ForgotPasswordStep1Activity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/send_otp_email.php")
+            .url("http://192.168.1.15/backend/send_otp_email.php")
             .post(requestBody)
             .build()
 

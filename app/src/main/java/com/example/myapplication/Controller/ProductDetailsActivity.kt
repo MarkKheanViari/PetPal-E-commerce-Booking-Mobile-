@@ -69,6 +69,7 @@ class ProductDetailsActivity : AppCompatActivity() {
         val productDescriptionTextView = findViewById<TextView>(R.id.productDescription)
         val productPriceTextView = findViewById<TextView>(R.id.prduct_price)
         val backBtn = findViewById<ImageView>(R.id.backBtn)
+        val cartBtn = findViewById<ImageView>(R.id.cartBtn)
         likedBtn = findViewById(R.id.likedBtn)
         val addToCartButton = findViewById<MaterialButton>(R.id.addtocart_container)
         val buyNowButton = findViewById<MaterialButton>(R.id.buynow_container)
@@ -105,6 +106,15 @@ class ProductDetailsActivity : AppCompatActivity() {
 
         // Back button
         backBtn.setOnClickListener { finish() }
+
+        cartBtn.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java).apply {
+                putExtra("navigate_to", "cart")
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+            startActivity(intent)
+            finish()
+        }
 
         // Like button functionality
         likedBtn.setOnClickListener {
@@ -169,7 +179,7 @@ class ProductDetailsActivity : AppCompatActivity() {
      * Check if the product is already liked by the user.
      */
     private fun checkIfProductIsLiked(productId: Int, mobileUserId: Int) {
-        val url = "http://192.168.1.12/backend/check_if_liked.php?mobile_user_id=$mobileUserId&product_id=$productId"
+        val url = "http://192.168.1.15/backend/check_if_liked.php?mobile_user_id=$mobileUserId&product_id=$productId"
         val request = Request.Builder().url(url).build()
         val client = OkHttpClient()
 
@@ -236,7 +246,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/add_to_liked_products.php")
+            .url("http://192.168.1.15/backend/add_to_liked_products.php")
             .post(requestBody)
             .build()
 
@@ -290,7 +300,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/remove_from_liked_products.php")
+            .url("http://192.168.1.15/backend/remove_from_liked_products.php")
             .post(requestBody)
             .build()
 
@@ -324,7 +334,7 @@ class ProductDetailsActivity : AppCompatActivity() {
      * Fetch the user's current rating for the product.
      */
     private fun fetchUserRating(productId: Int, mobileUserId: Int) {
-        val url = "http://192.168.1.12/backend/fetch_user_rating.php?mobile_user_id=$mobileUserId&product_id=$productId"
+        val url = "http://192.168.1.15/backend/fetch_user_rating.php?mobile_user_id=$mobileUserId&product_id=$productId"
         val request = Request.Builder().url(url).build()
         val client = OkHttpClient()
 
@@ -365,7 +375,7 @@ class ProductDetailsActivity : AppCompatActivity() {
      * Fetch rating statistics for the product.
      */
     private fun fetchRatingStats(productId: Int) {
-        val url = "http://192.168.1.12/backend/fetch_product_rating_stats.php?product_id=$productId"
+        val url = "http://192.168.1.15/backend/fetch_product_rating_stats.php?product_id=$productId"
         val request = Request.Builder().url(url).build()
         val client = OkHttpClient()
 
@@ -473,7 +483,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/add_to_cart.php")
+            .url("http://192.168.1.15/backend/add_to_cart.php")
             .post(requestBody)
             .build()
 
@@ -529,7 +539,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/add_product_review.php")
+            .url("http://192.168.1.15/backend/add_product_review.php")
             .post(requestBody)
             .build()
 
