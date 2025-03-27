@@ -54,7 +54,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
 
         // Initialize views
         backBtn = findViewById(R.id.backBtn)
-        receiptIcon = findViewById(R.id.appointment_order) // Receipt icon from toolbar
+        receiptIcon = findViewById(R.id.appointment_order)
         groomTypeField = findViewById(R.id.groomTypeField)
         etNameLayout = findViewById(R.id.etNameLayout)
         etNameInput = findViewById(R.id.etNameInput)
@@ -72,10 +72,10 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         spinnerPaymentMethod = findViewById(R.id.spinnerPaymentMethod)
         val scheduleButton: Button = findViewById(R.id.btnScheduleAppointment)
 
-        // Retrieve the service price from the Intent
+        // Retrieve service price from the Intent
         servicePrice = intent.getStringExtra("SERVICE_PRICE") ?: "500.00"
 
-        // Back button navigation
+        // Back button: go back to MainActivity and select the service tab
         backBtn.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java).apply {
                 putExtra("SELECTED_TAB", "menu_service")
@@ -85,13 +85,13 @@ class GroomingAppointmentActivity : AppCompatActivity() {
             finish()
         }
 
-        // Set click listener for receipt icon to view saved receipt details later
+        // Receipt icon: clicking it launches ReceiptActivity
         receiptIcon.setOnClickListener {
             val intent = Intent(this, ReceiptActivity::class.java)
             startActivity(intent)
         }
 
-        // Display service name as non-editable, bold, and centered
+        // Display service name (non-editable, bold, centered)
         val serviceName = intent.getStringExtra("SERVICE_NAME")
         serviceName?.let {
             groomTypeField.setText(it)
@@ -100,7 +100,15 @@ class GroomingAppointmentActivity : AppCompatActivity() {
             groomTypeField.setTextAppearance(android.R.style.TextAppearance_Medium)
         }
 
-        // Handle date picker (disable past dates)
+        // Load service image using Glide (if available)
+        val imageUrl = intent.getStringExtra("SERVICE_IMAGE")
+        val serviceImageView: ImageView = findViewById(R.id.serviceImage)
+        Glide.with(this)
+            .load("http://192.168.1.12/backend/$imageUrl")
+            .placeholder(R.drawable.cat)
+            .into(serviceImageView)
+
+        // Set up the date picker (disable past dates)
         btnPickDate.setOnClickListener {
             val calendar = Calendar.getInstance()
             val year = calendar.get(Calendar.YEAR)
@@ -111,7 +119,6 @@ class GroomingAppointmentActivity : AppCompatActivity() {
                 selectedDate = "$selectedYear-${selectedMonth + 1}-$selectedDay"
                 btnPickDate.text = selectedDate
             }, year, month, day)
-
             datePickerDialog.datePicker.minDate = System.currentTimeMillis()
             datePickerDialog.show()
         }
@@ -131,15 +138,6 @@ class GroomingAppointmentActivity : AppCompatActivity() {
                 selectedTime = null
             }
         }
-
-        val imageUrl = intent.getStringExtra("SERVICE_IMAGE")
-        val serviceImageView: ImageView = findViewById(R.id.serviceImage)
-
-        Glide.with(this)
-            .load("http://192.168.1.15/backend/$imageUrl") // Replace with your IP/domain if different
-            .placeholder(R.drawable.cat)
-            .into(serviceImageView)
-
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -218,7 +216,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
 
         if (paymentMethod.equals("GCASH", ignoreCase = true)) {
             Log.d("Appointment", "GCash payment method selected, initiating PayMongo flow")
-            val url = "http://192.168.1.15/backend/paymongo_appointment_checkout.php"
+            val url = "http://192.168.1.12/backend/paymongo_appointment_checkout.php"
             val request = JsonObjectRequest(
                 Request.Method.POST, url, jsonObject,
                 { response ->
@@ -249,24 +247,26 @@ class GroomingAppointmentActivity : AppCompatActivity() {
                     Toast.makeText(this, "Failed to initiate GCash payment: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
             )
-            // Optional: extend timeout if needed
+            // Extend timeout if needed
             request.retryPolicy = DefaultRetryPolicy(
-                30000, // 30 seconds timeout
+                30000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
             )
             Volley.newRequestQueue(this).add(request)
         } else {
             Log.d("Appointment", "Non-GCash payment method selected: $paymentMethod, using schedule_appointment.php")
-            val url = "http://192.168.1.15/backend/schedule_appointment.php"
+            val url = "http://192.168.1.12/backend/schedule_appointment.php"
             val request = JsonObjectRequest(
                 Request.Method.POST, url, jsonObject,
                 { response ->
                     Log.d("Appointment", "Appointment scheduled: $response")
                     if (response.optBoolean("success", false)) {
                         Toast.makeText(this, "Appointment Scheduled!", Toast.LENGTH_SHORT).show()
-                        // Append this appointment to the list of receipts (allowing multiple appointments)
+                        // Save the appointment details for notifications/receipt list
                         saveReceiptDetails(params)
+                        // Optionally, also add a local notification message:
+                        addLocalNotification("Appointment Scheduled: ${groomTypeField.text} on $selectedDate at $appointmentTime")
                         // Immediately show the receipt dialog for this appointment
                         showReceiptDialog(params)
                         clearFields()
@@ -296,7 +296,16 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         sharedPreferences.edit().putString("receipt_details_list", receiptsArray.toString()).apply()
     }
 
-    // Create and display a dialog showing the details for the current appointment
+    // Add a local notification message (for example, so that NotificationActivity can display it)
+    private fun addLocalNotification(message: String) {
+        val sp = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        val existingString = sp.getString("notifications", "[]")
+        val array = JSONArray(existingString)
+        array.put(message)
+        sp.edit().putString("notifications", array.toString()).apply()
+    }
+
+    // Create and display a dialog showing the receipt details for the current appointment
     private fun showReceiptDialog(params: Map<String, String>) {
         val dialog = Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
         dialog.setContentView(R.layout.layout_receipt_dialog)

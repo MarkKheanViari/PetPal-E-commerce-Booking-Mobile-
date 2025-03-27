@@ -28,7 +28,7 @@ class ServiceAdapter(private val context: Context, private val serviceList: List
 
         // Load image using Glide
         Glide.with(context)
-            .load("http://192.168.1.15/backend/${service.image}") // Adjust this URL if needed
+            .load("http://192.168.1.12/backend/${service.image}") // Adjust this URL if needed
             .placeholder(R.drawable.cat) // fallback image
             .into(holder.serviceImage)
 

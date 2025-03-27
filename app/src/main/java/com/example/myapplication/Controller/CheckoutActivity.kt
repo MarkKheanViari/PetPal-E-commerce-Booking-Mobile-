@@ -1,16 +1,14 @@
 package com.example.myapplication
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.view.inputmethod.InputMethodManager
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,7 +32,7 @@ class CheckoutActivity : AppCompatActivity() {
     private lateinit var paymentMethodText: TextView
     private lateinit var placeOrderButton: Button
     private lateinit var addressSection: LinearLayout
-    private lateinit var paymentMethodIcon: ImageView // Added for logo
+    private lateinit var paymentMethodIcon: ImageView
 
     private lateinit var cartItems: ArrayList<HashMap<String, String>>
     private lateinit var cartList: ArrayList<CartItem>
@@ -61,7 +59,7 @@ class CheckoutActivity : AppCompatActivity() {
         paymentMethodText = findViewById(R.id.paymentMethodText)
         placeOrderButton = findViewById(R.id.checkoutBtn)
         addressSection = findViewById(R.id.addressSection)
-        paymentMethodIcon = findViewById(R.id.paymentMethodIcon) // Initialize the logo ImageView
+        paymentMethodIcon = findViewById(R.id.paymentMethodIcon)
 
         val productId = intent.getIntExtra("productId", -1)
         val productName = intent.getStringExtra("productName") ?: "Unknown"
@@ -92,13 +90,11 @@ class CheckoutActivity : AppCompatActivity() {
                 description = it["description"] ?: "No description available",
                 quantity = it["quantity"]?.toInt() ?: 1,
                 price = it["price"]?.toDoubleOrNull() ?: 0.0
-            ).also { cartItem ->
-                Log.d("CheckoutActivity", "Parsed CartItem: $cartItem")
-            }
+            )
         })
 
         placeOrderButton.setOnClickListener { submitOrder() }
-        fetchUserInfo() // Fetch user info including address
+        fetchUserInfo()
         calculateTotal()
         calculateOrderSummary()
 
@@ -119,7 +115,6 @@ class CheckoutActivity : AppCompatActivity() {
             builder.show()
         }
 
-        // Make address section clickable to navigate to address selection
         addressSection.setOnClickListener {
             navigateToAddressSelection(it)
         }
@@ -141,7 +136,6 @@ class CheckoutActivity : AppCompatActivity() {
                 }
                 "/payment/cancel" -> {
                     Toast.makeText(this, "⚠ Payment canceled", Toast.LENGTH_LONG).show()
-                    // Stay in CheckoutActivity to allow retry
                 }
             }
         }
@@ -161,7 +155,7 @@ class CheckoutActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.15/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.12/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
         Log.d("CheckoutActivity", "Request URL: $url")
         val request = Request.Builder().url(url).get().build()
 
@@ -214,8 +208,6 @@ class CheckoutActivity : AppCompatActivity() {
 
     private fun submitOrder() {
         Log.d("CheckoutActivity", "🚀 submitOrder() function triggered!")
-
-        // Check if a payment method has been selected
         val paymentMethod = paymentMethodText.text.toString().trim()
         if (paymentMethod.equals("Select Payment Method", ignoreCase = true) || paymentMethod.isEmpty()) {
             Toast.makeText(this, "Please select a payment method", Toast.LENGTH_SHORT).show()
@@ -251,14 +243,12 @@ class CheckoutActivity : AppCompatActivity() {
         }
 
         Log.d("CheckoutActivity", "📦 Request JSON: $jsonObject")
-
         val requestBody = jsonObject.toString().toRequestBody("application/json".toMediaType())
 
         if (paymentMethod == "GCASH") {
             Log.d("CheckoutActivity", "⚡ Using PayMongo GCASH Payment")
-
             val request = Request.Builder()
-                .url("http://192.168.1.15/backend/paymongo_checkout.php")
+                .url("http://192.168.1.12/backend/paymongo_checkout.php")
                 .post(requestBody)
                 .build()
 
@@ -273,17 +263,13 @@ class CheckoutActivity : AppCompatActivity() {
                 override fun onResponse(call: Call, response: Response) {
                     val responseBody = response.body?.string()
                     Log.d("CheckoutActivity", "📦 API Response: $responseBody")
-
                     runOnUiThread {
                         try {
                             val jsonResponse = JSONObject(responseBody ?: "{}")
-
                             if (jsonResponse.optBoolean("success", false)) {
                                 val checkoutUrl = jsonResponse.optString("checkout_url", "")
-
                                 if (checkoutUrl.isNotEmpty()) {
                                     Log.d("CheckoutActivity", "🌐 Redirecting to PayMongo: $checkoutUrl")
-
                                     val intent = Intent(this@CheckoutActivity, WebViewActivity::class.java)
                                     intent.putExtra("url", checkoutUrl)
                                     startActivity(intent)
@@ -302,9 +288,9 @@ class CheckoutActivity : AppCompatActivity() {
                 }
             })
         } else {
-            // Normal COD order submission
+            // COD order submission
             val request = Request.Builder()
-                .url("http://192.168.1.15/backend/submit_order.php")
+                .url("http://192.168.1.12/backend/submit_order.php")
                 .post(requestBody)
                 .build()
 
@@ -322,6 +308,12 @@ class CheckoutActivity : AppCompatActivity() {
                     runOnUiThread {
                         if (response.isSuccessful && responseBody?.contains("success") == true) {
                             showOrderPlacedToast()
+
+                            // Build a summary from cartList (e.g., product names)
+                            val productNames = cartList.joinToString { it.productName }
+                            // Add a local notification for the order
+                            addLocalNotification("Order Placed: $productNames")
+
                             finish()
                         } else {
                             Toast.makeText(this@CheckoutActivity, "❌ Failed to place order.", Toast.LENGTH_SHORT).show()
@@ -330,6 +322,14 @@ class CheckoutActivity : AppCompatActivity() {
                 }
             })
         }
+    }
+
+    private fun addLocalNotification(message: String) {
+        val sp = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        val existingString = sp.getString("notifications", "[]")
+        val array = JSONArray(existingString)
+        array.put(message)
+        sp.edit().putString("notifications", array.toString()).apply()
     }
 
     private fun calculateTotal() {
