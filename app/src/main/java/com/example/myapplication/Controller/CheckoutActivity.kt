@@ -256,7 +256,6 @@ class CheckoutActivity : AppCompatActivity() {
 
         if (paymentMethod == "GCASH") {
             Log.d("CheckoutActivity", "⚡ Using PayMongo GCASH Payment")
-
             val request = Request.Builder()
                 .url("http://192.168.1.65/backend/paymongo_checkout.php")
                 .post(requestBody)
@@ -273,17 +272,13 @@ class CheckoutActivity : AppCompatActivity() {
                 override fun onResponse(call: Call, response: Response) {
                     val responseBody = response.body?.string()
                     Log.d("CheckoutActivity", "📦 API Response: $responseBody")
-
                     runOnUiThread {
                         try {
                             val jsonResponse = JSONObject(responseBody ?: "{}")
-
                             if (jsonResponse.optBoolean("success", false)) {
                                 val checkoutUrl = jsonResponse.optString("checkout_url", "")
-
                                 if (checkoutUrl.isNotEmpty()) {
                                     Log.d("CheckoutActivity", "🌐 Redirecting to PayMongo: $checkoutUrl")
-
                                     val intent = Intent(this@CheckoutActivity, WebViewActivity::class.java)
                                     intent.putExtra("url", checkoutUrl)
                                     startActivity(intent)
@@ -321,7 +316,15 @@ class CheckoutActivity : AppCompatActivity() {
                     Log.d("CheckoutActivity", "📦 API Response: $responseBody")
                     runOnUiThread {
                         if (response.isSuccessful && responseBody?.contains("success") == true) {
+                            // Show success toast
                             showOrderPlacedToast()
+                            // Clear cart items on the server
+                            clearCartItems(userId)
+                            // Redirect to MainActivity
+                            val intent = Intent(this@CheckoutActivity, MainActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                            intent.putExtra("navigate_to", "products") // Optional: Ensure products tab is selected
+                            startActivity(intent)
                             finish()
                         } else {
                             Toast.makeText(this@CheckoutActivity, "❌ Failed to place order.", Toast.LENGTH_SHORT).show()
@@ -331,6 +334,32 @@ class CheckoutActivity : AppCompatActivity() {
             })
         }
     }
+
+
+    // Function to clear cart items after order is placed
+    private fun clearCartItems(userId: Int) {
+        val url = "http://192.168.1.65/backend/clear_cart.php"
+        val json = JSONObject().apply {
+            put("mobile_user_id", userId)
+        }
+        val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+        val request = Request.Builder().url(url).post(requestBody).build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("CheckoutActivity", "❌ Failed to clear cart: ${e.message}")
+                runOnUiThread {
+                    Toast.makeText(this@CheckoutActivity, "❌ Failed to clear cart", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                Log.d("CheckoutActivity", "✅ Cart cleared successfully")
+            }
+        })
+    }
+
+
 
     private fun calculateTotal() {
         cartTotal = cartList.sumOf { it.price * it.quantity }

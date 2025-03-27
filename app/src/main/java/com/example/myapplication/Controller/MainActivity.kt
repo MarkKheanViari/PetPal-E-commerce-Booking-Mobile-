@@ -156,7 +156,10 @@ class MainActivity : AppCompatActivity() {
                 bottomNavigation.selectedItemId = R.id.nav_cart
                 findViewById<TextView>(R.id.toolbarTitle).text = "Cart"
             }
-            // Add other cases if needed (e.g., "profile", "services")
+            "products" -> { // Add this case if not already present
+                bottomNavigation.selectedItemId = R.id.nav_products
+                findViewById<TextView>(R.id.toolbarTitle).text = "Catalog"
+            }
         }
     }
 

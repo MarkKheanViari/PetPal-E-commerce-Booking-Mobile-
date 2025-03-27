@@ -86,10 +86,11 @@ class OrderDetailsActivity : AppCompatActivity() {
         }
 
         val url = "http://192.168.1.65/backend/fetch_orders_mobile.php?mobile_user_id=$userId"
+        Log.d("OrderDetailsActivity", "Fetching orders from: $url")
 
         val request = JsonObjectRequest(Request.Method.GET, url, null,
             Response.Listener { response ->
-                Log.d("OrderDetailsActivity", "✅ Response: $response")
+                Log.d("OrderDetailsActivity", "Response: $response")
                 if (response.getBoolean("success")) {
                     parseOrders(response.getJSONArray("orders"))
                 } else {
@@ -97,7 +98,7 @@ class OrderDetailsActivity : AppCompatActivity() {
                 }
             },
             Response.ErrorListener { error ->
-                Log.e("OrderDetailsActivity", "❌ Error: ${error.message}")
+                Log.e("OrderDetailsActivity", "Error: ${error.message}")
                 Toast.makeText(this, "Error fetching orders!", Toast.LENGTH_SHORT).show()
             })
 
