@@ -1,20 +1,20 @@
 package com.example.myapplication
 
 import android.app.AlertDialog
-import android.widget.ImageView
-import com.bumptech.glide.Glide
 import android.content.Context
 import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.bumptech.glide.Glide
 import org.json.JSONObject
 
 class AppointmentAdapter(
@@ -28,9 +28,8 @@ class AppointmentAdapter(
         val appointmentDate: TextView = view.findViewById(R.id.appointmentDate)
         val price: TextView = view.findViewById(R.id.price)
         val status: TextView = view.findViewById(R.id.status)
-        val serviceImage: ImageView = view.findViewById(R.id.serviceImage) // 👈 Add this
+        val serviceImage: ImageView = view.findViewById(R.id.serviceImage)
     }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.appointment_item, parent, false)
@@ -57,17 +56,51 @@ class AppointmentAdapter(
             else -> holder.status.setTextColor(Color.parseColor("#757575"))
         }
 
+        // ✅ Show details dialog on click
         holder.itemView.setOnClickListener {
-            if (appointment.status.lowercase() in listOf("approved", "pending")) {
-                showCancelDialog(appointment, position)
-            } else {
-                Toast.makeText(context, "❌ You can't cancel a Declined appointment.", Toast.LENGTH_SHORT).show()
-            }
+            showAppointmentDetailsDialog(appointment, position)
         }
     }
 
-
     override fun getItemCount(): Int = appointments.size
+
+    // ✅ Show a dialog with appointment details
+    private fun showAppointmentDetailsDialog(appointment: Appointment, position: Int) {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle("Appointment Details")
+
+        // Build the message with all relevant details
+        val details = StringBuilder()
+        details.append("Service: ${appointment.serviceName}\n")
+        details.append("Type: ${appointment.serviceType}\n")
+        details.append("Date: ${appointment.appointmentDate}\n")
+        details.append("Price: ₱${appointment.price}\n")
+        details.append("Status: ${appointment.status}\n")
+        if (!appointment.petName.isNullOrEmpty()) {
+            details.append("Pet Name: ${appointment.petName}\n")
+        }
+        if (!appointment.petBreed.isNullOrEmpty()) {
+            details.append("Pet Breed: ${appointment.petBreed}\n")
+        }
+        if (!appointment.notes.isNullOrEmpty()) {
+            details.append("Notes: ${appointment.notes}\n")
+        }
+        if (!appointment.paymentMethod.isNullOrEmpty()) {
+            details.append("Payment Method: ${appointment.paymentMethod}\n")
+        }
+
+        builder.setMessage(details.toString())
+
+        // Add a "Cancel Appointment" button if status is "Pending" or "Approved"
+        if (appointment.status.lowercase() in listOf("approved", "pending")) {
+            builder.setNegativeButton("Cancel Appointment") { _, _ ->
+                showCancelDialog(appointment, position)
+            }
+        }
+
+        builder.setPositiveButton("OK") { _, _ -> /* Dismiss dialog */ }
+        builder.show()
+    }
 
     // ✅ Show confirmation dialog before canceling an appointment
     private fun showCancelDialog(appointment: Appointment, position: Int) {

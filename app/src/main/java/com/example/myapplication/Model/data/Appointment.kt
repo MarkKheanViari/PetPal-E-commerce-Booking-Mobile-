@@ -6,6 +6,9 @@ data class Appointment(
     val appointmentDate: String,
     val price: String,
     val status: String,
-    val image: String
+    val image: String,
+    val petName: String? = null,
+    val petBreed: String? = null,
+    val notes: String? = null,
+    val paymentMethod: String? = null
 )
-

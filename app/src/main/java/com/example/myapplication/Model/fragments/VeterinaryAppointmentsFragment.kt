@@ -66,7 +66,11 @@ class VeterinaryAppointmentsFragment : Fragment() {
                                 appointmentDate = item.getString("appointment_date"),
                                 price = item.getString("price"),
                                 status = item.getString("status"),
-                                image = item.optString("image", "")
+                                image = item.optString("image", ""),
+                                petName = item.optString("pet_name", null),
+                                petBreed = item.optString("pet_breed", null),
+                                notes = item.optString("notes", null),
+                                paymentMethod = item.optString("payment_method", null)
                             )
                             appointmentList.add(appointment)
                         }
