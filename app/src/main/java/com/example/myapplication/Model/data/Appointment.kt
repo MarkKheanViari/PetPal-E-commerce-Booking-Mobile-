@@ -5,5 +5,7 @@ data class Appointment(
     val serviceType: String,
     val appointmentDate: String,
     val price: String,
-    val status: String
+    val status: String,
+    val image: String
 )
+

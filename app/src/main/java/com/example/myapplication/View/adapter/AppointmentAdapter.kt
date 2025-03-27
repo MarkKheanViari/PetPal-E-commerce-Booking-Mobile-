@@ -1,6 +1,8 @@
 package com.example.myapplication
 
 import android.app.AlertDialog
+import android.widget.ImageView
+import com.bumptech.glide.Glide
 import android.content.Context
 import android.graphics.Color
 import android.util.Log
@@ -26,7 +28,9 @@ class AppointmentAdapter(
         val appointmentDate: TextView = view.findViewById(R.id.appointmentDate)
         val price: TextView = view.findViewById(R.id.price)
         val status: TextView = view.findViewById(R.id.status)
+        val serviceImage: ImageView = view.findViewById(R.id.serviceImage) // 👈 Add this
     }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.appointment_item, parent, false)
@@ -40,23 +44,28 @@ class AppointmentAdapter(
         holder.price.text = "₱${appointment.price}"
         holder.status.text = appointment.status
 
-        // ✅ Change text color based on status
+        // Load image
+        Glide.with(context)
+            .load("http://192.168.1.65/backend/${appointment.image}")
+            .placeholder(R.drawable.cat)
+            .into(holder.serviceImage)
+
         when (appointment.status.lowercase()) {
-            "pending" -> holder.status.setTextColor(Color.parseColor("#FFD700")) // Yellow
-            "declined" -> holder.status.setTextColor(Color.parseColor("#FF0000")) // Red
-            "approved" -> holder.status.setTextColor(Color.parseColor("#4CAF50")) // Green
-            else -> holder.status.setTextColor(Color.parseColor("#757575")) // Default Gray
+            "pending" -> holder.status.setTextColor(Color.parseColor("#FFD700"))
+            "declined" -> holder.status.setTextColor(Color.parseColor("#FF0000"))
+            "approved" -> holder.status.setTextColor(Color.parseColor("#4CAF50"))
+            else -> holder.status.setTextColor(Color.parseColor("#757575"))
         }
 
-        // ✅ Clickable only for "Approved" & "Pending"
         holder.itemView.setOnClickListener {
-            if (appointment.status.lowercase() == "approved" || appointment.status.lowercase() == "pending") {
+            if (appointment.status.lowercase() in listOf("approved", "pending")) {
                 showCancelDialog(appointment, position)
             } else {
                 Toast.makeText(context, "❌ You can't cancel a Declined appointment.", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 
     override fun getItemCount(): Int = appointments.size
 
