@@ -63,7 +63,7 @@
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_gravity="end"
-                android:src="@drawable/notif" />
+                android:src="@drawable/doggy" />
 
         </androidx.appcompat.widget.Toolbar>
 
