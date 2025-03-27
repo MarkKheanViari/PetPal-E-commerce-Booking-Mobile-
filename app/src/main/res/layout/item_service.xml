@@ -4,58 +4,71 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp"
     android:background="@android:color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
-        <!-- Service Name -->
-        <TextView
-            android:id="@+id/serviceName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Brushing"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:paddingBottom="4dp"/>
+        <!-- Service Image -->
+        <ImageView
+            android:id="@+id/serviceImage"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/cat"
+            android:contentDescription="Service Image"
+            android:background="@android:color/darker_gray"/>
 
-        <!-- Price -->
-        <TextView
-            android:id="@+id/servicePrice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Price: $$"
-            android:textSize="16sp"
-            android:textColor="@android:color/black"
-            android:paddingBottom="4dp"/>
-
-        <!-- Description -->
-        <TextView
-            android:id="@+id/serviceDescription"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Lorem ipsum dolor sit amet, Est quisquam voluptatem qui aliquam molestiae 33 rerum impedit est quia soluta. Eos veritatis corporis est provident eius vel explicabo officiis sit commodi consequuntur."
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:paddingBottom="8dp"/>
-
-        <!-- Book Now Button -->
-        <Button
-            android:id="@+id/bookNowButton"
+        <!-- Service Info -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="BOOK NOW"
-            android:backgroundTint="@color/darker_orange"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-            android:padding="12dp"
-            android:layout_marginTop="8dp"/>
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/serviceName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Brushing"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:paddingBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/servicePrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Price: ₱500"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:paddingBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/serviceDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="This is a sample description for the service."
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:paddingBottom="8dp"/>
+
+            <Button
+                android:id="@+id/bookNowButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="BOOK NOW"
+                android:backgroundTint="@color/darker_orange"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"/>
+        </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

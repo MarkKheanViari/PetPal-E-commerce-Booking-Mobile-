@@ -4,5 +4,7 @@ data class ServiceModel(
     val name: String,
     val price: String,
     val description: String,
-    val type: String // "Grooming" or "Veterinary"
+    val type: String,
+    val image: String
 )
+

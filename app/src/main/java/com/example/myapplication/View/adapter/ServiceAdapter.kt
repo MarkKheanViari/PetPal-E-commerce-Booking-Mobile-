@@ -6,8 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 
 class ServiceAdapter(private val context: Context, private val serviceList: List<ServiceModel>) :
     RecyclerView.Adapter<ServiceAdapter.ServiceViewHolder>() {
@@ -19,11 +21,18 @@ class ServiceAdapter(private val context: Context, private val serviceList: List
 
     override fun onBindViewHolder(holder: ServiceViewHolder, position: Int) {
         val service = serviceList[position]
+
         holder.serviceName.text = service.name
         holder.servicePrice.text = "Price: ₱${service.price}"
         holder.serviceDescription.text = service.description
 
-        // Handle Book Now button click
+        // Load image using Glide
+        Glide.with(context)
+            .load("http://192.168.1.65/backend/${service.image}") // Adjust this URL if needed
+            .placeholder(R.drawable.cat) // fallback image
+            .into(holder.serviceImage)
+
+        // Handle Book Now button
         holder.bookNowButton.setOnClickListener {
             val intent = if (service.type == "Grooming") {
                 Intent(context, GroomingAppointmentActivity::class.java)
@@ -32,6 +41,7 @@ class ServiceAdapter(private val context: Context, private val serviceList: List
             }
             intent.putExtra("SERVICE_NAME", service.name)
             intent.putExtra("SERVICE_PRICE", service.price)
+            intent.putExtra("SERVICE_IMAGE", service.image)
             context.startActivity(intent)
         }
     }
@@ -39,6 +49,7 @@ class ServiceAdapter(private val context: Context, private val serviceList: List
     override fun getItemCount(): Int = serviceList.size
 
     class ServiceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val serviceImage: ImageView = itemView.findViewById(R.id.serviceImage)
         val serviceName: TextView = itemView.findViewById(R.id.serviceName)
         val servicePrice: TextView = itemView.findViewById(R.id.servicePrice)
         val serviceDescription: TextView = itemView.findViewById(R.id.serviceDescription)
