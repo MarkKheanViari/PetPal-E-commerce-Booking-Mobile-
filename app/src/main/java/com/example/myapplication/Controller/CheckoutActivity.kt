@@ -6,11 +6,7 @@ import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -30,11 +26,19 @@ class CheckoutActivity : AppCompatActivity() {
     private lateinit var addressName: TextView
     private lateinit var addressPhone: TextView
     private lateinit var addressDetails: TextView
+
+    // We no longer use this to select payment method
     private lateinit var selectPaymentButton: Button
+
+    // We still keep the text and icon to show user selection
     private lateinit var paymentMethodText: TextView
+    private lateinit var paymentMethodIcon: ImageView
     private lateinit var placeOrderButton: Button
     private lateinit var addressSection: LinearLayout
-    private lateinit var paymentMethodIcon: ImageView // Added for logo
+
+    // Payment checkboxes
+    private lateinit var gcashCheckbox: CheckBox
+    private lateinit var codCheckbox: CheckBox
 
     private lateinit var cartItems: ArrayList<HashMap<String, String>>
     private lateinit var cartList: ArrayList<CartItem>
@@ -48,6 +52,7 @@ class CheckoutActivity : AppCompatActivity() {
 
         handleDeepLink(intent)
 
+        // Toolbar / UI references
         val backBtn = findViewById<ImageView>(R.id.backBtn)
         backBtn.setOnClickListener { finish() }
 
@@ -57,20 +62,28 @@ class CheckoutActivity : AppCompatActivity() {
         addressName = findViewById(R.id.addressName)
         addressPhone = findViewById(R.id.addressPhone)
         addressDetails = findViewById(R.id.addressDetails)
-        selectPaymentButton = findViewById(R.id.selectPaymentButton)
+        selectPaymentButton = findViewById(R.id.selectPaymentButton) // Hidden in XML
         paymentMethodText = findViewById(R.id.paymentMethodText)
+        paymentMethodIcon = findViewById(R.id.paymentMethodIcon)
         placeOrderButton = findViewById(R.id.checkoutBtn)
         addressSection = findViewById(R.id.addressSection)
-        paymentMethodIcon = findViewById(R.id.paymentMethodIcon) // Initialize the logo ImageView
 
+        // Payment checkboxes
+        gcashCheckbox = findViewById(R.id.gcashCheckbox)
+        codCheckbox = findViewById(R.id.codCheckbox)
+
+        // Setup back-end references
         val productId = intent.getIntExtra("productId", -1)
         val productName = intent.getStringExtra("productName") ?: "Unknown"
         val productPrice = intent.getDoubleExtra("productPrice", 0.0)
         val productImage = intent.getStringExtra("productImage") ?: ""
         val quantity = intent.getIntExtra("quantity", 1)
 
-        cartItems = intent.getSerializableExtra("cartItems") as? ArrayList<HashMap<String, String>> ?: arrayListOf()
+        // Retrieve cart items from Intent
+        cartItems = intent.getSerializableExtra("cartItems") as? ArrayList<HashMap<String, String>>
+            ?: arrayListOf()
 
+        // If no cart items and we have product details, add a single item
         if (cartItems.isEmpty() && productId != -1) {
             val productMap = HashMap<String, String>().apply {
                 put("product_id", productId.toString())
@@ -83,6 +96,7 @@ class CheckoutActivity : AppCompatActivity() {
             cartItems.add(productMap)
         }
 
+        // Convert cartItems to cartList (our data class)
         cartList = arrayListOf()
         cartList.addAll(cartItems.map {
             CartItem(
@@ -97,6 +111,7 @@ class CheckoutActivity : AppCompatActivity() {
             }
         })
 
+        // Setup UI behaviors
         placeOrderButton.setOnClickListener { submitOrder() }
         fetchUserInfo() // Fetch user info including address
         calculateTotal()
@@ -106,17 +121,41 @@ class CheckoutActivity : AppCompatActivity() {
         val checkoutAdapter = CheckoutAdapter(this, cartItems)
         recyclerView.adapter = checkoutAdapter
 
-        selectPaymentButton.setOnClickListener {
-            val paymentOptions = arrayOf("COD (Cash on Delivery)", "GCASH")
-            val builder = android.app.AlertDialog.Builder(this)
-            builder.setTitle("Select Payment Method")
-            builder.setItems(paymentOptions) { _, which ->
-                val selectedMethod = paymentOptions[which]
-                paymentMethodText.text = selectedMethod
-                // Show/hide GCash logo based on selection
-                paymentMethodIcon.visibility = if (selectedMethod == "GCASH") View.VISIBLE else View.GONE
+        // Hide "Select Payment" button from older logic (unused now)
+        selectPaymentButton.visibility = View.GONE
+
+        // Listen for checkbox changes: only allow one to be checked
+        gcashCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                // Uncheck COD if GCash is selected
+                codCheckbox.isChecked = false
+
+                // Update display
+                paymentMethodText.text = "GCASH"
+                paymentMethodIcon.visibility = View.VISIBLE
+            } else {
+                // If user unchecks GCash, revert to "Select Payment" if COD is also not checked
+                if (!codCheckbox.isChecked) {
+                    paymentMethodText.text = "Select Payment Method"
+                    paymentMethodIcon.visibility = View.GONE
+                }
             }
-            builder.show()
+        }
+
+        codCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                // Uncheck GCash if COD is selected
+                gcashCheckbox.isChecked = false
+
+                // Update display
+                paymentMethodText.text = "COD (Cash on Delivery)"
+                paymentMethodIcon.visibility = View.GONE
+            } else {
+                // If user unchecks COD, revert to "Select Payment" if GCash is also not checked
+                if (!gcashCheckbox.isChecked) {
+                    paymentMethodText.text = "Select Payment Method"
+                }
+            }
         }
 
         // Make address section clickable to navigate to address selection
@@ -215,11 +254,21 @@ class CheckoutActivity : AppCompatActivity() {
     private fun submitOrder() {
         Log.d("CheckoutActivity", "🚀 submitOrder() function triggered!")
 
-        // Check if a payment method has been selected
-        val paymentMethod = paymentMethodText.text.toString().trim()
-        if (paymentMethod.equals("Select Payment Method", ignoreCase = true) || paymentMethod.isEmpty()) {
+        // Decide payment method based on which checkbox is checked
+        val isGcashChecked = gcashCheckbox.isChecked
+        val isCodChecked = codCheckbox.isChecked
+
+        if (!isGcashChecked && !isCodChecked) {
+            // Neither selected
             Toast.makeText(this, "Please select a payment method", Toast.LENGTH_SHORT).show()
             return
+        }
+
+        val paymentMethod = if (isGcashChecked) {
+            "GCASH"
+        } else {
+            // if COD is checked
+            "COD (Cash on Delivery)"
         }
 
         val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
@@ -254,7 +303,8 @@ class CheckoutActivity : AppCompatActivity() {
 
         val requestBody = jsonObject.toString().toRequestBody("application/json".toMediaType())
 
-        if (paymentMethod == "GCASH") {
+        if (isGcashChecked) {
+            // Using PayMongo GCASH Payment
             Log.d("CheckoutActivity", "⚡ Using PayMongo GCASH Payment")
             val request = Request.Builder()
                 .url("http://192.168.1.12/backend/paymongo_checkout.php")
@@ -335,7 +385,6 @@ class CheckoutActivity : AppCompatActivity() {
         }
     }
 
-
     // Function to clear cart items after order is placed
     private fun clearCartItems(userId: Int) {
         val url = "http://192.168.1.12/backend/clear_cart.php"
@@ -358,8 +407,6 @@ class CheckoutActivity : AppCompatActivity() {
             }
         })
     }
-
-
 
     private fun calculateTotal() {
         cartTotal = cartList.sumOf { it.price * it.quantity }

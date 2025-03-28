@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/white"
     tools:context=".CheckoutActivity">
 
@@ -144,6 +145,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:orientation="horizontal">
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -151,6 +153,7 @@
                         android:text="Subtotal"
                         android:textColor="@color/black"
                         android:textSize="15sp" />
+
                     <TextView
                         android:id="@+id/subtotalTextView"
                         android:layout_width="wrap_content"
@@ -174,6 +177,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:orientation="horizontal">
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -181,6 +185,7 @@
                         android:text="Total"
                         android:textColor="@color/black"
                         android:textSize="15sp" />
+
                     <TextView
                         android:id="@+id/orderTotalPriceSummary"
                         android:layout_width="wrap_content"
@@ -201,6 +206,7 @@
                     android:textColor="@color/black"
                     android:textSize="17sp" />
 
+                <!-- Existing PaymentMethod row (kept for ID consistency) -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -227,13 +233,92 @@
                         android:visibility="gone" />
                 </LinearLayout>
 
+                <!-- We keep the button ID but hide it by default (unused) -->
                 <Button
                     android:id="@+id/selectPaymentButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Select Payment"
                     android:layout_marginTop="10dp"
-                    android:visibility="visible"/>
+                    android:visibility="gone"/>
+
+                <!-- Only GCash and COD with Checkboxes -->
+                <LinearLayout
+                    android:id="@+id/paymentMethodsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <!-- GCash Row -->
+                    <LinearLayout
+                        android:id="@+id/gcashRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="8dp"
+                        android:gravity="center_vertical">
+
+                        <!-- GCash Icon -->
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/gcash_logo"
+                            android:contentDescription="GCash" />
+
+                        <TextView
+                            android:id="@+id/gcashLabel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="GCash"
+                            android:textSize="14sp"
+                            android:textColor="@color/black"
+                            android:layout_marginStart="8dp" />
+
+                        <!-- GCash Checkbox -->
+                        <CheckBox
+                            android:id="@+id/gcashCheckbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp" />
+                    </LinearLayout>
+
+                    <!-- Cash on Delivery Row -->
+                    <LinearLayout
+                        android:id="@+id/codRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="8dp"
+                        android:gravity="center_vertical">
+
+                        <!-- Cash on Delivery Logo -->
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/cod"
+                            android:layout_marginStart="6dp"
+                            android:contentDescription="Cash on Delivery" />
+
+                        <TextView
+                            android:id="@+id/codLabel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="13dp"
+                            android:text="Cash on Delivery"
+                            android:textColor="@color/black"
+                            android:textSize="14sp" />
+
+                        <!-- COD Checkbox -->
+                        <CheckBox
+                            android:id="@+id/codCheckbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp" />
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
 
             <!-- Hidden views for storing data -->
