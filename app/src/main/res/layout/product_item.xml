@@ -17,18 +17,34 @@
         android:background="@android:color/white"
         android:padding="10dp">
 
-        <!-- Product Image -->
-        <ImageView
-            android:id="@+id/productImage"
+        <FrameLayout
             android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:scaleType="centerCrop"
-            android:contentDescription="Product Image"
-            android:background="@drawable/rounded_corners"
-            android:clipToOutline="true"
-            android:elevation="4dp" />
+            android:layout_height="150dp">
 
-        <!-- Product Name -->
+            <ImageView
+                android:id="@+id/productImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="Product Image"
+                android:background="@drawable/rounded_corners"
+                android:clipToOutline="true"
+                android:elevation="4dp" />
+
+            <ImageButton
+                android:id="@+id/reportButton"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="top|end"
+                android:src="@drawable/ic_report"
+                android:tint="#FF5722"
+                android:background="@android:color/transparent"
+                android:contentDescription="Report Product"
+                android:padding="4dp"
+                android:layout_margin="4dp"
+                android:elevation="8dp"/>
+        </FrameLayout>
+
         <TextView
             android:id="@+id/productName"
             android:layout_width="match_parent"
@@ -42,7 +58,6 @@
             android:maxLines="2"
             android:ellipsize="end"/>
 
-        <!-- Price and Stock Info -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -71,7 +86,6 @@
                 android:gravity="end"/>
         </LinearLayout>
 
-        <!-- Buy Now Button -->
         <Button
             android:id="@+id/buyNowButton"
             android:layout_width="match_parent"

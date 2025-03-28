@@ -17,7 +17,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 class ProductAdapter(
     private val context: Context,
     private var products: MutableList<Product>,
-    private val wishlistListener: (Product) -> Unit
+    private val wishlistListener: (Product) -> Unit,
+    private val reportListener: (Product) -> Unit
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     private var lastQuery: String? = null
@@ -28,7 +29,7 @@ class ProductAdapter(
         val itemStock: TextView = view.findViewById(R.id.productStock)
         val itemImage: ImageView = view.findViewById(R.id.productImage)
         val buyNowButton: Button = view.findViewById(R.id.buyNowButton)
-
+        val reportButton: ImageButton = view.findViewById(R.id.reportButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
@@ -59,7 +60,7 @@ class ProductAdapter(
         }
 
         holder.itemPrice.text = try {
-            "₱${String.format("%,.2f", product.price.toFloat())}" // Fixed formatting
+            "₱${String.format("%,.2f", product.price.toFloat())}"
         } catch (e: NumberFormatException) {
             "₱${product.price}"
         }
@@ -106,6 +107,13 @@ class ProductAdapter(
 
         holder.buyNowButton.isEnabled = product.quantity > 0
         holder.buyNowButton.alpha = if (product.quantity > 0) 1.0f else 0.5f
+
+        // Ensure report button is visible and log binding
+        android.util.Log.d("ProductAdapter", "Binding report button for ${product.name}")
+        holder.reportButton.visibility = View.VISIBLE
+        holder.reportButton.setOnClickListener {
+            reportListener(product)
+        }
     }
 
     fun updateProducts(newProducts: List<Product>, query: String? = null) {
