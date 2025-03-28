@@ -9,14 +9,14 @@
     app:cardBackgroundColor="@color/white">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
         android:paddingVertical="5dp">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
@@ -30,10 +30,20 @@
                 android:id="@+id/notifInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="Scheduled Grooming has been approved!"
                 android:textColor="@color/black"
                 android:fontFamily="@font/alata"
                 android:layout_marginStart="10dp"/>
+
+            <ImageView
+                android:id="@+id/closeBtn"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_gravity="end"
+                android:src="@drawable/close_button"
+                android:contentDescription="@string/design_desc"/>
+
 
         </LinearLayout>
 

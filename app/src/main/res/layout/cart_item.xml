@@ -104,7 +104,7 @@
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:layout_marginStart="10dp"
-            android:background="@color/darker_orange"
+            android:background="@drawable/button_rounded"
             android:text="Remove"
             android:textColor="@android:color/white"
             android:textSize="12sp"
