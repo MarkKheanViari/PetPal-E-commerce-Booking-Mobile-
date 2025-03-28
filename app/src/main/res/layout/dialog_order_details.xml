@@ -1,22 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/orderDetailsDialogLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp">
 
+    <!-- User Info Section -->
     <TextView
+        android:id="@+id/userNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Order Details"
-        android:textSize="18sp"
+        android:text="Name: John Doe"
         android:textStyle="bold"
-        android:layout_gravity="center"/>
+        android:textSize="16sp" />
 
+    <TextView
+        android:id="@+id/addressTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Address: Some Street, City"
+        android:layout_marginTop="4dp" />
+
+    <TextView
+        android:id="@+id/phoneNumberTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone: 09123456789"
+        android:layout_marginTop="4dp" />
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="8dp"
+        android:background="@android:color/darker_gray" />
+
+    <!-- RecyclerView for order items -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/orderItemsRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"/>
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

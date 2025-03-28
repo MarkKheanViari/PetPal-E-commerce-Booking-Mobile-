@@ -2,7 +2,10 @@ package com.example.myapplication
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,8 +17,6 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.material.tabs.TabLayout
 import org.json.JSONArray
-import org.json.JSONObject
-import android.app.AlertDialog
 import android.view.LayoutInflater
 
 class OrderDetailsActivity : AppCompatActivity() {
@@ -24,6 +25,7 @@ class OrderDetailsActivity : AppCompatActivity() {
     private lateinit var orderAdapter: OrderAdapter
     private lateinit var tabLayout: TabLayout
     private lateinit var requestQueue: RequestQueue
+    private lateinit var emptyMessageTextView: TextView
     private var allOrders: MutableList<Order> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,34 +44,61 @@ class OrderDetailsActivity : AppCompatActivity() {
         orderAdapter = OrderAdapter(allOrders)
         recyclerView.adapter = orderAdapter
 
-        // Initialize TabLayout
+        // Handle "View Details" clicks
+        orderAdapter.onViewDetailsClicked = { order ->
+            showOrderDetailsPopup(order)
+        }
+
+        // Handle order cancellation: update master list, reapply filter, and switch tab
+        orderAdapter.onOrderCancelled = { cancelledOrder ->
+            val index = allOrders.indexOfFirst { it.id == cancelledOrder.id }
+            if (index != -1) {
+                allOrders[index] = cancelledOrder
+            }
+            filterOrders(tabLayout.selectedTabPosition)
+            tabLayout.getTabAt(5)?.select()
+        }
+
+        // Empty state TextView
+        emptyMessageTextView = findViewById(R.id.emptyMessageTextView)
+
+        // TabLayout
         tabLayout = findViewById(R.id.order_status_tabs)
 
-        // Initialize Volley request queue
+        // Volley request queue
         requestQueue = Volley.newRequestQueue(this)
 
-        // Fetch orders from backend
+        // Fetch orders
         fetchOrders()
 
-        // Listen for tab selection changes
+        // Handle tab selection changes
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 tab?.let { filterOrders(it.position) }
             }
-
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
     }
 
-    private fun showOrderDetailsPopup(items: List<OrderItem>) {
+    private fun showOrderDetailsPopup(order: Order) {
         val builder = AlertDialog.Builder(this)
         val inflater = LayoutInflater.from(this)
         val view = inflater.inflate(R.layout.dialog_order_details, null)
 
-        val recyclerView = view.findViewById<RecyclerView>(R.id.orderItemsRecyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = OrderItemsAdapter(items) // ✅ Use adapter to show order items
+        // Bind user info
+        val userNameTextView = view.findViewById<TextView>(R.id.userNameTextView)
+        val addressTextView = view.findViewById<TextView>(R.id.addressTextView)
+        val phoneNumberTextView = view.findViewById<TextView>(R.id.phoneNumberTextView)
+
+        userNameTextView.text = "Name: ${order.userName}"
+        addressTextView.text = "Address: ${order.address}"
+        phoneNumberTextView.text = "Phone: ${order.phoneNumber}"
+
+        // Set up the RecyclerView for items
+        val itemsRecyclerView = view.findViewById<RecyclerView>(R.id.orderItemsRecyclerView)
+        itemsRecyclerView.layoutManager = LinearLayoutManager(this)
+        itemsRecyclerView.adapter = OrderItemsAdapter(order.items)
 
         builder.setView(view)
         builder.setPositiveButton("Close") { dialog, _ -> dialog.dismiss() }
@@ -84,8 +113,7 @@ class OrderDetailsActivity : AppCompatActivity() {
             Toast.makeText(this, "❌ User not logged in!", Toast.LENGTH_SHORT).show()
             return
         }
-
-        val url = "http://192.168.1.65/backend/fetch_orders_mobile.php?mobile_user_id=$userId"
+        val url = "http://192.168.1.12/backend/fetch_orders_mobile.php?mobile_user_id=$userId"
         Log.d("OrderDetailsActivity", "Fetching orders from: $url")
 
         val request = JsonObjectRequest(Request.Method.GET, url, null,
@@ -94,7 +122,7 @@ class OrderDetailsActivity : AppCompatActivity() {
                 if (response.getBoolean("success")) {
                     parseOrders(response.getJSONArray("orders"))
                 } else {
-                    Toast.makeText(this, "No orders found!", Toast.LENGTH_SHORT).show()
+                    showEmptyState()
                 }
             },
             Response.ErrorListener { error ->
@@ -106,11 +134,17 @@ class OrderDetailsActivity : AppCompatActivity() {
     }
 
     private fun parseOrders(jsonArray: JSONArray) {
+        // Use fallback values from SharedPreferences if backend values are missing
+        val sharedPrefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        val storedUserName = sharedPrefs.getString("username", "No Username Provided") ?: "No Username Provided"
+        val storedAddress = sharedPrefs.getString("location", "No Address Provided") ?: "No Address Provided"
+        val storedPhone = sharedPrefs.getString("contact_number", "No Phone Number Provided") ?: "No Phone Number Provided"
+
         allOrders.clear()
         for (i in 0 until jsonArray.length()) {
             val obj = jsonArray.getJSONObject(i)
 
-            // ✅ Extract items if they exist
+            // Build the list of order items
             val itemsList = mutableListOf<OrderItem>()
             if (obj.has("items")) {
                 val itemsArray = obj.getJSONArray("items")
@@ -119,8 +153,8 @@ class OrderDetailsActivity : AppCompatActivity() {
                     val item = OrderItem(
                         productId = itemObj.getInt("product_id"),
                         name = itemObj.getString("product_name"),
-                        imageUrl = itemObj.getString("image"), // ✅ Extract Image
-                        description = itemObj.getString("description"), // ✅ Extract Description
+                        imageUrl = itemObj.getString("image"),
+                        description = itemObj.getString("description"),
                         quantity = itemObj.getInt("quantity"),
                         price = itemObj.getString("price")
                     )
@@ -128,30 +162,48 @@ class OrderDetailsActivity : AppCompatActivity() {
                 }
             }
 
-            // ✅ Now pass `itemsList` when creating `Order`
+            // Create the Order object
             val order = Order(
                 id = obj.getInt("id"),
                 totalPrice = obj.getString("total_price"),
                 paymentMethod = obj.getString("payment_method"),
                 status = obj.getString("status"),
                 createdAt = obj.getString("created_at"),
-                items = itemsList // ✅ Include items here
+                items = itemsList,
+                userName = obj.optString("user_name", storedUserName),
+                address = obj.optString("address", storedAddress),
+                phoneNumber = obj.optString("phone_number", storedPhone)
             )
             allOrders.add(order)
         }
-        filterOrders(tabLayout.selectedTabPosition) // ✅ Filter orders based on selected tab
+        // Filter orders based on the currently selected tab
+        filterOrders(tabLayout.selectedTabPosition)
     }
 
     private fun filterOrders(selectedTab: Int) {
         val filteredOrders = when (selectedTab) {
-            0 -> allOrders // "All"
-            1 -> allOrders.filter { it.status == "Pending" }
-            2 -> allOrders.filter { it.status == "To Ship" }
-            3 -> allOrders.filter { it.status == "Shipped" }
-            4 -> allOrders.filter { it.status == "Delivered" }
-            5 -> allOrders.filter { it.status == "Cancelled" } // New tab
+            0 -> allOrders // All
+            1 -> allOrders.filter { it.status.equals("Pending", ignoreCase = true) }
+            2 -> allOrders.filter { it.status.equals("To Ship", ignoreCase = true) }
+            3 -> allOrders.filter { it.status.equals("Shipped", ignoreCase = true) }
+            4 -> allOrders.filter { it.status.equals("Delivered", ignoreCase = true) }
+            5 -> allOrders.filter { it.status.equals("Cancelled", ignoreCase = true) }
             else -> allOrders
         }
+
+        if (filteredOrders.isEmpty()) {
+            emptyMessageTextView.visibility = View.VISIBLE
+            recyclerView.visibility = View.GONE
+        } else {
+            emptyMessageTextView.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
+        }
+
         orderAdapter.updateOrders(filteredOrders)
+    }
+
+    private fun showEmptyState() {
+        emptyMessageTextView.visibility = View.VISIBLE
+        recyclerView.visibility = View.GONE
     }
 }

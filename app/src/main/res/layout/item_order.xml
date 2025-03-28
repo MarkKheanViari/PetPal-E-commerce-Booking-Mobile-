@@ -1,82 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="8dp"
-    app:cardCornerRadius="10dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="12dp"
+    app:cardUseCompatPadding="true"
+    app:cardElevation="6dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-
-        <!-- Order Date -->
-        <TextView
-            android:id="@+id/order_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="March 11, 2025"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="4dp"/>
-
-        <!-- Order Status -->
-        <TextView
-            android:id="@+id/order_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pending"
-            android:textSize="16sp"
-            android:textColor="@android:color/holo_blue_dark"
-            android:layout_marginTop="6dp"
-            android:textStyle="bold"/>
-
-        <!-- Total Price -->
-        <TextView
-            android:id="@+id/total_price"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="₱1500.00"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginTop="6dp"
-            android:textColor="@android:color/holo_green_dark"/>
-
-        <!-- Button Container -->
+        <!-- Row for Date (with icon) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="10dp">
+            android:gravity="center_vertical">
 
-            <!-- View Details Button -->
-            <Button
-                android:id="@+id/view_details_button"
+            <!-- Calendar Icon -->
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/calendar_logo"
+                app:tint="@android:color/darker_gray" />
+
+            <!-- Order Date -->
+            <TextView
+                android:id="@+id/order_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="View Details"
-                android:textSize="14sp"
-                android:padding="8dp"
-                android:backgroundTint="@color/darker_orange"
-                android:textColor="@android:color/white"/>
-
-            <!-- Cancel Order Button -->
-            <Button
-                android:id="@+id/cancel_order_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cancel Order"
-                android:textSize="14sp"
-                android:padding="8dp"
                 android:layout_marginStart="8dp"
-                android:backgroundTint="@android:color/holo_red_dark"
-                android:textColor="@android:color/white"
-                android:visibility="gone"/> <!-- Hidden by default -->
-
+                android:text="March 11, 2025"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
         </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="8dp"
+            android:background="@android:color/darker_gray" />
+
+        <!-- Row for Status and Total Price -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Order Status (Chip-Like) -->
+            <TextView
+                android:id="@+id/order_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pending"
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:background="@drawable/status_chip_bg"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp" />
+
+            <!-- This View pushes the total price to the right -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <!-- Total Price -->
+            <TextView
+                android:id="@+id/total_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱1500.00"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/holo_green_dark" />
+        </LinearLayout>
+
+        <!-- Buttons Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp">
+
+            <!-- View Details Button (Outlined Material Button) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/view_details_button"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="View Details"
+                android:textAllCaps="false"
+                android:layout_marginEnd="8dp"
+                app:strokeColor="@color/darker_orange"
+                app:strokeWidth="2dp"
+                android:textColor="@color/darker_orange" />
+
+            <!-- Cancel Order Button (Filled Material Button) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cancel_order_button"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cancel Order"
+                android:textAllCaps="false"
+                android:backgroundTint="@android:color/holo_red_dark"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

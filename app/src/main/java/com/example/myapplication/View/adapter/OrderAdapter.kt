@@ -8,15 +8,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import android.widget.Toast
-import androidx.recyclerview.widget.LinearLayoutManager
 
 class OrderAdapter(private var orders: List<Order>) :
     RecyclerView.Adapter<OrderAdapter.OrderViewHolder>() {
+
+    // Callback for "View Details" clicks (optional)
+    var onViewDetailsClicked: ((Order) -> Unit)? = null
+
+    // Callback for when an order is successfully cancelled. Passes the updated order.
+    var onOrderCancelled: ((Order) -> Unit)? = null
 
     class OrderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val orderDate: TextView = view.findViewById(R.id.order_date)
@@ -34,15 +40,35 @@ class OrderAdapter(private var orders: List<Order>) :
 
     override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
         val order = orders[position]
+
+        // Display basic order info
         holder.orderDate.text = order.createdAt
         holder.totalPrice.text = "₱${order.totalPrice}"
 
-        // Set Order Status Color and Show/Hide Cancel Button
+        // Set order status display and button behavior based on the order's status
         when (order.status) {
             "Pending" -> {
                 holder.orderStatus.text = "Pending"
                 holder.orderStatus.setTextColor(Color.parseColor("#FFC107")) // Yellow
-                holder.cancelOrderButton.visibility = View.VISIBLE // Show Cancel Button
+                holder.cancelOrderButton.visibility = View.VISIBLE
+                holder.cancelOrderButton.text = "Cancel Order"
+                holder.cancelOrderButton.setOnClickListener {
+                    confirmCancellation(holder.itemView.context, order)
+                }
+            }
+            "Cancelled" -> {
+                holder.orderStatus.text = "Cancelled"
+                holder.orderStatus.setTextColor(Color.parseColor("#FF0000")) // Red
+                holder.cancelOrderButton.visibility = View.VISIBLE
+                holder.cancelOrderButton.text = "Buy Again"
+                holder.cancelOrderButton.setOnClickListener {
+                    Toast.makeText(
+                        holder.itemView.context,
+                        "Buy Again for Order #${order.id}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    // TODO: Implement your "Buy Again" logic here.
+                }
             }
             "To Ship" -> {
                 holder.orderStatus.text = "To Ship"
@@ -61,34 +87,40 @@ class OrderAdapter(private var orders: List<Order>) :
             }
             else -> {
                 holder.orderStatus.text = order.status
-                holder.orderStatus.setTextColor(Color.BLACK) // Default Black
+                holder.orderStatus.setTextColor(Color.BLACK)
                 holder.cancelOrderButton.visibility = View.GONE
             }
         }
 
-        // Handle "View Details" Button Click
+        // Handle "View Details" click: use the callback if set or show a popup
         holder.viewDetailsButton.setOnClickListener {
-            showOrderDetailsPopup(holder.itemView.context, order)
-        }
-
-        // Handle "Cancel Order" Button Click
-        holder.cancelOrderButton.setOnClickListener {
-            confirmCancellation(holder.itemView.context, order)
+            onViewDetailsClicked?.invoke(order) ?: run {
+                showOrderDetailsPopup(holder.itemView.context, order)
+            }
         }
     }
 
-    override fun getItemCount() = orders.size
+    override fun getItemCount(): Int = orders.size
 
+    // Update the list of orders and refresh the adapter
     fun updateOrders(newOrders: List<Order>) {
         orders = newOrders
         notifyDataSetChanged()
     }
 
-    // Show Popup with Order Details
+    // Show order details popup if no external callback is provided
     private fun showOrderDetailsPopup(context: Context, order: Order) {
         val builder = AlertDialog.Builder(context)
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.dialog_order_details, null)
+
+        val userNameTextView = view.findViewById<TextView>(R.id.userNameTextView)
+        val addressTextView = view.findViewById<TextView>(R.id.addressTextView)
+        val phoneNumberTextView = view.findViewById<TextView>(R.id.phoneNumberTextView)
+
+        userNameTextView.text = "Name: ${order.userName}"
+        addressTextView.text = "Address: ${order.address}"
+        phoneNumberTextView.text = "Phone: ${order.phoneNumber}"
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.orderItemsRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
@@ -101,7 +133,7 @@ class OrderAdapter(private var orders: List<Order>) :
         dialog.show()
     }
 
-    // Confirm Cancellation with Dialog
+    // Confirm order cancellation with a dialog
     private fun confirmCancellation(context: Context, order: Order) {
         AlertDialog.Builder(context)
             .setTitle("Cancel Order")
@@ -113,29 +145,24 @@ class OrderAdapter(private var orders: List<Order>) :
             .show()
     }
 
-
-    // Send Cancel Request to Backend
     private fun cancelOrder(context: Context, order: Order) {
-        val url = "http://192.168.1.65/backend/cancel_order.php?order_id=${order.id}"
+        val url = "http://192.168.1.12/backend/cancel_order.php?order_id=${order.id}"
         val requestQueue = Volley.newRequestQueue(context)
 
-        val request = JsonObjectRequest(Request.Method.POST, url, null,
+        val request = JsonObjectRequest(
+            Request.Method.POST, url, null,
             { response ->
                 if (response.getBoolean("success")) {
-                    Toast.makeText(context, "Order #${order.id} canceled successfully!", Toast.LENGTH_SHORT).show()
-                    // Remove the order from the list
-                    val mutableOrders = orders.toMutableList()
-                    mutableOrders.remove(order)
-                    orders = mutableOrders
-                    notifyDataSetChanged()
+                    // Notify the activity with the updated (cancelled) order
+                    onOrderCancelled?.invoke(order.copy(status = "Cancelled"))
                 } else {
-                    Toast.makeText(context, "Failed to cancel order: ${response.getString("message")}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Failed to cancel order!", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
                 Toast.makeText(context, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
-            })
-
+            }
+        )
         requestQueue.add(request)
     }
 }
