@@ -1,6 +1,10 @@
 package com.example.myapplication
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -8,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import okhttp3.*
@@ -27,10 +32,10 @@ class CheckoutActivity : AppCompatActivity() {
     private lateinit var addressPhone: TextView
     private lateinit var addressDetails: TextView
 
-    // We no longer use this to select payment method
+    // Legacy button from previous logic (hidden in XML)
     private lateinit var selectPaymentButton: Button
 
-    // We still keep the text and icon to show user selection
+    // Payment UI: we use checkboxes now to select a payment method.
     private lateinit var paymentMethodText: TextView
     private lateinit var paymentMethodIcon: ImageView
     private lateinit var placeOrderButton: Button
@@ -40,6 +45,7 @@ class CheckoutActivity : AppCompatActivity() {
     private lateinit var gcashCheckbox: CheckBox
     private lateinit var codCheckbox: CheckBox
 
+    // Cart variables
     private lateinit var cartItems: ArrayList<HashMap<String, String>>
     private lateinit var cartList: ArrayList<CartItem>
     private var cartTotal: Double = 0.0
@@ -50,40 +56,90 @@ class CheckoutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_checkout)
 
+        // Create the notification channel for Android O and above.
+        createNotificationChannel()
+
+        // Handle any deep link
         handleDeepLink(intent)
 
-        // Toolbar / UI references
+        // Toolbar / back button
         val backBtn = findViewById<ImageView>(R.id.backBtn)
         backBtn.setOnClickListener { finish() }
 
+        // Find UI references
         recyclerView = findViewById(R.id.checkoutRecyclerView)
         totalTextView = findViewById(R.id.totalTextView)
         userInfoText = findViewById(R.id.userInfoText)
         addressName = findViewById(R.id.addressName)
         addressPhone = findViewById(R.id.addressPhone)
         addressDetails = findViewById(R.id.addressDetails)
-        selectPaymentButton = findViewById(R.id.selectPaymentButton) // Hidden in XML
+        selectPaymentButton = findViewById(R.id.selectPaymentButton) // legacy; will be hidden
         paymentMethodText = findViewById(R.id.paymentMethodText)
         paymentMethodIcon = findViewById(R.id.paymentMethodIcon)
         placeOrderButton = findViewById(R.id.checkoutBtn)
         addressSection = findViewById(R.id.addressSection)
 
-        // Payment checkboxes
         gcashCheckbox = findViewById(R.id.gcashCheckbox)
         codCheckbox = findViewById(R.id.codCheckbox)
 
-        // Setup back-end references
+        // Hide the legacy select payment button
+        selectPaymentButton.visibility = View.GONE
+
+        // Payment checkbox logic: only allow one to be selected at a time.
+        gcashCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                codCheckbox.isChecked = false
+                paymentMethodText.text = "GCASH"
+                paymentMethodIcon.visibility = View.VISIBLE
+            } else {
+                if (!codCheckbox.isChecked) {
+                    paymentMethodText.text = "Select Payment Method"
+                    paymentMethodIcon.visibility = View.GONE
+                }
+            }
+        }
+        codCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                gcashCheckbox.isChecked = false
+                paymentMethodText.text = "COD (Cash on Delivery)"
+                paymentMethodIcon.visibility = View.GONE
+            } else {
+                if (!gcashCheckbox.isChecked) {
+                    paymentMethodText.text = "Select Payment Method"
+                }
+            }
+        }
+
+        // Optionally, allow payment method selection via the legacy select button.
+        selectPaymentButton.setOnClickListener {
+            val paymentOptions = arrayOf("COD (Cash on Delivery)", "GCASH")
+            val builder = android.app.AlertDialog.Builder(this)
+            builder.setTitle("Select Payment Method")
+            builder.setItems(paymentOptions) { _, which ->
+                val selectedMethod = paymentOptions[which]
+                paymentMethodText.text = selectedMethod
+                paymentMethodIcon.visibility = if (selectedMethod == "GCASH") View.VISIBLE else View.GONE
+                // Update checkboxes accordingly.
+                gcashCheckbox.isChecked = selectedMethod == "GCASH"
+                codCheckbox.isChecked = selectedMethod.contains("COD")
+            }
+            builder.show()
+        }
+
+        // Make address section clickable.
+        addressSection.setOnClickListener { navigateToAddressSelection(it) }
+
+        // Get product details and cart items from Intent extras.
         val productId = intent.getIntExtra("productId", -1)
         val productName = intent.getStringExtra("productName") ?: "Unknown"
         val productPrice = intent.getDoubleExtra("productPrice", 0.0)
         val productImage = intent.getStringExtra("productImage") ?: ""
         val quantity = intent.getIntExtra("quantity", 1)
 
-        // Retrieve cart items from Intent
         cartItems = intent.getSerializableExtra("cartItems") as? ArrayList<HashMap<String, String>>
             ?: arrayListOf()
 
-        // If no cart items and we have product details, add a single item
+        // If no cart items exist but a product was passed, add it as a single-item cart.
         if (cartItems.isEmpty() && productId != -1) {
             val productMap = HashMap<String, String>().apply {
                 put("product_id", productId.toString())
@@ -96,8 +152,8 @@ class CheckoutActivity : AppCompatActivity() {
             cartItems.add(productMap)
         }
 
-        // Convert cartItems to cartList (our data class)
-        cartList = arrayListOf()
+        // Convert cartItems (HashMap list) to cartList (CartItem data class list).
+        cartList = ArrayList()
         cartList.addAll(cartItems.map {
             CartItem(
                 productId = it["product_id"]?.toInt() ?: 0,
@@ -106,62 +162,23 @@ class CheckoutActivity : AppCompatActivity() {
                 description = it["description"] ?: "No description available",
                 quantity = it["quantity"]?.toInt() ?: 1,
                 price = it["price"]?.toDoubleOrNull() ?: 0.0
-            ).also { cartItem ->
-                Log.d("CheckoutActivity", "Parsed CartItem: $cartItem")
-            }
+            )
         })
 
-        // Setup UI behaviors
-        placeOrderButton.setOnClickListener { submitOrder() }
-        fetchUserInfo() // Fetch user info including address
-        calculateTotal()
-        calculateOrderSummary()
-
+        // Set up RecyclerView.
         recyclerView.layoutManager = LinearLayoutManager(this)
         val checkoutAdapter = CheckoutAdapter(this, cartItems)
         recyclerView.adapter = checkoutAdapter
 
-        // Hide "Select Payment" button from older logic (unused now)
-        selectPaymentButton.visibility = View.GONE
+        // Set click listener for placing the order.
+        placeOrderButton.setOnClickListener { submitOrder() }
 
-        // Listen for checkbox changes: only allow one to be checked
-        gcashCheckbox.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                // Uncheck COD if GCash is selected
-                codCheckbox.isChecked = false
+        // Fetch user info (including address).
+        fetchUserInfo()
 
-                // Update display
-                paymentMethodText.text = "GCASH"
-                paymentMethodIcon.visibility = View.VISIBLE
-            } else {
-                // If user unchecks GCash, revert to "Select Payment" if COD is also not checked
-                if (!codCheckbox.isChecked) {
-                    paymentMethodText.text = "Select Payment Method"
-                    paymentMethodIcon.visibility = View.GONE
-                }
-            }
-        }
-
-        codCheckbox.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                // Uncheck GCash if COD is selected
-                gcashCheckbox.isChecked = false
-
-                // Update display
-                paymentMethodText.text = "COD (Cash on Delivery)"
-                paymentMethodIcon.visibility = View.GONE
-            } else {
-                // If user unchecks COD, revert to "Select Payment" if GCash is also not checked
-                if (!gcashCheckbox.isChecked) {
-                    paymentMethodText.text = "Select Payment Method"
-                }
-            }
-        }
-
-        // Make address section clickable to navigate to address selection
-        addressSection.setOnClickListener {
-            navigateToAddressSelection(it)
-        }
+        // Calculate totals and order summary.
+        calculateTotal()
+        calculateOrderSummary()
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -180,7 +197,7 @@ class CheckoutActivity : AppCompatActivity() {
                 }
                 "/payment/cancel" -> {
                     Toast.makeText(this, "⚠ Payment canceled", Toast.LENGTH_LONG).show()
-                    // Stay in CheckoutActivity to allow retry
+                    // Remain in CheckoutActivity to allow a retry.
                 }
             }
         }
@@ -253,27 +270,15 @@ class CheckoutActivity : AppCompatActivity() {
 
     private fun submitOrder() {
         Log.d("CheckoutActivity", "🚀 submitOrder() function triggered!")
-
-        // Decide payment method based on which checkbox is checked
-        val isGcashChecked = gcashCheckbox.isChecked
-        val isCodChecked = codCheckbox.isChecked
-
-        if (!isGcashChecked && !isCodChecked) {
-            // Neither selected
+        // Decide payment method using checkboxes.
+        val paymentMethod = paymentMethodText.text.toString().trim()
+        if (paymentMethod.equals("Select Payment Method", ignoreCase = true) || paymentMethod.isEmpty()) {
             Toast.makeText(this, "Please select a payment method", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val paymentMethod = if (isGcashChecked) {
-            "GCASH"
-        } else {
-            // if COD is checked
-            "COD (Cash on Delivery)"
-        }
-
         val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         val userId = sharedPreferences.getInt("user_id", -1)
-
         if (userId == -1) {
             Log.e("CheckoutActivity", "❌ User not logged in!")
             Toast.makeText(this, "User not logged in!", Toast.LENGTH_SHORT).show()
@@ -298,13 +303,10 @@ class CheckoutActivity : AppCompatActivity() {
                 }
             })
         }
-
         Log.d("CheckoutActivity", "📦 Request JSON: $jsonObject")
-
         val requestBody = jsonObject.toString().toRequestBody("application/json".toMediaType())
 
-        if (isGcashChecked) {
-            // Using PayMongo GCASH Payment
+        if (paymentMethod.equals("GCASH", ignoreCase = true)) {
             Log.d("CheckoutActivity", "⚡ Using PayMongo GCASH Payment")
             val request = Request.Builder()
                 .url("http://192.168.1.12/backend/paymongo_checkout.php")
@@ -347,7 +349,7 @@ class CheckoutActivity : AppCompatActivity() {
                 }
             })
         } else {
-            // Normal COD order submission
+            // COD order submission.
             val request = Request.Builder()
                 .url("http://192.168.1.12/backend/submit_order.php")
                 .post(requestBody)
@@ -366,15 +368,14 @@ class CheckoutActivity : AppCompatActivity() {
                     Log.d("CheckoutActivity", "📦 API Response: $responseBody")
                     runOnUiThread {
                         if (response.isSuccessful && responseBody?.contains("success") == true) {
-                            // Show success toast
                             showOrderPlacedToast()
-                            // Clear cart items on the server
+                            // Add a local notification for the order summary.
+                            val productNames = cartList.joinToString { it.productName }
+                            addLocalNotification("Order Placed: $productNames")
+                            // Also send a system notification to the user.
+                            sendOrderNotification("Order Placed", "Your order for $productNames has been placed successfully!")
+                            // Optionally clear cart items on the server.
                             clearCartItems(userId)
-                            // Redirect to MainActivity
-                            val intent = Intent(this@CheckoutActivity, MainActivity::class.java)
-                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                            intent.putExtra("navigate_to", "products") // Optional: Ensure products tab is selected
-                            startActivity(intent)
                             finish()
                         } else {
                             Toast.makeText(this@CheckoutActivity, "❌ Failed to place order.", Toast.LENGTH_SHORT).show()
@@ -385,7 +386,14 @@ class CheckoutActivity : AppCompatActivity() {
         }
     }
 
-    // Function to clear cart items after order is placed
+    private fun addLocalNotification(message: String) {
+        val sp = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        val existingString = sp.getString("notifications", "[]")
+        val array = JSONArray(existingString)
+        array.put(message)
+        sp.edit().putString("notifications", array.toString()).apply()
+    }
+
     private fun clearCartItems(userId: Int) {
         val url = "http://192.168.1.12/backend/clear_cart.php"
         val json = JSONObject().apply {
@@ -457,6 +465,32 @@ class CheckoutActivity : AppCompatActivity() {
         toast.setGravity(Gravity.TOP or Gravity.END, 16, 16)
         toast.show()
     }
+
+    // Create a notification channel (for Android O and above)
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channelId = "order_channel"
+            val channelName = "Order Notifications"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(channelId, channelName, importance)
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun sendOrderNotification(title: String, message: String) {
+        val channelId = "order_channel"
+        val notificationBuilder = NotificationCompat.Builder(this, channelId)
+            // Replace with a valid icon resource. For testing, using a built-in icon:
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        // Use a unique notification ID. Here we use current time.
+        notificationManager.notify(System.currentTimeMillis().toInt(), notificationBuilder.build())
+    }
+
 
     companion object {
         const val REQUEST_CODE_ADDRESS = 1001
