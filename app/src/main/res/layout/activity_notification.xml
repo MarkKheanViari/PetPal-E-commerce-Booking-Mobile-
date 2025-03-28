@@ -28,13 +28,6 @@
             android:paddingEnd="16dp">
 
             <!-- Back button -->
-            <ImageView
-                android:id="@+id/backBtn"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_gravity="start|center_vertical"
-                android:src="@drawable/back_button"
-                android:contentDescription="@string/design_desc" />
 
             <!-- Space between back button and title -->
             <Space
@@ -51,6 +44,7 @@
                 android:text="Notifications"
                 android:textColor="@color/black"
                 android:textSize="20sp"
+                android:layout_marginRight="30dp"
                 android:textStyle="bold" />
 
             <!-- Delete button on the right -->
