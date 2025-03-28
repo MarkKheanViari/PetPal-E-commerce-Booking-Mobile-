@@ -192,6 +192,17 @@ class CheckoutActivity : AppCompatActivity() {
                 "/payment/success" -> {
                     val orderId = uri.getQueryParameter("order_id")
                     Toast.makeText(this, "✅ Payment successful for Order #$orderId", Toast.LENGTH_LONG).show()
+                    // Clear cart items on the server.
+                    val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+                    val userId = sharedPreferences.getInt("user_id", -1)
+                    if (userId != -1) {
+                        clearCartItems(userId)
+                    }
+                    // Redirect to MainActivity with "products" navigation.
+                    val mainIntent = Intent(this@CheckoutActivity, MainActivity::class.java)
+                    mainIntent.putExtra("navigate_to", "products")
+                    mainIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    startActivity(mainIntent)
                     setResult(RESULT_OK)
                     finish()
                 }
@@ -217,7 +228,7 @@ class CheckoutActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.12/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.65/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
         Log.d("CheckoutActivity", "Request URL: $url")
         val request = Request.Builder().url(url).get().build()
 
@@ -309,7 +320,7 @@ class CheckoutActivity : AppCompatActivity() {
         if (paymentMethod.equals("GCASH", ignoreCase = true)) {
             Log.d("CheckoutActivity", "⚡ Using PayMongo GCASH Payment")
             val request = Request.Builder()
-                .url("http://192.168.1.12/backend/paymongo_checkout.php")
+                .url("http://192.168.1.65/backend/paymongo_checkout.php")
                 .post(requestBody)
                 .build()
 
@@ -351,7 +362,7 @@ class CheckoutActivity : AppCompatActivity() {
         } else {
             // COD order submission.
             val request = Request.Builder()
-                .url("http://192.168.1.12/backend/submit_order.php")
+                .url("http://192.168.1.65/backend/submit_order.php")
                 .post(requestBody)
                 .build()
 
@@ -372,10 +383,15 @@ class CheckoutActivity : AppCompatActivity() {
                             // Add a local notification for the order summary.
                             val productNames = cartList.joinToString { it.productName }
                             addLocalNotification("Order Placed: $productNames")
-                            // Also send a system notification to the user.
+                            // Send a system notification to the user.
                             sendOrderNotification("Order Placed", "Your order for $productNames has been placed successfully!")
-                            // Optionally clear cart items on the server.
+                            // Clear cart items on the server.
                             clearCartItems(userId)
+                            // Redirect to MainActivity with "products" navigation.
+                            val intent = Intent(this@CheckoutActivity, MainActivity::class.java)
+                            intent.putExtra("navigate_to", "products")
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                            startActivity(intent)
                             finish()
                         } else {
                             Toast.makeText(this@CheckoutActivity, "❌ Failed to place order.", Toast.LENGTH_SHORT).show()
@@ -395,7 +411,7 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
     private fun clearCartItems(userId: Int) {
-        val url = "http://192.168.1.12/backend/clear_cart.php"
+        val url = "http://192.168.1.65/backend/clear_cart.php"
         val json = JSONObject().apply {
             put("mobile_user_id", userId)
         }

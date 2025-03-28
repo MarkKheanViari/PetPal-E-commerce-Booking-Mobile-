@@ -85,7 +85,7 @@ class OrderDetailsActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.12/backend/fetch_orders_mobile.php?mobile_user_id=$userId"
+        val url = "http://192.168.1.65/backend/fetch_orders_mobile.php?mobile_user_id=$userId"
         Log.d("OrderDetailsActivity", "Fetching orders from: $url")
 
         val request = JsonObjectRequest(Request.Method.GET, url, null,
