@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 
+
 class ProductAdapter(
     private val context: Context,
     private var products: MutableList<Product>,
@@ -42,6 +43,7 @@ class ProductAdapter(
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = products[position]
 
+        // Highlight search query if available
         holder.itemName.text = if (!lastQuery.isNullOrBlank()) {
             SpannableString(product.name).apply {
                 val query = lastQuery!!.lowercase()
@@ -59,18 +61,21 @@ class ProductAdapter(
             product.name
         }
 
+        // Format price; if parsing fails, show raw price
         holder.itemPrice.text = try {
             "₱${String.format("%,.2f", product.price.toFloat())}"
         } catch (e: NumberFormatException) {
             "₱${product.price}"
         }
 
+        // Set stock information
         holder.itemStock.text = when {
             product.quantity > 0 -> "Stock: ${product.quantity}"
             product.quantity == 0 -> "Out of Stock"
             else -> "Stock: N/A"
         }
 
+        // Load image using Glide
         Glide.with(context)
             .load(product.imageUrl)
             .placeholder(R.drawable.cat)
@@ -79,6 +84,7 @@ class ProductAdapter(
             .dontAnimate()
             .into(holder.itemImage)
 
+        // Open product details on item click
         holder.itemView.setOnClickListener {
             val intent = Intent(context, ProductDetailsActivity::class.java).apply {
                 putExtra("productId", product.id)
@@ -90,6 +96,7 @@ class ProductAdapter(
             context.startActivity(intent)
         }
 
+        // Buy Now button functionality
         holder.buyNowButton.setOnClickListener {
             val productMap = HashMap<String, String>().apply {
                 put("product_id", product.id.toString())
@@ -104,11 +111,10 @@ class ProductAdapter(
             }
             context.startActivity(intent)
         }
-
         holder.buyNowButton.isEnabled = product.quantity > 0
         holder.buyNowButton.alpha = if (product.quantity > 0) 1.0f else 0.5f
 
-        // Ensure report button is visible and log binding
+        // Report button functionality
         android.util.Log.d("ProductAdapter", "Binding report button for ${product.name}")
         holder.reportButton.visibility = View.VISIBLE
         holder.reportButton.setOnClickListener {
