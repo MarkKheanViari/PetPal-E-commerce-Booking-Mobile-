@@ -4,7 +4,7 @@
     <corners android:radius="16dp" />
     <!-- Use your preferred corner radius -->
 
-    <solid android:color="@android:color/holo_blue_dark" />
+    <solid android:color="@android:color/holo_orange_dark" />
     <!-- You can change this color based on order status (e.g., green for Delivered, red for Cancelled, etc.) -->
 
 </shape>

@@ -45,6 +45,9 @@ class OrderAdapter(private var orders: List<Order>) :
         holder.orderDate.text = order.createdAt
         holder.totalPrice.text = "₱${order.totalPrice}"
 
+        // Set "View Details" button text to black
+        holder.viewDetailsButton.setTextColor(Color.BLACK)
+
         // Set order status display and button behavior based on the order's status
         when (order.status) {
             "Pending" -> {
@@ -58,7 +61,7 @@ class OrderAdapter(private var orders: List<Order>) :
             }
             "Cancelled" -> {
                 holder.orderStatus.text = "Cancelled"
-                holder.orderStatus.setTextColor(Color.parseColor("#FF0000")) // Red
+                holder.orderStatus.setTextColor(Color.parseColor("#FFA500")) // Orange
                 holder.cancelOrderButton.visibility = View.VISIBLE
                 holder.cancelOrderButton.text = "Buy Again"
                 holder.cancelOrderButton.setOnClickListener {
@@ -108,7 +111,6 @@ class OrderAdapter(private var orders: List<Order>) :
         notifyDataSetChanged()
     }
 
-    // Show order details popup if no external callback is provided
     private fun showOrderDetailsPopup(context: Context, order: Order) {
         val builder = AlertDialog.Builder(context)
         val inflater = LayoutInflater.from(context)
@@ -129,8 +131,7 @@ class OrderAdapter(private var orders: List<Order>) :
         builder.setView(view)
         builder.setPositiveButton("Close") { dialog, _ -> dialog.dismiss() }
 
-        val dialog = builder.create()
-        dialog.show()
+        builder.create().show()
     }
 
     // Confirm order cancellation with a dialog
