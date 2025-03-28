@@ -17,17 +17,20 @@ class WebViewActivity : AppCompatActivity() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                 if (url != null) {
                     Log.d("WebViewActivity", "Loading URL: $url")
-                    // Handle cart payment deep links
                     if (url.startsWith("petpal://payment/success")) {
+                        Log.d("WebViewActivity", "Detected payment success, redirecting to CheckoutActivity")
                         val intent = Intent(this@WebViewActivity, CheckoutActivity::class.java).apply {
                             data = android.net.Uri.parse(url)
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                         }
                         startActivity(intent)
                         finish()
                         return true
                     } else if (url.startsWith("petpal://payment/cancel")) {
+                        Log.d("WebViewActivity", "Detected payment cancel, redirecting to CheckoutActivity")
                         val intent = Intent(this@WebViewActivity, CheckoutActivity::class.java).apply {
                             data = android.net.Uri.parse(url)
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                         }
                         startActivity(intent)
                         finish()
@@ -47,6 +50,7 @@ class WebViewActivity : AppCompatActivity() {
                         }
                         val intent = Intent(this@WebViewActivity, targetActivity).apply {
                             data = android.net.Uri.parse(url)
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                         }
                         startActivity(intent)
                         finish()
@@ -64,6 +68,7 @@ class WebViewActivity : AppCompatActivity() {
                         }
                         val intent = Intent(this@WebViewActivity, targetActivity).apply {
                             data = android.net.Uri.parse(url)
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                         }
                         startActivity(intent)
                         finish()

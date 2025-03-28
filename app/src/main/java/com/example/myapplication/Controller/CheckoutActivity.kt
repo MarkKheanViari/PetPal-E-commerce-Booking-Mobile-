@@ -60,6 +60,7 @@ class CheckoutActivity : AppCompatActivity() {
         createNotificationChannel()
 
         // Handle any deep link
+        Log.d("CheckoutActivity", "onCreate called with intent: $intent")
         handleDeepLink(intent)
 
         // Toolbar / back button
@@ -183,34 +184,47 @@ class CheckoutActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        Log.d("CheckoutActivity", "onNewIntent called with intent: $intent")
+        setIntent(intent) // Ensure the latest intent is set
         handleDeepLink(intent)
     }
 
     private fun handleDeepLink(intent: Intent?) {
+        Log.d("CheckoutActivity", "handleDeepLink called with intent: $intent")
         intent?.data?.let { uri ->
-            when (uri.path) {
-                "/payment/success" -> {
-                    val orderId = uri.getQueryParameter("order_id")
-                    Toast.makeText(this, "✅ Payment successful for Order #$orderId", Toast.LENGTH_LONG).show()
-                    // Clear cart items on the server.
+            Log.d("CheckoutActivity", "Deep Link URI: $uri")
+            val path = uri.path ?: ""
+            Log.d("CheckoutActivity", "Extracted path: '$path'") // Log exact path
+            when {
+                path == "/payment/success" || path == "payment/success" || uri.toString().contains("/payment/success") -> {
+                    val orderId = uri.getQueryParameter("order_id") ?: "Unknown"
+                    Log.d("CheckoutActivity", "Processing payment success for Order #$orderId")
                     val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                     val userId = sharedPreferences.getInt("user_id", -1)
                     if (userId != -1) {
+                        Log.d("CheckoutActivity", "Clearing cart for userId: $userId")
                         clearCartItems(userId)
+                    } else {
+                        Log.e("CheckoutActivity", "User ID not found in SharedPreferences")
                     }
-                    // Redirect to MainActivity with "products" navigation.
+                    Log.d("CheckoutActivity", "Redirecting to MainActivity with cleared backstack")
                     val mainIntent = Intent(this@CheckoutActivity, MainActivity::class.java)
                     mainIntent.putExtra("navigate_to", "products")
-                    mainIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    mainIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(mainIntent)
-                    setResult(RESULT_OK)
                     finish()
+                    Log.d("CheckoutActivity", "finish() called")
                 }
-                "/payment/cancel" -> {
+                path == "/payment/cancel" || path == "payment/cancel" || uri.toString().contains("/payment/cancel") -> {
+                    Log.d("CheckoutActivity", "Payment canceled")
                     Toast.makeText(this, "⚠ Payment canceled", Toast.LENGTH_LONG).show()
-                    // Remain in CheckoutActivity to allow a retry.
+                }
+                else -> {
+                    Log.w("CheckoutActivity", "Unhandled deep link path: '$path'")
                 }
             }
+        } ?: run {
+            Log.w("CheckoutActivity", "No deep link data in intent: $intent")
         }
     }
 
