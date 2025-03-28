@@ -6,9 +6,9 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.appcompat.widget.Toolbar  // ✅ Correct Toolbar Import
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.viewpager2.widget.ViewPager2
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
@@ -27,11 +27,17 @@ class ScheduledServicesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scheduled_services)
 
+        // 1) Find and set up the Toolbar
         val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar) // ✅ Fix: Now it correctly uses AppCompat Toolbar
+        setSupportActionBar(toolbar)
 
+        // 2) Enable the "Up" (back) button
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        Log.d("TOOLBAR_SETUP", "Toolbar has been set as Support ActionBar") // ✅ Debugging
+        // 3) Handle clicks on the navigation icon
+        toolbar.setNavigationOnClickListener {
+            onBackPressed() // or finish() if you prefer
+        }
 
         tabLayout = findViewById(R.id.tabLayout)
         viewPager = findViewById(R.id.viewPager)
@@ -39,10 +45,12 @@ class ScheduledServicesActivity : AppCompatActivity() {
         scheduledServicesAdapter = ScheduledServicesAdapter(this)
         viewPager.adapter = scheduledServicesAdapter
 
+        // Attach TabLayout and ViewPager2
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = if (position == 0) "Grooming" else "Veterinary"
         }.attach()
 
+        // Fetch scheduled appointments
         fetchScheduledAppointments()
     }
 
@@ -52,18 +60,21 @@ class ScheduledServicesActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        Log.d("TOOLBAR_CLICK", "Clicked menu item: ${item.itemId}") // ✅ Debugging
-
+        Log.d("TOOLBAR_CLICK", "Clicked menu item: ${item.itemId}")
         return when (item.itemId) {
             R.id.menu_clear_history -> {
-                Log.d("TOOLBAR_CLICK", "Clear History clicked!") // ✅ Confirm click is detected
+                Log.d("TOOLBAR_CLICK", "Clear History clicked!")
                 showClearHistoryDialog()
+                true
+            }
+            // Handle the Up/Back button click if you prefer this approach:
+            android.R.id.home -> {
+                onBackPressed()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
-
 
     private fun showClearHistoryDialog() {
         AlertDialog.Builder(this)
@@ -84,23 +95,26 @@ class ScheduledServicesActivity : AppCompatActivity() {
         }
 
         val url = "http://192.168.1.12/backend/clear_service_history.php"
-
-        val request = JsonObjectRequest(Request.Method.POST, url, JSONObject().apply {
-            put("mobile_user_id", mobileUserId)
-        }, { response ->
-            if (response.getBoolean("success")) {
-                Toast.makeText(this, "✅ Service history cleared!", Toast.LENGTH_SHORT).show()
-                fetchScheduledAppointments() // ✅ Refresh UI
-            } else {
-                Toast.makeText(this, "❌ Failed: ${response.getString("message")}", Toast.LENGTH_SHORT).show()
+        val request = JsonObjectRequest(
+            Request.Method.POST,
+            url,
+            JSONObject().apply {
+                put("mobile_user_id", mobileUserId)
+            },
+            { response ->
+                if (response.getBoolean("success")) {
+                    Toast.makeText(this, "✅ Service history cleared!", Toast.LENGTH_SHORT).show()
+                    fetchScheduledAppointments() // Refresh UI
+                } else {
+                    Toast.makeText(this, "❌ Failed: ${response.getString("message")}", Toast.LENGTH_SHORT).show()
+                }
+            },
+            { error ->
+                Toast.makeText(this, "❌ Network error: ${error.message}", Toast.LENGTH_SHORT).show()
             }
-        }, { error ->
-            Toast.makeText(this, "❌ Network error: ${error.message}", Toast.LENGTH_SHORT).show()
-        })
-
+        )
         Volley.newRequestQueue(this).add(request)
     }
-
 
     private fun fetchScheduledAppointments() {
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
@@ -111,13 +125,11 @@ class ScheduledServicesActivity : AppCompatActivity() {
             return
         }
 
-        // ✅ Debug: Log user_id to ensure correct data is being sent
-        println("DEBUG: Fetching appointments for user_id: $mobileUserId")
-
         val url = "http://192.168.1.12/backend/fetch_appointments.php?mobile_user_id=$mobileUserId"
-
         val request = JsonObjectRequest(
-            Request.Method.GET, url, null,
+            Request.Method.GET,
+            url,
+            null,
             { response ->
                 try {
                     if (response.getBoolean("success")) {
@@ -134,11 +146,12 @@ class ScheduledServicesActivity : AppCompatActivity() {
                                 status = item.getString("status"),
                                 image = item.optString("image", "")
                             )
-
                             appointmentsList.add(appointment)
                         }
 
+                        // At this point, you’d pass appointmentsList to your adapter or handle it as needed
                         scheduledServicesAdapter.notifyDataSetChanged()
+
                     } else {
                         Toast.makeText(this, "No scheduled services found", Toast.LENGTH_SHORT).show()
                     }
@@ -152,7 +165,6 @@ class ScheduledServicesActivity : AppCompatActivity() {
                 println("DEBUG: Volley Error: ${error.networkResponse?.statusCode} - ${error.message}")
             }
         )
-
         Volley.newRequestQueue(this).add(request)
     }
 }
