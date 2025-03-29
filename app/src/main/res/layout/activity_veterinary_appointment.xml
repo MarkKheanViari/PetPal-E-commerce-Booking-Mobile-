@@ -162,6 +162,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
+                app:helperText=""
                 app:startIconDrawable="@drawable/location"
                 app:errorTextColor="@android:color/holo_red_dark"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">

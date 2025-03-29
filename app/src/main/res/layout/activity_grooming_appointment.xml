@@ -133,6 +133,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
+                app:counterEnabled="true"
+                app:counterMaxLength="11"
                 app:startIconDrawable="@drawable/contact"
                 app:errorTextColor="@android:color/holo_red_dark"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
@@ -161,6 +163,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
+                app:helperText=""
                 app:startIconDrawable="@drawable/location"
                 app:errorTextColor="@android:color/holo_red_dark"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
@@ -281,6 +284,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
+                app:helperText="Optional"
                 app:counterEnabled="true"
                 app:counterMaxLength="100"
                 app:endIconMode="clear_text"

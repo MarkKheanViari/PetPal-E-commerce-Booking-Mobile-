@@ -13,6 +13,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
@@ -139,11 +140,77 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
                 selectedTime = null
             }
         }
+        etNameInput.addTextChangedListener{
+            etNameLayout.error = null
+        }
+        etPhoneInput.addTextChangedListener{
+            etPhoneLayout.error = null
+        }
+        etAddressInput.addTextChangedListener{
+            etAddresslayout.error = null
+        }
+        etPetNameInput.addTextChangedListener{
+            etPetNameLayout.error = null
+        }
+        etPetBreedInput.addTextChangedListener{
+            etPetBreedLayout.error = null
+        }
 
+        etAddressInput.setOnClickListener{
+            etAddresslayout.helperText = "House Number, Street Name, Barangay, City/Municipality, Province"
+        }
+
+        etNotesInput.addTextChangedListener{
+            etNoteslayout.error = null
+        }
+        
         // Handle appointment submission
         scheduleButton.setOnClickListener {
-            Log.d("Appointment", "Schedule Appointment clicked")
-            submitAppointment()
+            val name = etNameInput.text.toString().trim()
+            val phoneNumber = etPhoneInput.text.toString().trim()
+            val address = etAddressInput.text.toString().trim()
+            val petName = etPetNameInput.text.toString().trim()
+            val petBreed = etPetBreedInput.text.toString().trim()
+            val notes = etNotesInput.text.toString().trim()
+
+            var isValid = true
+
+            if (name.isEmpty()) {
+                etNameLayout.error = "Please enter your name"
+                isValid = false
+            }
+
+            if (phoneNumber.isEmpty()) {
+                etPhoneLayout.error = "Please enter your phone number"
+                isValid = false
+            } else if (phoneNumber.length != 11) {
+                etPhoneLayout.error = "Please enter a valid 11-digit phone number"
+                isValid = false
+            }
+
+            if (address.isEmpty()) {
+                etAddresslayout.error = "Please enter your address"
+                isValid = false
+            }
+
+            if (petName.isEmpty()) {
+                etPetNameLayout.error = "Please enter your pet's name"
+                isValid = false
+            }
+
+            if (petBreed.isEmpty()) {
+                etPetBreedLayout.error = "Please enter your pet's breed"
+                isValid = false
+            }
+
+            if (selectedDate.isNullOrEmpty()) {
+                Toast.makeText(this, "Please select a date!", Toast.LENGTH_SHORT).show()
+                isValid = false
+            }
+            if (isValid) {
+                Log.d("Appointment", "Schedule Appointment clicked")
+                submitAppointment()
+            }
         }
     }
 
