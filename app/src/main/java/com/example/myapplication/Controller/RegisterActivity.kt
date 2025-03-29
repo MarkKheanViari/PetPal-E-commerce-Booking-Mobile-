@@ -94,6 +94,9 @@ class RegisterActivity : AppCompatActivity() {
             } else if (username.length < 8 || username.length > 16) {
                 usernameLayout.error = "Username must be between 8 to 16 characters"
                 isValid = false
+            } else if (username.isEmpty()) {
+                usernameLayout.error = "Username is Required"
+                isValid = false
             }
 
             if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
@@ -102,10 +105,16 @@ class RegisterActivity : AppCompatActivity() {
             } else if (email.contains(" ")) {
                 emailLayout.error = "Email cannot contain spaces"
                 isValid = false
+            } else if (email.isEmpty()) {
+                emailLayout.error = "Email is Required"
+                isValid = false
             }
 
             if (contact.length != 11) {
                 contactLayout.error = "Invalid contact number"
+                isValid = false
+            } else if (contact.isEmpty()) {
+                contactLayout.error = "Contact Number is Required"
                 isValid = false
             }
 
@@ -120,6 +129,11 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
 
+            if (age.isEmpty()) {
+                ageLayout.error = "Age is Required"
+                isValid = false
+            }
+
             if (password.length < 6 || password.length > 16) {
                 passwordLayout.error = "Password must be between 6 to 16 characters"
                 isValid = false
@@ -128,6 +142,9 @@ class RegisterActivity : AppCompatActivity() {
                 isValid = false
             } else if (password != confirmPassword) {
                 passwordLayout.error = "Passwords do not match"
+                isValid = false
+            } else if (password.isEmpty() && confirmPassword.isEmpty()) {
+                passwordLayout.error = "Password is Required"
                 isValid = false
             }
 
@@ -266,7 +283,7 @@ class RegisterActivity : AppCompatActivity() {
             // Create the popup content
             val popupView = layoutInflater.inflate(R.layout.popup_address_format, null)
             val popupText = popupView.findViewById<TextView>(R.id.popupText)
-            popupText.text = "Proper Address Format:\nStreet, City, State, ZIP Code\nExample: 123 Main St, Springfield, IL, 62701"
+            popupText.text = "Proper Address Format:\nStreet,Barangay, City/Municipality, Province, ZIP Code"
 
             // Create and show the PopupWindow
             popupWindow = PopupWindow(
