@@ -476,10 +476,10 @@ tools:context=".ProductDetailsActivity">
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:backgroundTint="@color/smth_orange"
+            app:cornerRadius="10dp"
+            android:backgroundTint="@color/black"
             android:text="Add to Cart"
-            android:textAllCaps="false"
-            app:cornerRadius="25dp" />
+            android:textAllCaps="false" />
 
         <Space
             android:layout_width="15dp"
@@ -492,8 +492,9 @@ tools:context=".ProductDetailsActivity">
             android:layout_height="50dp"
             android:layout_weight="1"
             android:text="Buy Now"
+            android:textColor="@color/black"
+            app:cornerRadius="10dp"
             android:backgroundTint="@color/darker_orange"
-            app:cornerRadius="25dp"
             android:textAllCaps="false"/>
     </LinearLayout>
 

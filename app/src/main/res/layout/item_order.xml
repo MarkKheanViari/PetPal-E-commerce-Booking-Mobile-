@@ -61,7 +61,7 @@
                 android:text="View Details"
                 android:textSize="14sp"
                 android:padding="8dp"
-                android:backgroundTint="@android:color/holo_blue_dark"
+                android:backgroundTint="@color/darker_orange"
                 android:textColor="@android:color/white"/>
 
             <!-- Cancel Order Button -->
