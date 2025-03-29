@@ -225,7 +225,7 @@
                         android:layout_height="wrap_content"
                         app:errorEnabled="true"
                         android:layout_weight="1"
-                        app:startIconDrawable="@drawable/location"
+                        app:startIconDrawable="@drawable/age"
                         app:errorTextColor="@android:color/holo_red_dark"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 

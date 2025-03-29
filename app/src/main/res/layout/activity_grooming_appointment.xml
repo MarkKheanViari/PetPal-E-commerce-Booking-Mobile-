@@ -109,6 +109,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
+                app:startIconDrawable="@drawable/username_logo"
                 app:errorTextColor="@android:color/holo_red_dark"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -132,6 +133,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
+                app:startIconDrawable="@drawable/contact"
                 app:errorTextColor="@android:color/holo_red_dark"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -159,6 +161,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
+                app:startIconDrawable="@drawable/location"
                 app:errorTextColor="@android:color/holo_red_dark"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -167,7 +170,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:fontFamily="@font/alata"
-                    android:hint="      Enter your phone Address"
+                    android:hint="      Enter your address"
                     android:inputType="text"
                     android:lines="1"
                     android:paddingStart="20dp"
@@ -186,6 +189,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
+                app:startIconDrawable="@drawable/dogtag"
                 app:errorTextColor="@android:color/holo_red_dark"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -209,6 +213,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
+                app:startIconDrawable="@drawable/pet"
                 app:errorTextColor="@android:color/holo_red_dark"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -226,6 +231,7 @@
                     android:textSize="15sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
+
 
             <Space
                 android:layout_width="match_parent"
@@ -278,6 +284,7 @@
                 app:counterEnabled="true"
                 app:counterMaxLength="100"
                 app:endIconMode="clear_text"
+                app:startIconDrawable="@drawable/notes"
                 app:errorTextColor="@android:color/holo_red_dark"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
