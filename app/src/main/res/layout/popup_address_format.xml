@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/popupText"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:padding="12dp"
+    android:textColor="@android:color/black"
+    android:textSize="14sp"
+    android:fontFamily="@font/alata"
+    android:elevation="4dp"
+    android:shadowColor="@android:color/black"
+    android:shadowDx="1"
+    android:shadowDy="1"
+    android:shadowRadius="2" />
