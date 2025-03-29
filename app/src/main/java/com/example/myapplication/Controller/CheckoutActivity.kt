@@ -25,7 +25,7 @@ import java.io.IOException
 
 class CheckoutActivity : AppCompatActivity() {
 
-    private lateinit var changeAddress : TextView
+    private lateinit var changeAddress: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var totalTextView: TextView
     private lateinit var userInfoText: TextView
@@ -45,6 +45,9 @@ class CheckoutActivity : AppCompatActivity() {
     // Payment checkboxes
     private lateinit var gcashCheckbox: CheckBox
     private lateinit var codCheckbox: CheckBox
+
+    // New Shipping Fee UI element
+    private lateinit var shippingFeeTextView: TextView
 
     // Cart variables
     private lateinit var cartItems: ArrayList<HashMap<String, String>>
@@ -81,6 +84,7 @@ class CheckoutActivity : AppCompatActivity() {
         paymentMethodIcon = findViewById(R.id.paymentMethodIcon)
         placeOrderButton = findViewById(R.id.checkoutBtn)
         addressSection = findViewById(R.id.addressSection)
+        shippingFeeTextView = findViewById(R.id.shippingFeeTextView) // Initialize the shipping fee TextView
 
         gcashCheckbox = findViewById(R.id.gcashCheckbox)
         codCheckbox = findViewById(R.id.codCheckbox)
@@ -199,7 +203,7 @@ class CheckoutActivity : AppCompatActivity() {
         intent?.data?.let { uri ->
             Log.d("CheckoutActivity", "Deep Link URI: $uri")
             val path = uri.path ?: ""
-            Log.d("CheckoutActivity", "Extracted path: '$path'") // Log exact path
+            Log.d("CheckoutActivity", "Extracted path: '$path'")
             when {
                 path == "/payment/success" || path == "payment/success" || uri.toString().contains("/payment/success") -> {
                     val orderId = uri.getQueryParameter("order_id") ?: "Unknown"
@@ -466,7 +470,10 @@ class CheckoutActivity : AppCompatActivity() {
             totalItems += item.quantity
         }
 
+        // Set shipping fee value and update its TextView.
         val shippingFee = 50.0
+        shippingFeeTextView.text = "₱%.2f".format(shippingFee)
+
         val total = subtotal + shippingFee
 
         val subtotalTextView = findViewById<TextView>(R.id.subtotalTextView)
@@ -475,7 +482,7 @@ class CheckoutActivity : AppCompatActivity() {
         subtotalTextView.text = "₱%.2f".format(subtotal)
         orderTotalPriceSummary.text = "₱%.2f".format(total)
 
-        Log.d("CheckoutActivity", "Subtotal: $subtotal, Total: $total, Items: $totalItems")
+        Log.d("CheckoutActivity", "Subtotal: $subtotal, Shipping Fee: $shippingFee, Total: $total, Items: $totalItems")
     }
 
     fun navigateToAddressSelection(view: View) {
@@ -516,16 +523,13 @@ class CheckoutActivity : AppCompatActivity() {
     private fun sendOrderNotification(title: String, message: String) {
         val channelId = "order_channel"
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            // Replace with a valid icon resource. For testing, using a built-in icon:
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        // Use a unique notification ID. Here we use current time.
         notificationManager.notify(System.currentTimeMillis().toInt(), notificationBuilder.build())
     }
-
 
     companion object {
         const val REQUEST_CODE_ADDRESS = 1001
