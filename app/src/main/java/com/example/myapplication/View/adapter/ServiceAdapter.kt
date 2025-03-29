@@ -26,13 +26,25 @@ class ServiceAdapter(private val context: Context, private val serviceList: List
         holder.servicePrice.text = "Price: ₱${service.price}"
         holder.serviceDescription.text = service.description
 
-        // Load image using Glide
+        // Display time availability
+        holder.serviceAvailability.text = if (service.startTime != null && service.endTime != null) {
+            "${service.startTime} - ${service.endTime}" // Updated format to match screenshot
+        } else {
+            "Not specified"
+        }
+
+        // Display day availability
+        holder.serviceDayAvailability.text = if (service.startDay != null && service.endDay != null) {
+            "${service.startDay} - ${service.endDay}" // Updated format to match screenshot
+        } else {
+            "Not specified"
+        }
+
         Glide.with(context)
-            .load("http://192.168.1.12/backend/${service.image}") // Adjust this URL if needed
-            .placeholder(R.drawable.cat) // fallback image
+            .load("http://192.168.1.65/backend/${service.image}")
+            .placeholder(R.drawable.cat)
             .into(holder.serviceImage)
 
-        // Handle Book Now button
         holder.bookNowButton.setOnClickListener {
             val intent = if (service.type == "Grooming") {
                 Intent(context, GroomingAppointmentActivity::class.java)
@@ -42,6 +54,10 @@ class ServiceAdapter(private val context: Context, private val serviceList: List
             intent.putExtra("SERVICE_NAME", service.name)
             intent.putExtra("SERVICE_PRICE", service.price)
             intent.putExtra("SERVICE_IMAGE", service.image)
+            intent.putExtra("START_TIME", service.startTime)
+            intent.putExtra("END_TIME", service.endTime)
+            intent.putExtra("START_DAY", service.startDay)
+            intent.putExtra("END_DAY", service.endDay)
             context.startActivity(intent)
         }
     }
@@ -53,6 +69,8 @@ class ServiceAdapter(private val context: Context, private val serviceList: List
         val serviceName: TextView = itemView.findViewById(R.id.serviceName)
         val servicePrice: TextView = itemView.findViewById(R.id.servicePrice)
         val serviceDescription: TextView = itemView.findViewById(R.id.serviceDescription)
+        val serviceAvailability: TextView = itemView.findViewById(R.id.serviceAvailability)
+        val serviceDayAvailability: TextView = itemView.findViewById(R.id.serviceDayAvailability)
         val bookNowButton: Button = itemView.findViewById(R.id.bookNowButton)
     }
 }

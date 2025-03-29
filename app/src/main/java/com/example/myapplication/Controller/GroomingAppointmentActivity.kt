@@ -27,7 +27,7 @@ import java.util.Calendar
 class GroomingAppointmentActivity : AppCompatActivity() {
 
     private lateinit var backBtn: ImageView
-    private lateinit var receiptIcon: ImageView // Receipt icon in the toolbar
+    private lateinit var receiptIcon: ImageView
     private lateinit var etNameLayout: TextInputLayout
     private lateinit var etNameInput: TextInputEditText
     private lateinit var etAddresslayout: TextInputLayout
@@ -72,8 +72,10 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         spinnerPaymentMethod = findViewById(R.id.spinnerPaymentMethod)
         val scheduleButton: Button = findViewById(R.id.btnScheduleAppointment)
 
-        // Retrieve service price from the Intent
+        // Retrieve service price, start_time, and end_time from the Intent
         servicePrice = intent.getStringExtra("SERVICE_PRICE") ?: "500.00"
+        val startTime = intent.getStringExtra("START_TIME") // e.g., "09:00"
+        val endTime = intent.getStringExtra("END_TIME")     // e.g., "17:00"
 
         // Back button: go back to MainActivity and select the service tab
         backBtn.setOnClickListener {
@@ -104,7 +106,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         val imageUrl = intent.getStringExtra("SERVICE_IMAGE")
         val serviceImageView: ImageView = findViewById(R.id.serviceImage)
         Glide.with(this)
-            .load("http://192.168.1.12/backend/$imageUrl")
+            .load("http://192.168.1.65/backend/$imageUrl")
             .placeholder(R.drawable.cat)
             .into(serviceImageView)
 
@@ -123,13 +125,13 @@ class GroomingAppointmentActivity : AppCompatActivity() {
             datePickerDialog.show()
         }
 
-        // Handle appointment submission
-        scheduleButton.setOnClickListener {
-            Log.d("Appointment", "Schedule Appointment clicked")
-            submitAppointment()
-        }
-
+        // Set up the time picker spinner dynamically based on start_time and end_time
         spinnerPickTime = findViewById(R.id.spinnerPickTime)
+        val timeSlots = generateTimeSlots(startTime, endTime)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, timeSlots)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerPickTime.adapter = adapter
+
         spinnerPickTime.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 selectedTime = parent.getItemAtPosition(position).toString()
@@ -138,6 +140,64 @@ class GroomingAppointmentActivity : AppCompatActivity() {
                 selectedTime = null
             }
         }
+
+        // Handle appointment submission
+        scheduleButton.setOnClickListener {
+            Log.d("Appointment", "Schedule Appointment clicked")
+            submitAppointment()
+        }
+    }
+
+    // Generate time slots between startTime and endTime in 1-hour increments
+    private fun generateTimeSlots(startTime: String?, endTime: String?): List<String> {
+        val timeSlots = mutableListOf<String>()
+        if (startTime == null || endTime == null) {
+            timeSlots.add("Not specified")
+            return timeSlots
+        }
+
+        try {
+            // Parse start and end times (format: "HH:mm")
+            val startParts = startTime.split(":").map { it.toInt() }
+            val endParts = endTime.split(":").map { it.toInt() }
+
+            var startHour = startParts[0]
+            val startMinute = startParts[1]
+            var endHour = endParts[0]
+            val endMinute = endParts[1]
+
+            // Convert to minutes for easier comparison
+            var currentMinutes = startHour * 60 + startMinute
+            val endMinutes = endHour * 60 + endMinute
+
+            // Ensure start time is before end time
+            if (currentMinutes >= endMinutes) {
+                timeSlots.add("Invalid time range")
+                return timeSlots
+            }
+
+            // Generate time slots in 1-hour increments
+            while (currentMinutes <= endMinutes) {
+                val hour = currentMinutes / 60
+                val minute = currentMinutes % 60
+                val period = if (hour < 12) "AM" else "PM"
+                val displayHour = when {
+                    hour == 0 -> 12 // 12 AM
+                    hour > 12 -> hour - 12 // Convert to 12-hour format
+                    else -> hour
+                }
+                val timeString = String.format("%d:%02d %s", displayHour, minute, period)
+                timeSlots.add(timeString)
+
+                // Increment by 1 hour (60 minutes)
+                currentMinutes += 60
+            }
+        } catch (e: Exception) {
+            Log.e("GroomingAppointment", "Error generating time slots: ${e.message}")
+            timeSlots.add("Error generating time slots")
+        }
+
+        return timeSlots
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -216,7 +276,7 @@ class GroomingAppointmentActivity : AppCompatActivity() {
 
         if (paymentMethod.equals("GCASH", ignoreCase = true)) {
             Log.d("Appointment", "GCash payment method selected, initiating PayMongo flow")
-            val url = "http://192.168.1.12/backend/paymongo_appointment_checkout.php"
+            val url = "http://192.168.1.65/backend/paymongo_appointment_checkout.php"
             val request = JsonObjectRequest(
                 Request.Method.POST, url, jsonObject,
                 { response ->
@@ -247,7 +307,6 @@ class GroomingAppointmentActivity : AppCompatActivity() {
                     Toast.makeText(this, "Failed to initiate GCash payment: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
             )
-            // Extend timeout if needed
             request.retryPolicy = DefaultRetryPolicy(
                 30000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
@@ -256,18 +315,15 @@ class GroomingAppointmentActivity : AppCompatActivity() {
             Volley.newRequestQueue(this).add(request)
         } else {
             Log.d("Appointment", "Non-GCash payment method selected: $paymentMethod, using schedule_appointment.php")
-            val url = "http://192.168.1.12/backend/schedule_appointment.php"
+            val url = "http://192.168.1.65/backend/schedule_appointment.php"
             val request = JsonObjectRequest(
                 Request.Method.POST, url, jsonObject,
                 { response ->
                     Log.d("Appointment", "Appointment scheduled: $response")
                     if (response.optBoolean("success", false)) {
                         Toast.makeText(this, "Appointment Scheduled!", Toast.LENGTH_SHORT).show()
-                        // Save the appointment details for notifications/receipt list
                         saveReceiptDetails(params)
-                        // Optionally, also add a local notification message:
                         addLocalNotification("Appointment Scheduled: ${groomTypeField.text} on $selectedDate at $appointmentTime")
-                        // Immediately show the receipt dialog for this appointment
                         showReceiptDialog(params)
                         clearFields()
                     } else {
@@ -287,7 +343,6 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         }
     }
 
-    // Append the new appointment details to a JSON array stored in SharedPreferences
     private fun saveReceiptDetails(params: Map<String, String>) {
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
         val existingReceipts = sharedPreferences.getString("receipt_details_list", null)
@@ -296,7 +351,6 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         sharedPreferences.edit().putString("receipt_details_list", receiptsArray.toString()).apply()
     }
 
-    // Add a local notification message (for example, so that NotificationActivity can display it)
     private fun addLocalNotification(message: String) {
         val sp = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
         val existingString = sp.getString("notifications", "[]")
@@ -305,7 +359,6 @@ class GroomingAppointmentActivity : AppCompatActivity() {
         sp.edit().putString("notifications", array.toString()).apply()
     }
 
-    // Create and display a dialog showing the receipt details for the current appointment
     private fun showReceiptDialog(params: Map<String, String>) {
         val dialog = Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
         dialog.setContentView(R.layout.layout_receipt_dialog)

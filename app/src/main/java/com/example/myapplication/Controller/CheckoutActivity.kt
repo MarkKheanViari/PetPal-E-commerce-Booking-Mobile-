@@ -242,7 +242,7 @@ class CheckoutActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.12/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.65/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
         Log.d("CheckoutActivity", "Request URL: $url")
         val request = Request.Builder().url(url).get().build()
 
@@ -334,7 +334,7 @@ class CheckoutActivity : AppCompatActivity() {
         if (paymentMethod.equals("GCASH", ignoreCase = true)) {
             Log.d("CheckoutActivity", "⚡ Using PayMongo GCASH Payment")
             val request = Request.Builder()
-                .url("http://192.168.1.12/backend/paymongo_checkout.php")
+                .url("http://192.168.1.65/backend/paymongo_checkout.php")
                 .post(requestBody)
                 .build()
 
@@ -376,7 +376,7 @@ class CheckoutActivity : AppCompatActivity() {
         } else {
             // COD order submission.
             val request = Request.Builder()
-                .url("http://192.168.1.12/backend/submit_order.php")
+                .url("http://192.168.1.65/backend/submit_order.php")
                 .post(requestBody)
                 .build()
 
@@ -425,7 +425,7 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
     private fun clearCartItems(userId: Int) {
-        val url = "http://192.168.1.12/backend/clear_cart.php"
+        val url = "http://192.168.1.65/backend/clear_cart.php"
         val json = JSONObject().apply {
             put("mobile_user_id", userId)
         }

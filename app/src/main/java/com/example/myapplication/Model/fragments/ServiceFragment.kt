@@ -67,9 +67,9 @@ class ServiceFragment : Fragment(R.layout.fragment_service) {
 
     private fun fetchServices(serviceType: String) {
         val url = if (serviceType == "Grooming") {
-            "http://192.168.1.12/backend/fetch_grooming_services.php"
+            "http://192.168.1.65/backend/fetch_grooming_services.php"
         } else {
-            "http://192.168.1.12/backend/fetch_veterinary_services.php"
+            "http://192.168.1.65/backend/fetch_veterinary_services.php"
         }
 
         val queue: RequestQueue = Volley.newRequestQueue(requireContext())
@@ -88,7 +88,11 @@ class ServiceFragment : Fragment(R.layout.fragment_service) {
                                 jsonObject.getString("price"),
                                 jsonObject.getString("description"),
                                 jsonObject.getString("type"),
-                                jsonObject.getString("image") // 👈 Add this
+                                jsonObject.getString("image"),
+                                jsonObject.optString("start_time", null),
+                                jsonObject.optString("end_time", null),
+                                jsonObject.optString("start_day", null), // New
+                                jsonObject.optString("end_day", null)    // New
                             )
                             serviceList.add(service)
                         }

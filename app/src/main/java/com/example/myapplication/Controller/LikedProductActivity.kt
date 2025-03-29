@@ -82,7 +82,7 @@ class LikedProductsActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.1.12/backend/fetch_liked_products.php?mobile_user_id=$mobileUserId"
+        val url = "http://192.168.1.65/backend/fetch_liked_products.php?mobile_user_id=$mobileUserId"
         val request = Request.Builder().url(url).build()
         val client = OkHttpClient()
 
@@ -201,7 +201,7 @@ class LikedProductsActivity : AppCompatActivity() {
                 .toRequestBody("application/json; charset=utf-8".toMediaType())
 
             val request = Request.Builder()
-                .url("http://192.168.1.12/backend/report_product.php")
+                .url("http://192.168.1.65/backend/report_product.php")
                 .post(requestBody)
                 .build()
 
