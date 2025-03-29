@@ -1,11 +1,14 @@
 package com.example.myapplication
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
 import android.util.Patterns
 import android.view.MotionEvent
+import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
@@ -20,7 +23,7 @@ import java.io.IOException
 
 class RegisterActivity : AppCompatActivity() {
 
-
+    private var popupWindow: PopupWindow? = null
     private lateinit var backBtn: ImageView
     private lateinit var usernameLayout : TextInputLayout
     private lateinit var usernameInput: TextInputEditText
@@ -138,6 +141,9 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
 
+        // Location Input
+
+
         termsLink.paintFlags = termsLink.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
         termsLink.setTextColor(getColor(R.color.smth_orange))
 
@@ -252,6 +258,51 @@ class RegisterActivity : AppCompatActivity() {
         loginSugg.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
+        }
+
+        locationInput.setOnClickListener {
+            popupWindow?.dismiss() // Dismiss any existing popup first
+
+            // Create the popup content
+            val popupView = layoutInflater.inflate(R.layout.popup_address_format, null)
+            val popupText = popupView.findViewById<TextView>(R.id.popupText)
+            popupText.text = "Proper Address Format:\nStreet, City, State, ZIP Code\nExample: 123 Main St, Springfield, IL, 62701"
+
+            // Create and show the PopupWindow
+            popupWindow = PopupWindow(
+                popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
+            ).apply {
+                setBackgroundDrawable(ColorDrawable(Color.WHITE))
+                elevation = 8f
+                isOutsideTouchable = true
+                showAsDropDown(locationLayout, 0, 0) // Show below the locationLayout
+            }
+        }
+
+        // Show popup when clicking location layout
+        locationLayout.setOnClickListener {
+            popupWindow?.dismiss() // Dismiss any existing popup first
+
+            // Create the popup content
+            val popupView = layoutInflater.inflate(R.layout.popup_address_format, null)
+            val popupText = popupView.findViewById<TextView>(R.id.popupText)
+            popupText.text = "Proper Address Format:\nStreet, City, State, ZIP Code\nExample: 123 Main St, Springfield, IL, 62701"
+
+            // Create and show the PopupWindow
+            popupWindow = PopupWindow(
+                popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
+            ).apply {
+                setBackgroundDrawable(ColorDrawable(Color.WHITE))
+                elevation = 8f
+                isOutsideTouchable = true
+                showAsDropDown(locationLayout, 0, 0) // Show below the locationLayout
+            }
         }
     }
 
