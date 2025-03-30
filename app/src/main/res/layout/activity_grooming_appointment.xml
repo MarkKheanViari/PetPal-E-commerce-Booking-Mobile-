@@ -284,6 +284,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
+                app:helperText="Optional"
                 app:counterEnabled="true"
                 app:counterMaxLength="100"
                 app:endIconMode="clear_text"

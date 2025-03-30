@@ -156,7 +156,14 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
             etPetBreedLayout.error = null
         }
 
+        etAddressInput.setOnClickListener{
+            etAddresslayout.helperText = "House Number, Street Name, Barangay, City/Municipality, Province"
+        }
 
+        etNotesInput.addTextChangedListener{
+            etNoteslayout.error = null
+        }
+        
         // Handle appointment submission
         scheduleButton.setOnClickListener {
             val name = etNameInput.text.toString().trim()
