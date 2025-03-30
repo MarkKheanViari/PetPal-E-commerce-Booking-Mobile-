@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 
-
 class ProductAdapter(
     private val context: Context,
     private var products: MutableList<Product>,
@@ -97,22 +96,27 @@ class ProductAdapter(
         }
 
         // Buy Now button functionality
-        holder.buyNowButton.setOnClickListener {
-            val productMap = HashMap<String, String>().apply {
-                put("product_id", product.id.toString())
-                put("name", product.name)
-                put("price", product.price)
-                put("image", product.imageUrl)
-                put("quantity", "1")
+        holder.buyNowButton.apply {
+            isEnabled = product.quantity > 0
+            alpha = if (product.quantity > 0) 1.0f else 0.5f
+            text = if (product.quantity > 0) "Buy Now" else "Out of Stock"
+            setOnClickListener {
+                if (product.quantity > 0) {
+                    val productMap = HashMap<String, String>().apply {
+                        put("product_id", product.id.toString())
+                        put("name", product.name)
+                        put("price", product.price)
+                        put("image", product.imageUrl)
+                        put("quantity", "1")
+                    }
+                    val cartItems = arrayListOf(productMap)
+                    val intent = Intent(context, CheckoutActivity::class.java).apply {
+                        putExtra("cartItems", cartItems)
+                    }
+                    context.startActivity(intent)
+                }
             }
-            val cartItems = arrayListOf(productMap)
-            val intent = Intent(context, CheckoutActivity::class.java).apply {
-                putExtra("cartItems", cartItems)
-            }
-            context.startActivity(intent)
         }
-        holder.buyNowButton.isEnabled = product.quantity > 0
-        holder.buyNowButton.alpha = if (product.quantity > 0) 1.0f else 0.5f
 
         // Report button functionality
         android.util.Log.d("ProductAdapter", "Binding report button for ${product.name}")
