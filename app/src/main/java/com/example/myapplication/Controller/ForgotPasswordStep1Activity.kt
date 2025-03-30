@@ -1,17 +1,31 @@
 package com.example.myapplication
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.util.Patterns
 import android.view.View
-import android.widget.*
+import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.Spinner
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import okhttp3.*
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Credentials
+import okhttp3.FormBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONException
@@ -41,11 +55,25 @@ class ForgotPasswordStep1Activity : AppCompatActivity() {
         recoveryInput = findViewById(R.id.recoveryInput)
         getOtpButton = findViewById(R.id.getOtpButton)
 
-        // Setup Spinner *after* initializing views
+        // Setup Spinner *after* initializing views with custom adapter
         val methods = arrayOf("Select Recovery Method", "Contact Number", "Email")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, methods)
+        val adapter = object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, methods) {
+            override fun isEnabled(position: Int): Boolean {
+                // Disable the first item from being selectable.
+                return position != 0
+            }
+
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getDropDownView(position, convertView, parent)
+                val tv = view as TextView
+                // Set the hint text color gray for the first (disabled) item
+                tv.setTextColor(if (position == 0) Color.GRAY else Color.BLACK)
+                return view
+            }
+        }
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         recoveryMethodSpinner.adapter = adapter
+
         recoveryMethodSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 if (position == 0) return
@@ -60,7 +88,6 @@ class ForgotPasswordStep1Activity : AppCompatActivity() {
             }
         }
 
-        // Rest of your code remains the same...
         backBtn.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
@@ -163,7 +190,7 @@ class ForgotPasswordStep1Activity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.65/backend/send_otp_email.php")
+            .url("http://192.168.1.12/backend/send_otp_email.php")
             .post(requestBody)
             .build()
 
