@@ -51,12 +51,13 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
+            android:id="@+id/help_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Help Section -->
+            <!-- Help Item 1 -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -72,24 +73,106 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
+                    <!-- Help Question -->
                     <TextView
-                        android:id="@+id/help_title"
+                        android:id="@+id/help_question1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Help Center"
+                        android:text="How do I navigate the app?"
                         android:textSize="20sp"
                         android:textStyle="bold"
                         android:textColor="@android:color/black"
                         android:layout_marginBottom="12dp" />
 
+                    <!-- Help Answer (initially hidden) -->
                     <TextView
-                        android:id="@+id/help_content"
+                        android:id="@+id/help_answer1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Here you can find help regarding our application usage. Detailed instructions, troubleshooting tips, and FAQs are provided to guide you through any issues or questions."
+                        android:text="Use the menu or bottom navigation bar to move between different sections such as Home, Shop, and Profile."
                         android:textSize="16sp"
                         android:lineSpacingExtra="4dp"
-                        android:textColor="@android:color/darker_gray" />
+                        android:textColor="@android:color/darker_gray"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Help Item 2 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="6dp"
+                app:cardBackgroundColor="@android:color/white"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Help Question -->
+                    <TextView
+                        android:id="@+id/help_question2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="How do I contact support?"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Help Answer (initially hidden) -->
+                    <TextView
+                        android:id="@+id/help_answer2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="You can reach our support team by emailing
+                         Petpal@gmail.com."
+                        android:textSize="16sp"
+                        android:lineSpacingExtra="4dp"
+                        android:textColor="@android:color/darker_gray"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Help Item 3 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="6dp"
+                app:cardBackgroundColor="@android:color/white"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Help Question -->
+                    <TextView
+                        android:id="@+id/help_question3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="What features does this app offer?"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Help Answer (initially hidden) -->
+                    <TextView
+                        android:id="@+id/help_answer3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Our app offers a seamless online shopping experience for pet products, including personalized recommendations, exclusive deals, and easy checkout."
+                        android:textSize="16sp"
+                        android:lineSpacingExtra="4dp"
+                        android:textColor="@android:color/darker_gray"
+                        android:visibility="gone" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -97,15 +180,5 @@
     </androidx.core.widget.NestedScrollView>
 
     <!-- Floating Action Button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:src="@android:drawable/ic_menu_search"
-        app:backgroundTint="@color/darker_orange"
-        app:elevation="6dp"
-        android:contentDescription="Search Help" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

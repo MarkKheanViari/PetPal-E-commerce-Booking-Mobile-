@@ -2,8 +2,12 @@ package com.example.myapplication
 
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.transition.TransitionManager
 
 class HelpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,12 +17,30 @@ class HelpActivity : AppCompatActivity() {
         // Set up the Toolbar as the ActionBar
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-
-        // Enable the Up button (back arrow)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        // Optionally, set a title for the Activity
         supportActionBar?.title = "Help"
+
+        // Get the container holding the help items
+        val helpContainer = findViewById<ViewGroup>(R.id.help_container)
+
+        // Setup toggles for each help item
+        setupToggle(helpContainer, R.id.help_question1, R.id.help_answer1)
+        setupToggle(helpContainer, R.id.help_question2, R.id.help_answer2)
+        setupToggle(helpContainer, R.id.help_question3, R.id.help_answer3)
+    }
+
+    /**
+     * Helper function to add a smooth expand/collapse transition to a help item.
+     */
+    private fun setupToggle(container: ViewGroup, questionId: Int, answerId: Int) {
+        val question: TextView = findViewById(questionId)
+        val answer: TextView = findViewById(answerId)
+
+        question.setOnClickListener {
+            // Animate the transition within the container for a smooth effect
+            TransitionManager.beginDelayedTransition(container)
+            answer.visibility = if (answer.visibility == View.GONE) View.VISIBLE else View.GONE
+        }
     }
 
     // Handle the Up button click

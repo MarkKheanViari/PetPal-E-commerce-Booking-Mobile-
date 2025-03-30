@@ -39,7 +39,6 @@
                 android:layout_height="98dp"
                 android:contentDescription="About Us Header Image"
                 android:scaleType="centerCrop"
-
                 app:layout_collapseMode="parallax" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -52,6 +51,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
+            android:id="@+id/about_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -72,6 +72,7 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
+                    <!-- About Title (clickable) -->
                     <TextView
                         android:id="@+id/about_title"
                         android:layout_width="match_parent"
@@ -82,6 +83,7 @@
                         android:textColor="@android:color/black"
                         android:layout_marginBottom="12dp" />
 
+                    <!-- About Content (initially hidden) -->
                     <TextView
                         android:id="@+id/about_content"
                         android:layout_width="match_parent"
@@ -89,9 +91,10 @@
                         android:text="Learn more about our company, our mission, and the dedicated team behind this application. We strive to provide the best experience for our users."
                         android:textSize="16sp"
                         android:lineSpacingExtra="4dp"
-                        android:textColor="@android:color/darker_gray" />
+                        android:textColor="@android:color/darker_gray"
+                        android:visibility="gone" />
 
-                    <!-- Optional Team Section -->
+                    <!-- Team Title (clickable) -->
                     <TextView
                         android:id="@+id/team_title"
                         android:layout_width="match_parent"
@@ -103,14 +106,16 @@
                         android:layout_marginTop="16dp"
                         android:layout_marginBottom="8dp" />
 
+                    <!-- Team Content (initially hidden) -->
                     <TextView
                         android:id="@+id/team_content"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Meet the passionate individuals who bring this app to life..."
+                        android:text="Meet the passionate individuals who bring this app to life. Our diverse team is committed to innovation and excellence."
                         android:textSize="16sp"
                         android:lineSpacingExtra="4dp"
-                        android:textColor="@android:color/darker_gray" />
+                        android:textColor="@android:color/darker_gray"
+                        android:visibility="gone" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -118,15 +123,5 @@
     </androidx.core.widget.NestedScrollView>
 
     <!-- Floating Action Button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:src="@android:drawable/ic_menu_info_details"
-        app:backgroundTint="@color/darker_orange"
-        app:elevation="6dp"
-        android:contentDescription="More Info" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
