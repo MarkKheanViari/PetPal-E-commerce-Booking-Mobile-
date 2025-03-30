@@ -403,16 +403,14 @@ class CheckoutActivity : AppCompatActivity() {
                     runOnUiThread {
                         if (response.isSuccessful && responseBody?.contains("success") == true) {
                             showOrderPlacedToast()
-                            // Add a local notification for the order summary.
                             val productNames = cartList.joinToString { it.productName }
                             addLocalNotification("Order Placed: $productNames")
-                            // Send a system notification to the user.
                             sendOrderNotification("Order Placed", "Your order for $productNames has been placed successfully!")
-                            // Clear cart items on the server.
                             clearCartItems(userId)
-                            // Redirect to MainActivity with "products" navigation.
-                            val intent = Intent(this@CheckoutActivity, MainActivity::class.java)
-                            intent.putExtra("navigate_to", "products")
+
+                            // Redirect to OrderReceivedActivity instead of MainActivity
+                            val intent = Intent(this@CheckoutActivity, OrderReceivedActivity::class.java)
+                            intent.putExtra("productNames", productNames)
                             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                             startActivity(intent)
                             finish()

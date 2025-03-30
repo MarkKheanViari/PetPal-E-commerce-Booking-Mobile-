@@ -133,6 +133,7 @@
         <activity android:name=".ForgotPasswordStep2Activity"/>
         <activity android:name=".ForgotPasswordStep3Activity"/>
         <activity android:name=".ReceiptActivity"/>
+        <activity android:name=".OrderReceivedActivity" />
 
         <!-- Deep Link Configuration for Payment Success -->
 
