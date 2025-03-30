@@ -9,6 +9,8 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -24,7 +26,8 @@ class ForgotPasswordStep1Activity : AppCompatActivity() {
 
     private lateinit var backBtn: ImageView
     private lateinit var recoveryMethodSpinner: Spinner
-    private lateinit var recoveryInput: EditText
+    private lateinit var recoveryLayout : TextInputLayout
+    private lateinit var recoveryInput: TextInputEditText
     private lateinit var getOtpButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +48,7 @@ class ForgotPasswordStep1Activity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 selectedMethod = methods[position]
                 recoveryInput.hint = if (selectedMethod == "Email") "Enter your email" else "Enter your contact number"
+                recoveryLayout.startIconDrawable = if (selectedMethod == "Email") getDrawable(R.drawable.email) else getDrawable(R.drawable.contact)
                 recoveryInput.inputType = if (selectedMethod == "Email") InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS else InputType.TYPE_CLASS_PHONE
             }
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -60,8 +64,7 @@ class ForgotPasswordStep1Activity : AppCompatActivity() {
             when (selectedMethod) {
                 "Contact Number" -> {
                     if (recoveryValue.length != 11) {
-                        recoveryInput.error = "Enter a valid 11-digit phone number"
-                        recoveryInput.setBackgroundResource(R.drawable.edittext_error_background)
+                        recoveryLayout.error = "Enter a valid 11-digit phone number"
                     } else {
                         requestOtpViaTwilio(recoveryValue) { success ->
                             if (success) {
@@ -76,8 +79,7 @@ class ForgotPasswordStep1Activity : AppCompatActivity() {
                 }
                 "Email" -> {
                     if (!Patterns.EMAIL_ADDRESS.matcher(recoveryValue).matches()) {
-                        recoveryInput.error = "Enter a valid email address"
-                        recoveryInput.setBackgroundResource(R.drawable.edittext_error_background)
+                        recoveryLayout.error = "Enter a valid email address"
                     } else {
                         requestOtpViaEmail(recoveryValue) { success ->
                             if (success) {
@@ -95,8 +97,7 @@ class ForgotPasswordStep1Activity : AppCompatActivity() {
 
         // Fix: Use the correct addTextChangedListener with a lambda
         recoveryInput.addTextChangedListener {
-            recoveryInput.error = null
-            recoveryInput.setBackgroundResource(R.drawable.login_design)
+            recoveryLayout.error = null
         }
     }
 

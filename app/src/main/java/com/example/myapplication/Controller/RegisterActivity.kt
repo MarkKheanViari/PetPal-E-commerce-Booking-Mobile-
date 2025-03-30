@@ -141,7 +141,7 @@ class RegisterActivity : AppCompatActivity() {
                 passwordLayout.error = "Password cannot contain spaces"
                 isValid = false
             } else if (password != confirmPassword) {
-                passwordLayout.error = "Passwords do not match"
+                confirmPasswordLayout.error = "Passwords do not match"
                 isValid = false
             } else if (password.isEmpty() && confirmPassword.isEmpty()) {
                 passwordLayout.error = "Password is Required"

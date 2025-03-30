@@ -67,14 +67,34 @@
             android:orientation="vertical">
 
             <!-- User Name and Phone Number -->
-            <TextView
-                android:id="@+id/addressName"
-                android:layout_width="wrap_content"
+            <!-- User Name and Phone Number with Change Address -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Mark Khean M. Viari"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- User Name -->
+                <TextView
+                    android:id="@+id/addressName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mark Khean M. Viari"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_weight="1"/>
+
+                <!-- Change Address -->
+                <TextView
+                    android:id="@+id/changeAddress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Change Address"
+                    android:textColor="@color/other_gray"
+                    android:clickable="true"
+                    android:focusable="true"/>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/addressPhone"

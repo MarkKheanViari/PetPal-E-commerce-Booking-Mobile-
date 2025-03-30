@@ -25,6 +25,7 @@ import java.io.IOException
 
 class CheckoutActivity : AppCompatActivity() {
 
+    private lateinit var changeAddress : TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var totalTextView: TextView
     private lateinit var userInfoText: TextView
@@ -68,6 +69,7 @@ class CheckoutActivity : AppCompatActivity() {
         backBtn.setOnClickListener { finish() }
 
         // Find UI references
+        changeAddress = findViewById(R.id.changeAddress)
         recyclerView = findViewById(R.id.checkoutRecyclerView)
         totalTextView = findViewById(R.id.totalTextView)
         userInfoText = findViewById(R.id.userInfoText)
@@ -82,6 +84,9 @@ class CheckoutActivity : AppCompatActivity() {
 
         gcashCheckbox = findViewById(R.id.gcashCheckbox)
         codCheckbox = findViewById(R.id.codCheckbox)
+
+        changeAddress.paintFlags = changeAddress.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
+        changeAddress.setTextColor(getColor(R.color.other_gray))
 
         // Hide the legacy select payment button
         selectPaymentButton.visibility = View.GONE

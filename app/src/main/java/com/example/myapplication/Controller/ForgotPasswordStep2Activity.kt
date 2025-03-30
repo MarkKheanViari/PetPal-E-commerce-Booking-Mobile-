@@ -6,6 +6,8 @@ import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -21,7 +23,8 @@ class ForgotPasswordStep2Activity : AppCompatActivity() {
     private var generatedOtp: String? = null
 
     private lateinit var backBtn: ImageView
-    private lateinit var otpInput: EditText
+    private lateinit var otpLayout : TextInputLayout
+    private lateinit var otpInput: TextInputEditText
     private lateinit var confirmOtpButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,6 +32,7 @@ class ForgotPasswordStep2Activity : AppCompatActivity() {
         setContentView(R.layout.activity_forgot_password_step2)
 
         backBtn = findViewById(R.id.backBtn)
+        otpLayout = findViewById(R.id.otpLayout)
         otpInput = findViewById(R.id.otpInput)
         confirmOtpButton = findViewById(R.id.confirmOtpButton)
 
@@ -43,8 +47,7 @@ class ForgotPasswordStep2Activity : AppCompatActivity() {
         confirmOtpButton.setOnClickListener {
             val enteredOtp = otpInput.text.toString().trim()
             if (enteredOtp.isEmpty()) {
-                otpInput.error = "Enter the OTP"
-                otpInput.setBackgroundResource(R.drawable.edittext_error_background)
+                otpLayout.error = "Enter the OTP"
             } else {
                 if (selectedMethod == "Email") {
                     verifyEmailOtp(recoveryValue, enteredOtp) { success ->
@@ -63,8 +66,7 @@ class ForgotPasswordStep2Activity : AppCompatActivity() {
                         intent.putExtra("RECOVERY_VALUE", recoveryValue)
                         startActivity(intent)
                     } else {
-                        otpInput.error = "Invalid OTP"
-                        otpInput.setBackgroundResource(R.drawable.edittext_error_background)
+                        otpLayout.error = "Invalid OTP"
                     }
                 }
             }
@@ -72,8 +74,7 @@ class ForgotPasswordStep2Activity : AppCompatActivity() {
 
         // Fix: Use the correct addTextChangedListener with a lambda
         otpInput.addTextChangedListener {
-            otpInput.error = null
-            otpInput.setBackgroundResource(R.drawable.login_design)
+            otpLayout.error = null
         }
     }
 

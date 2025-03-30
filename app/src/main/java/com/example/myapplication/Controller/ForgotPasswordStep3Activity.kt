@@ -7,6 +7,8 @@ import android.view.MotionEvent
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -22,8 +24,10 @@ class ForgotPasswordStep3Activity : AppCompatActivity() {
     private lateinit var recoveryValue: String
 
     private lateinit var backBtn: ImageView
-    private lateinit var newPasswordInput: EditText
-    private lateinit var confirmPasswordInput: EditText
+    private lateinit var newPasswordLayout : TextInputLayout
+    private lateinit var confirmPasswordLayout : TextInputLayout
+    private lateinit var newPasswordInput: TextInputEditText
+    private lateinit var confirmPasswordInput: TextInputEditText
     private lateinit var changePasswordButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +35,8 @@ class ForgotPasswordStep3Activity : AppCompatActivity() {
         setContentView(R.layout.activity_forgot_password_step3)
 
         backBtn = findViewById(R.id.backBtn)
+        newPasswordLayout = findViewById(R.id.newPasswordLayout)
+        confirmPasswordLayout = findViewById(R.id.confirmPasswordLayout)
         newPasswordInput = findViewById(R.id.newPasswordInput)
         confirmPasswordInput = findViewById(R.id.confirmPasswordInput)
         changePasswordButton = findViewById(R.id.changePasswordButton)
@@ -48,13 +54,11 @@ class ForgotPasswordStep3Activity : AppCompatActivity() {
 
             var isValid = true
             if (newPassword.length < 6 || newPassword.length > 16) {
-                newPasswordInput.error = "Password must be 6-16 characters"
-                newPasswordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                newPasswordLayout.error = "Password must be 6-16 characters"
                 isValid = false
             }
             if (newPassword != confirmPassword) {
-                confirmPasswordInput.error = "Passwords do not match"
-                confirmPasswordInput.setBackgroundResource(R.drawable.edittext_error_background)
+                confirmPasswordLayout.error = "Passwords do not match"
                 isValid = false
             }
             if (isValid) {
@@ -63,15 +67,11 @@ class ForgotPasswordStep3Activity : AppCompatActivity() {
         }
 
         newPasswordInput.addTextChangedListener {
-            newPasswordInput.error = null
-            newPasswordInput.setBackgroundResource(R.drawable.login_design)
+            newPasswordLayout.error = null
         }
         confirmPasswordInput.addTextChangedListener {
-            confirmPasswordInput.error = null
-            confirmPasswordInput.setBackgroundResource(R.drawable.login_design)
+            confirmPasswordLayout.error = null
         }
-
-        setupPasswordToggle()
     }
 
     private fun resetPassword(recoveryValue: String, newPassword: String) {
@@ -125,7 +125,7 @@ class ForgotPasswordStep3Activity : AppCompatActivity() {
             }
         })
     }
-
+    /*
     private fun EditText.setCompoundDrawableClickListener(onDrawableEndClick: () -> Unit) {
         setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) {
@@ -156,5 +156,5 @@ class ForgotPasswordStep3Activity : AppCompatActivity() {
                 else android.text.method.PasswordTransformationMethod.getInstance()
             confirmPasswordInput.setSelection(confirmPasswordInput.text?.length ?: 0)
         }
-    }
+    } */
 }
