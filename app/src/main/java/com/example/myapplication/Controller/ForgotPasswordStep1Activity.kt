@@ -26,7 +26,7 @@ class ForgotPasswordStep1Activity : AppCompatActivity() {
 
     private lateinit var backBtn: ImageView
     private lateinit var recoveryMethodSpinner: Spinner
-    private lateinit var recoveryLayout : TextInputLayout
+    private lateinit var recoveryLayout: TextInputLayout
     private lateinit var recoveryInput: TextInputEditText
     private lateinit var getOtpButton: Button
 
@@ -34,12 +34,14 @@ class ForgotPasswordStep1Activity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_forgot_password_step1)
 
+        // Initialize all views including recoveryLayout first
         backBtn = findViewById(R.id.backBtn)
         recoveryMethodSpinner = findViewById(R.id.recoveryMethodSpinner)
+        recoveryLayout = findViewById(R.id.recoveryLayout) // Now initialized before use
         recoveryInput = findViewById(R.id.recoveryInput)
         getOtpButton = findViewById(R.id.getOtpButton)
 
-        // Setup Spinner
+        // Setup Spinner *after* initializing views
         val methods = arrayOf("Contact Number", "Email")
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, methods)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -47,13 +49,14 @@ class ForgotPasswordStep1Activity : AppCompatActivity() {
         recoveryMethodSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 selectedMethod = methods[position]
-                recoveryInput.hint = if (selectedMethod == "Email") "Enter your email" else "Enter your contact number"
+                recoveryInput.hint = if (selectedMethod == "Email") "Enter your email" else "Enter your phone number"
                 recoveryLayout.startIconDrawable = if (selectedMethod == "Email") getDrawable(R.drawable.email) else getDrawable(R.drawable.contact)
                 recoveryInput.inputType = if (selectedMethod == "Email") InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS else InputType.TYPE_CLASS_PHONE
             }
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
+        // Rest of your code remains the same...
         backBtn.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
@@ -95,7 +98,6 @@ class ForgotPasswordStep1Activity : AppCompatActivity() {
             }
         }
 
-        // Fix: Use the correct addTextChangedListener with a lambda
         recoveryInput.addTextChangedListener {
             recoveryLayout.error = null
         }
@@ -157,7 +159,7 @@ class ForgotPasswordStep1Activity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-            .url("http://192.168.1.12/backend/send_otp_email.php")
+            .url("http://192.168.1.65/backend/send_otp_email.php")
             .post(requestBody)
             .build()
 
