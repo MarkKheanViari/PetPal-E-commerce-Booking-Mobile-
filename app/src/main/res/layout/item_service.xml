@@ -30,80 +30,91 @@
             android:background="@android:color/darker_gray"/>
 
         <!-- Overlay for Day and Time Availability -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|end"
-            android:orientation="vertical"
-        android:padding="8dp"
-        android:layout_margin="8dp">
-
-        <!-- Time Availability -->
-        <TextView
-            android:id="@+id/serviceAvailability"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Available: Not specified"
-            android:textColor="@android:color/holo_orange_light"
-            android:textSize="12sp" />
-
-        <!-- Day Availability -->
-        <TextView
-            android:id="@+id/serviceDayAvailability"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Days: Not specified"
-            android:textColor="@android:color/holo_orange_light"
-            android:textSize="12sp"
-            android:layout_marginTop="4dp" />
-    </LinearLayout>
-</FrameLayout>
+        </FrameLayout>
 
     <!-- Service Info -->
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="vertical"
-android:padding="16dp">
+            <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-<TextView
-    android:id="@+id/serviceName"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Brushing"
-    android:textSize="18sp"
-    android:textStyle="bold"
-    android:textColor="@android:color/black"
-    android:paddingBottom="4dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-<TextView
-    android:id="@+id/servicePrice"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Price: ₱500"
-    android:textSize="16sp"
-    android:textColor="@android:color/black"
-    android:paddingBottom="4dp"/>
+                <TextView
+                    android:id="@+id/serviceName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Brushing"
+                    android:layout_weight="1"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:paddingBottom="4dp"/>
 
-<TextView
-    android:id="@+id/serviceDescription"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="This is a sample description for the service."
-    android:textSize="14sp"
-    android:textColor="@android:color/darker_gray"
-    android:maxLines="3"
-    android:ellipsize="end"
-    android:paddingBottom="8dp"/>
+                <com.yourpackage.StrokedTextView
+                    android:id="@+id/serviceAvailability"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Available: Not specified"
+                    android:textSize="12sp"
+                    android:textColor="@color/darker_orange"
 
-<Button
-    android:id="@+id/bookNowButton"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="BOOK NOW"
-    android:backgroundTint="@color/darker_orange"
-    android:textColor="@android:color/white"
-    android:textSize="16sp"/>
-</LinearLayout>
-    </LinearLayout>
+                    />
+
+            </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/servicePrice"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="Price: ₱500"
+                        android:textSize="16sp"
+                        android:layout_weight="1"
+                        android:textColor="@android:color/black"
+                        android:paddingBottom="4dp"/>
+
+                    <com.yourpackage.StrokedTextView
+                        android:id="@+id/serviceDayAvailability"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Days: Not specified"
+                        android:textColor="@color/darker_orange"
+                        android:textSize="12sp"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+
+
+
+                <TextView
+                android:id="@+id/serviceDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="This is a sample description for the service."
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:paddingBottom="8dp"/>
+
+            <Button
+                android:id="@+id/bookNowButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="BOOK NOW"
+                android:backgroundTint="@color/darker_orange"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"/>
+            </LinearLayout>
+        </LinearLayout>
     </androidx.cardview.widget.CardView>

@@ -305,7 +305,7 @@ class MainActivity : AppCompatActivity() {
                 .toRequestBody("application/json; charset=utf-8".toMediaType())
 
             val request = Request.Builder()
-                .url("http://192.168.80.63/backend/report_product.php")
+                .url("http://192.168.43.55/backend/report_product.php")
                 .post(requestBody)
                 .build()
 
@@ -409,7 +409,7 @@ class MainActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.80.63/backend/add_to_liked_products.php")
+            .url("http://192.168.43.55/backend/add_to_liked_products.php")
             .post(requestBody)
             .build()
 
@@ -506,7 +506,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkForApprovedAppointments(userId: Int) {
-        val url = "http://192.168.80.63/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
+        val url = "http://192.168.43.55/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
         val request = JsonObjectRequest(
             com.android.volley.Request.Method.GET, url, null,
             { response ->
@@ -637,7 +637,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchProducts() {
-        val url = "http://192.168.80.63/backend/fetch_product.php"
+        val url = "http://192.168.43.55/backend/fetch_product.php"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -655,7 +655,7 @@ class MainActivity : AppCompatActivity() {
 
                     val productsArray = json.optJSONArray("products") ?: JSONArray()
                     val fetchedProducts = mutableListOf<Product>()
-                    val baseImageUrl = "http://192.168.80.63/backend/uploads/"
+                    val baseImageUrl = "http://192.168.43.55/backend/uploads/"
 
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)
@@ -707,7 +707,7 @@ class MainActivity : AppCompatActivity() {
         displayedProducts.clear()
         productAdapter.notifyDataSetChanged()
 
-        val url = "http://192.168.80.63/backend/fetch_product.php?category=$category"
+        val url = "http://192.168.43.55/backend/fetch_product.php?category=$category"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -731,11 +731,11 @@ class MainActivity : AppCompatActivity() {
                         val productJson = productsArray.getJSONObject(i)
                         val rawImage = productJson.optString("image", "").trim()
                         val fullImageUrl = if (rawImage.isNotEmpty() && !rawImage.startsWith("http")) {
-                            "http://192.168.80.63/backend/uploads/$rawImage"
+                            "http://192.168.43.55/backend/uploads/$rawImage"
                         } else {
                             rawImage
                         }
-                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.80.63/backend/uploads/default.jpg"
+                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.43.55/backend/uploads/default.jpg"
 
                         categoryProducts.add(
                             Product(
