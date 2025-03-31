@@ -89,6 +89,7 @@ class ProductAdapter(
                 putExtra("productId", product.id)
                 putExtra("productName", product.name)
                 putExtra("productImage", product.imageUrl)
+                putExtra("productStock", product.quantity)
                 putExtra("productDescription", product.description)
                 putExtra("productPrice", product.price)
             }

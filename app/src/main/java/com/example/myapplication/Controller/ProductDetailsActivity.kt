@@ -30,6 +30,7 @@ class ProductDetailsActivity : AppCompatActivity() {
     private lateinit var averageRatingBar: RatingBar
     private lateinit var averageRatingText: TextView
     private lateinit var totalRatingsText: TextView
+    private lateinit var productStock : TextView
     private lateinit var progress5Star: ProgressBar
     private lateinit var progress4Star: ProgressBar
     private lateinit var progress3Star: ProgressBar
@@ -48,10 +49,13 @@ class ProductDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_product_details)
 
+        productStock = findViewById(R.id.productStock)
+
         // Retrieve product data from the Intent
         val productId = intent.getIntExtra("productId", -1)
         val productName = intent.getStringExtra("productName")
         val productImage = intent.getStringExtra("productImage")
+        val productQuantity = intent.getStringExtra("productStock")
         val productDescription = intent.getStringExtra("productDescription")
         val navigateToReport = intent.getBooleanExtra("navigateToReport", false)
 
