@@ -82,7 +82,11 @@ class ServiceAvailActivity : AppCompatActivity() {
 
     // ✅ NEW FUNCTION: Fetch Service Details
     private fun fetchServiceDetails(serviceId: Int) {
+<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/fetch_services.php"
+=======
+        val url = "http://192.168.38.63/backend/fetch_services.php"
+>>>>>>> Stashed changes
         Log.d("Service Details", "🔄 Fetching service details for ID: $serviceId") // ✅ Debugging Log
 
         val request = Request.Builder().url(url).get().build()
@@ -138,7 +142,11 @@ class ServiceAvailActivity : AppCompatActivity() {
 
         val requestBody = jsonObject.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = Request.Builder()
+<<<<<<< Updated upstream
             .url("http://192.168.43.55/backend/request_service.php")
+=======
+            .url("http://192.168.38.63/backend/request_service.php")
+>>>>>>> Stashed changes
             .post(requestBody)
             .build()
 

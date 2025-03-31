@@ -107,7 +107,11 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
         val imageUrl = intent.getStringExtra("SERVICE_IMAGE")
         val serviceImageView: ImageView = findViewById(R.id.serviceImage)
         Glide.with(this)
+<<<<<<< Updated upstream
             .load("http://192.168.43.55/backend/$imageUrl")
+=======
+            .load("http://192.168.38.63/backend/$imageUrl")
+>>>>>>> Stashed changes
             .placeholder(R.drawable.cat)
             .into(serviceImageView)
 
@@ -341,7 +345,11 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
 
         if (paymentMethod.equals("GCASH", ignoreCase = true)) {
             Log.d("Appointment", "GCash payment method selected, initiating PayMongo flow")
+<<<<<<< Updated upstream
             val url = "http://192.168.43.55/backend/paymongo_appointment_checkout.php"
+=======
+            val url = "http://192.168.38.63/backend/paymongo_appointment_checkout.php"
+>>>>>>> Stashed changes
             val request = JsonObjectRequest(
                 Request.Method.POST, url, jsonObject,
                 { response ->
@@ -380,7 +388,11 @@ class VeterinaryAppointmentActivity : AppCompatActivity() {
             Volley.newRequestQueue(this).add(request)
         } else {
             Log.d("Appointment", "Non-GCash payment method selected: $paymentMethod, using schedule_appointment.php")
+<<<<<<< Updated upstream
             val url = "http://192.168.43.55/backend/schedule_appointment.php"
+=======
+            val url = "http://192.168.38.63/backend/schedule_appointment.php"
+>>>>>>> Stashed changes
             val request = JsonObjectRequest(
                 Request.Method.POST, url, jsonObject,
                 { response ->

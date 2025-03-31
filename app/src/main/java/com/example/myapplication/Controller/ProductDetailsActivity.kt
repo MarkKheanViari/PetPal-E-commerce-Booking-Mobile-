@@ -312,7 +312,11 @@ class ProductDetailsActivity : AppCompatActivity() {
                 .toRequestBody("application/json; charset=utf-8".toMediaType())
 
             val request = Request.Builder()
+<<<<<<< Updated upstream
                 .url("http://192.168.43.55/backend/report_product.php")
+=======
+                .url("http://192.168.38.63/backend/report_product.php")
+>>>>>>> Stashed changes
                 .post(requestBody)
                 .build()
 
@@ -355,7 +359,11 @@ class ProductDetailsActivity : AppCompatActivity() {
     }
 
     private fun checkIfProductIsLiked(productId: Int, mobileUserId: Int) {
+<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/check_if_liked.php?mobile_user_id=$mobileUserId&product_id=$productId"
+=======
+        val url = "http://192.168.38.63/backend/check_if_liked.php?mobile_user_id=$mobileUserId&product_id=$productId"
+>>>>>>> Stashed changes
         val request = Request.Builder().url(url).build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -413,7 +421,11 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
+<<<<<<< Updated upstream
             .url("http://192.168.43.55/backend/add_to_liked_products.php")
+=======
+            .url("http://192.168.38.63/backend/add_to_liked_products.php")
+>>>>>>> Stashed changes
             .post(requestBody)
             .build()
 
@@ -463,7 +475,11 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
+<<<<<<< Updated upstream
             .url("http://192.168.43.55/backend/remove_from_liked_products.php")
+=======
+            .url("http://192.168.38.63/backend/remove_from_liked_products.php")
+>>>>>>> Stashed changes
             .post(requestBody)
             .build()
 
@@ -493,7 +509,11 @@ class ProductDetailsActivity : AppCompatActivity() {
     }
 
     private fun fetchUserRating(productId: Int, mobileUserId: Int) {
+<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/fetch_user_rating.php?mobile_user_id=$mobileUserId&product_id=$productId"
+=======
+        val url = "http://192.168.38.63/backend/fetch_user_rating.php?mobile_user_id=$mobileUserId&product_id=$productId"
+>>>>>>> Stashed changes
         val request = Request.Builder().url(url).build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -528,7 +548,11 @@ class ProductDetailsActivity : AppCompatActivity() {
     }
 
     private fun fetchRatingStats(productId: Int) {
+<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/fetch_product_rating_stats.php?product_id=$productId"
+=======
+        val url = "http://192.168.38.63/backend/fetch_product_rating_stats.php?product_id=$productId"
+>>>>>>> Stashed changes
         val request = Request.Builder().url(url).build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -617,7 +641,11 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
+<<<<<<< Updated upstream
             .url("http://192.168.43.55/backend/add_to_cart.php")
+=======
+            .url("http://192.168.38.63/backend/add_to_cart.php")
+>>>>>>> Stashed changes
             .post(requestBody)
             .build()
 
@@ -682,7 +710,11 @@ class ProductDetailsActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
+<<<<<<< Updated upstream
             .url("http://192.168.43.55/backend/add_product_review.php")
+=======
+            .url("http://192.168.38.63/backend/add_product_review.php")
+>>>>>>> Stashed changes
             .post(requestBody)
             .build()
 

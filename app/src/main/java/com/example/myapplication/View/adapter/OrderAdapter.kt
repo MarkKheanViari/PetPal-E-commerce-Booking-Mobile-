@@ -147,7 +147,11 @@ class OrderAdapter(private var orders: List<Order>) :
     }
 
     private fun cancelOrder(context: Context, order: Order) {
+<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/cancel_order.php?order_id=${order.id}"
+=======
+        val url = "http://192.168.38.63/backend/cancel_order.php?order_id=${order.id}"
+>>>>>>> Stashed changes
         val requestQueue = Volley.newRequestQueue(context)
 
         val request = JsonObjectRequest(

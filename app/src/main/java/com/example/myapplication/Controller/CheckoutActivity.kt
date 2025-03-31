@@ -251,7 +251,11 @@ class CheckoutActivity : AppCompatActivity() {
             return
         }
 
+<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
+=======
+        val url = "http://192.168.38.63/backend/fetch_user_info.php?mobile_user_id=$mobileUserId"
+>>>>>>> Stashed changes
         Log.d("CheckoutActivity", "Request URL: $url")
         val request = Request.Builder().url(url).get().build()
 
@@ -343,7 +347,11 @@ class CheckoutActivity : AppCompatActivity() {
         if (paymentMethod.equals("GCASH", ignoreCase = true)) {
             Log.d("CheckoutActivity", "⚡ Using PayMongo GCASH Payment")
             val request = Request.Builder()
+<<<<<<< Updated upstream
                 .url("http://192.168.43.55/backend/paymongo_checkout.php")
+=======
+                .url("http://192.168.38.63/backend/paymongo_checkout.php")
+>>>>>>> Stashed changes
                 .post(requestBody)
                 .build()
 
@@ -385,7 +393,11 @@ class CheckoutActivity : AppCompatActivity() {
         } else {
             // COD order submission.
             val request = Request.Builder()
+<<<<<<< Updated upstream
                 .url("http://192.168.43.55/backend/submit_order.php")
+=======
+                .url("http://192.168.38.63/backend/submit_order.php")
+>>>>>>> Stashed changes
                 .post(requestBody)
                 .build()
 
@@ -432,7 +444,11 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
     private fun clearCartItems(userId: Int) {
+<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/clear_cart.php"
+=======
+        val url = "http://192.168.38.63/backend/clear_cart.php"
+>>>>>>> Stashed changes
         val json = JSONObject().apply {
             put("mobile_user_id", userId)
         }

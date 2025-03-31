@@ -41,7 +41,11 @@ class ServiceAdapter(private val context: Context, private val serviceList: List
         }
 
         Glide.with(context)
+<<<<<<< Updated upstream
             .load("http://192.168.43.55/backend/${service.image}")
+=======
+            .load("http://192.168.38.63/backend/${service.image}")
+>>>>>>> Stashed changes
             .placeholder(R.drawable.cat)
             .into(holder.serviceImage)
 
