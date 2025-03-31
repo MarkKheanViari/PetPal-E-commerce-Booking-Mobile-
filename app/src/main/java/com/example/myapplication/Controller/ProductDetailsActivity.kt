@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,11 +25,16 @@ import java.text.DecimalFormat
 class ProductDetailsActivity : AppCompatActivity() {
 
     private var quantity = 1
+    private var productId: Int = -1
+    private lateinit var productStock: TextView
+
+    // Rating UI
     private lateinit var ratingBar: RatingBar
     private lateinit var averageRatingBar: RatingBar
     private lateinit var averageRatingText: TextView
     private lateinit var totalRatingsText: TextView
-    private lateinit var productStock : TextView
+
+    // Rating distribution
     private lateinit var progress5Star: ProgressBar
     private lateinit var progress4Star: ProgressBar
     private lateinit var progress3Star: ProgressBar
@@ -41,52 +45,20 @@ class ProductDetailsActivity : AppCompatActivity() {
     private lateinit var percent3Star: TextView
     private lateinit var percent2Star: TextView
     private lateinit var percent1Star: TextView
+
+    // Liked button
     private lateinit var likedBtn: ImageView
     private var isLiked = false
+
+    // Networking
     private val client = OkHttpClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_product_details)
 
+        // UI references
         productStock = findViewById(R.id.productStock)
-
-        // Retrieve product data from the Intent
-        val productId = intent.getIntExtra("productId", -1)
-        val productName = intent.getStringExtra("productName")
-        val productImage = intent.getStringExtra("productImage")
-        val productQuantity = intent.getStringExtra("productStock")
-        val productDescription = intent.getStringExtra("productDescription")
-        val navigateToReport = intent.getBooleanExtra("navigateToReport", false)
-
-        // Debug the raw extras to see what type productPrice is
-        val extras = intent.extras
-        extras?.keySet()?.forEach { key ->
-            Log.d("ProductDetailsActivity", "Extra: $key = ${extras[key]} (${extras[key]?.javaClass?.simpleName})")
-        }
-
-        // Retrieve productPrice as a String first, then convert to Double
-        val productPriceString = intent.getStringExtra("productPrice")
-        val productPrice = try {
-            productPriceString?.toDouble() ?: intent.getDoubleExtra("productPrice", 0.0)
-        } catch (e: NumberFormatException) {
-            Log.e("ProductDetailsActivity", "Failed to parse productPrice: $productPriceString", e)
-            0.0
-        }
-
-        Log.d("ProductDetailsActivity", "Received productPrice: $productPrice")
-
-        // Find UI Elements
-        val productNameTextView = findViewById<TextView>(R.id.productName)
-        val productImageView = findViewById<ImageView>(R.id.productImageView)
-        val productDescriptionTextView = findViewById<TextView>(R.id.productDescription)
-        val productPriceTextView = findViewById<TextView>(R.id.prduct_price)
-        val backBtn = findViewById<ImageView>(R.id.backBtn)
-        val cartBtn = findViewById<ImageView>(R.id.cartBtn)
-        val reportButton = findViewById<ImageView>(R.id.reportButton) // Add report button reference
-        likedBtn = findViewById(R.id.likedBtn)
-        val addToCartButton = findViewById<MaterialButton>(R.id.addtocart_container)
-        val buyNowButton = findViewById<MaterialButton>(R.id.buynow_container)
         ratingBar = findViewById(R.id.ratingBar)
         averageRatingBar = findViewById(R.id.average_rating_bar)
         averageRatingText = findViewById(R.id.average_rating_text)
@@ -101,10 +73,55 @@ class ProductDetailsActivity : AppCompatActivity() {
         percent3Star = findViewById(R.id.percent_3_star)
         percent2Star = findViewById(R.id.percent_2_star)
         percent1Star = findViewById(R.id.percent_1_star)
+        likedBtn = findViewById(R.id.likedBtn)
+
+        val backBtn = findViewById<ImageView>(R.id.backBtn)
+        val cartBtn = findViewById<ImageView>(R.id.cartBtn)
+        val reportButton = findViewById<ImageView>(R.id.reportButton)
+        val addToCartButton = findViewById<MaterialButton>(R.id.addtocart_container)
+        val buyNowButton = findViewById<MaterialButton>(R.id.buynow_container)
+
+        val productNameTextView = findViewById<TextView>(R.id.productName)
+        val productImageView = findViewById<ImageView>(R.id.productImageView)
+        val productDescriptionTextView = findViewById<TextView>(R.id.productDescription)
+        val productPriceTextView = findViewById<TextView>(R.id.prduct_price)
+
+        // Retrieve product data from the Intent
+        productId = intent.getIntExtra("productId", -1)
+        val productName = intent.getStringExtra("productName") ?: "N/A"
+        val productImage = intent.getStringExtra("productImage")
+        val productDescription = intent.getStringExtra("productDescription") ?: "No description available."
+        val navigateToReport = intent.getBooleanExtra("navigateToReport", false)
+
+        // 1) Retrieve the product stock as an Int
+        val productStockFromIntent = intent.getIntExtra("productStock", 0)
+        Log.d("ProductDetailsActivity", "Received productStock from Intent: $productStockFromIntent")
+
+        // 2) Retrieve productPrice as a Double
+        val productPriceString = intent.getStringExtra("productPrice")
+        val productPrice = try {
+            productPriceString?.toDouble() ?: intent.getDoubleExtra("productPrice", 0.0)
+        } catch (e: NumberFormatException) {
+            Log.e("ProductDetailsActivity", "Failed to parse productPrice: $productPriceString", e)
+            0.0
+        }
+        Log.d("ProductDetailsActivity", "Received productPrice: $productPrice")
+
+        // 3) Check if we have a saved stock in SharedPreferences
+        val sharedPref = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        val savedStock = sharedPref.getInt("stock_product_$productId", -1)
+
+        // 4) Decide final stock to display
+        val finalStockToDisplay = if (savedStock >= 0) savedStock else productStockFromIntent
+        Log.d("ProductDetailsActivity", "Saved stock: $savedStock | Intent stock: $productStockFromIntent")
+        Log.d("ProductDetailsActivity", "Final stock to display: $finalStockToDisplay")
+
+        // 5) Show the final stock
+        productStock.text = "Stock: $finalStockToDisplay"
 
         // Display product details
-        productNameTextView.text = productName ?: "N/A"
-        productDescriptionTextView.text = productDescription ?: "No description available."
+        productNameTextView.text = productName
+        productDescriptionTextView.text = productDescription
         productPriceTextView.text = "₱$productPrice"
 
         // Load product image with Glide
@@ -136,10 +153,10 @@ class ProductDetailsActivity : AppCompatActivity() {
             if (productId != -1) {
                 val product = Product(
                     id = productId,
-                    name = productName ?: "",
+                    name = productName,
                     price = productPrice.toString(),
-                    description = productDescription ?: "",
-                    quantity = 0, // Quantity isn't needed for reporting
+                    description = productDescription,
+                    quantity = 0, // quantity not needed for report
                     imageUrl = productImage ?: ""
                 )
                 reportProduct(product)
@@ -161,7 +178,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             }
         }
 
-        // "Add to Cart" functionality
+        // "Add to Cart"
         addToCartButton.setOnClickListener {
             if (productId != -1) {
                 addToCart(productId, quantity)
@@ -170,7 +187,7 @@ class ProductDetailsActivity : AppCompatActivity() {
             }
         }
 
-        // "Buy Now" functionality
+        // "Buy Now"
         buyNowButton.setOnClickListener {
             if (productId != -1) {
                 goToCheckout(
@@ -186,19 +203,19 @@ class ProductDetailsActivity : AppCompatActivity() {
             }
         }
 
-        // RatingBar listener to submit or update rating
+        // RatingBar to submit/update rating
         ratingBar.setOnRatingBarChangeListener { _, rating, fromUser ->
             if (fromUser && productId != -1) {
                 submitReview(productId, rating.toInt())
             }
         }
 
-        // Fetch and display rating statistics
+        // Fetch and display rating stats
         if (productId != -1) {
             fetchRatingStats(productId)
+
             // Fetch the user's current rating
-            val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
-            val mobileUserId = sharedPreferences.getInt("user_id", -1)
+            val mobileUserId = sharedPref.getInt("user_id", -1)
             if (mobileUserId != -1) {
                 fetchUserRating(productId, mobileUserId)
                 // Check if the product is liked
@@ -210,14 +227,27 @@ class ProductDetailsActivity : AppCompatActivity() {
         if (navigateToReport && productId != -1) {
             val product = Product(
                 id = productId,
-                name = productName ?: "",
+                name = productName,
                 price = productPrice.toString(),
-                description = productDescription ?: "",
-                quantity = 0, // Quantity isn't needed for reporting
+                description = productDescription,
+                quantity = 0,
                 imageUrl = productImage ?: ""
             )
             reportProduct(product)
         }
+    }
+
+    /**
+     * Helper function to update and persist the new stock value.
+     * Call this after an action that changes the stock (e.g. purchase).
+     */
+    private fun updateStock(newStock: Int) {
+        Log.d("ProductDetailsActivity", "Updating stock to: $newStock for productId: $productId")
+        productStock.text = "Stock: $newStock"
+        val sharedPref = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        sharedPref.edit()
+            .putInt("stock_product_$productId", newStock)
+            .apply()
     }
 
     private fun reportProduct(product: Product) {
@@ -233,7 +263,6 @@ class ProductDetailsActivity : AppCompatActivity() {
             return
         }
 
-        // Updated list with 5 report reasons
         val reportReasons = listOf(
             "Harmful or Toxic Ingredients – The product contains substances that can be dangerous to pets.",
             "Expired or Spoiled Product – Pet food, treats, or medications that are past their expiration date or appear contaminated.",
@@ -242,28 +271,24 @@ class ProductDetailsActivity : AppCompatActivity() {
             "Defective or Poor-Quality Material – Items that break easily, causing potential harm to pets."
         )
 
-        // Create custom dialog
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_report_product, null)
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
 
-        // Set up dialog title
         val dialogTitle = dialogView.findViewById<TextView>(R.id.dialogTitle)
         dialogTitle.text = "Report Product: ${product.name}"
 
-        // Set up RecyclerView for reasons
         val reasonsRecyclerView = dialogView.findViewById<RecyclerView>(R.id.reasonsRecyclerView)
         reasonsRecyclerView.layoutManager = LinearLayoutManager(this)
         reasonsRecyclerView.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
 
         var selectedReason: String? = null
         val reasonAdapter = ReportReasonAdapter(reportReasons) { reason ->
-            selectedReason = reason  // Can be null if deselected
+            selectedReason = reason
         }
         reasonsRecyclerView.adapter = reasonAdapter
 
-        // Set up buttons
         val cancelButton = dialogView.findViewById<Button>(R.id.cancelButton)
         val submitButton = dialogView.findViewById<Button>(R.id.submitButton)
 
@@ -321,7 +346,6 @@ class ProductDetailsActivity : AppCompatActivity() {
             })
         }
 
-        // Show the dialog
         dialog.show()
         dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
         dialog.window?.setLayout(
@@ -333,8 +357,6 @@ class ProductDetailsActivity : AppCompatActivity() {
     private fun checkIfProductIsLiked(productId: Int, mobileUserId: Int) {
         val url = "http://192.168.80.63/backend/check_if_liked.php?mobile_user_id=$mobileUserId&product_id=$productId"
         val request = Request.Builder().url(url).build()
-        val client = OkHttpClient()
-
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
@@ -352,7 +374,6 @@ class ProductDetailsActivity : AppCompatActivity() {
                         }
                         return
                     }
-
                     isLiked = json.optBoolean("is_liked", false)
                     runOnUiThread {
                         updateLikeButton()
@@ -396,7 +417,6 @@ class ProductDetailsActivity : AppCompatActivity() {
             .post(requestBody)
             .build()
 
-        val client = OkHttpClient()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
@@ -413,8 +433,9 @@ class ProductDetailsActivity : AppCompatActivity() {
                             isLiked = true
                             updateLikeButton()
                             Toast.makeText(this@ProductDetailsActivity, "✅ Added to liked products!", Toast.LENGTH_SHORT).show()
-                            val intent = Intent(this@ProductDetailsActivity, LikedProductsActivity::class.java)
-                            startActivity(intent)
+                            // Optionally navigate to LikedProductsActivity
+                            // val intent = Intent(this@ProductDetailsActivity, LikedProductsActivity::class.java)
+                            // startActivity(intent)
                         } else {
                             Toast.makeText(this@ProductDetailsActivity, "❌ Error: ${jsonResponse.optString("message")}", Toast.LENGTH_SHORT).show()
                         }
@@ -446,7 +467,6 @@ class ProductDetailsActivity : AppCompatActivity() {
             .post(requestBody)
             .build()
 
-        val client = OkHttpClient()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
@@ -475,8 +495,6 @@ class ProductDetailsActivity : AppCompatActivity() {
     private fun fetchUserRating(productId: Int, mobileUserId: Int) {
         val url = "http://192.168.80.63/backend/fetch_user_rating.php?mobile_user_id=$mobileUserId&product_id=$productId"
         val request = Request.Builder().url(url).build()
-        val client = OkHttpClient()
-
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
@@ -494,7 +512,6 @@ class ProductDetailsActivity : AppCompatActivity() {
                         }
                         return
                     }
-
                     val userRating = json.optInt("rating", 0)
                     runOnUiThread {
                         if (userRating > 0) {
@@ -513,8 +530,6 @@ class ProductDetailsActivity : AppCompatActivity() {
     private fun fetchRatingStats(productId: Int) {
         val url = "http://192.168.80.63/backend/fetch_product_rating_stats.php?product_id=$productId"
         val request = Request.Builder().url(url).build()
-        val client = OkHttpClient()
-
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
@@ -532,7 +547,6 @@ class ProductDetailsActivity : AppCompatActivity() {
                         }
                         return
                     }
-
                     val totalRatings = json.optInt("total_ratings", 0)
                     val averageRating = json.optDouble("average_rating", 0.0)
                     val ratingDistribution = json.optJSONObject("rating_distribution") ?: JSONObject()
@@ -542,21 +556,22 @@ class ProductDetailsActivity : AppCompatActivity() {
                         val df = DecimalFormat("#.#")
                         averageRatingText.text = "${df.format(averageRating)} out of 5"
                         totalRatingsText.text = "$totalRatings customer ratings"
+
                         percent5Star.text = "${ratingDistribution.optInt("5", 0)}%"
                         percent4Star.text = "${ratingDistribution.optInt("4", 0)}%"
                         percent3Star.text = "${ratingDistribution.optInt("3", 0)}%"
                         percent2Star.text = "${ratingDistribution.optInt("2", 0)}%"
                         percent1Star.text = "${ratingDistribution.optInt("1", 0)}%"
+
                         progress5Star.progress = ratingDistribution.optInt("5", 0)
                         progress4Star.progress = ratingDistribution.optInt("4", 0)
                         progress3Star.progress = ratingDistribution.optInt("3", 0)
                         progress2Star.progress = ratingDistribution.optInt("2", 0)
                         progress1Star.progress = ratingDistribution.optInt("1", 0)
-                        if (totalRatings == 0) {
-                            findViewById<LinearLayout>(R.id.rating_distribution_container).visibility = View.GONE
-                        } else {
-                            findViewById<LinearLayout>(R.id.rating_distribution_container).visibility = View.VISIBLE
-                        }
+
+                        // Hide distribution if no ratings
+                        findViewById<LinearLayout>(R.id.rating_distribution_container).visibility =
+                            if (totalRatings == 0) View.GONE else View.VISIBLE
                     }
                 } catch (e: Exception) {
                     runOnUiThread {
@@ -606,7 +621,6 @@ class ProductDetailsActivity : AppCompatActivity() {
             .post(requestBody)
             .build()
 
-        val client = OkHttpClient()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
@@ -621,6 +635,19 @@ class ProductDetailsActivity : AppCompatActivity() {
                         val jsonResponse = JSONObject(responseBody)
                         if (jsonResponse.optBoolean("success", false)) {
                             showAddedToCartToast()
+
+                            // Example: If adding to cart reduces the stock, decrement it
+                            val currentStock = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+                                .getInt("stock_product_$productId", -1)
+
+                            // If we don't have a saved stock, let's use what's displayed
+                            val displayedStock = productStock.text.toString().replace("Stock: ", "").toIntOrNull() ?: 0
+                            val stockToUse = if (currentStock >= 0) currentStock else displayedStock
+
+                            if (stockToUse > 0) {
+                                val newStock = stockToUse - quantity
+                                updateStock(newStock.coerceAtLeast(0))
+                            }
                         } else {
                             Toast.makeText(this@ProductDetailsActivity, "❌ Error: ${jsonResponse.optString("message")}", Toast.LENGTH_SHORT).show()
                         }
@@ -659,7 +686,6 @@ class ProductDetailsActivity : AppCompatActivity() {
             .post(requestBody)
             .build()
 
-        val client = OkHttpClient()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
