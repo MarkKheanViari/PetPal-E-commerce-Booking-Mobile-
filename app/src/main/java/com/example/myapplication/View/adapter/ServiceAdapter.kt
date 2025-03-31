@@ -41,7 +41,7 @@ class ServiceAdapter(private val context: Context, private val serviceList: List
         }
 
         Glide.with(context)
-            .load("http://192.168.43.55/backend/${service.image}")
+            .load("http://192.168.80.63/backend/${service.image}")
             .placeholder(R.drawable.cat)
             .into(holder.serviceImage)
 
