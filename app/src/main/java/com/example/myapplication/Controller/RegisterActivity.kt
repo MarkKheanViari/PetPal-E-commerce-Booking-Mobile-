@@ -110,6 +110,11 @@ class RegisterActivity : AppCompatActivity() {
                 isValid = false
             }
 
+            if (location.isEmpty()) {
+                locationLayout.error = "Location is Required"
+                isValid = false
+            }
+
             if (contact.length != 11) {
                 contactLayout.error = "Invalid contact number"
                 isValid = false

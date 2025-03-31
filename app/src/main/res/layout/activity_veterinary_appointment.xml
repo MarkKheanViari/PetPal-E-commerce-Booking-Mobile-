@@ -144,7 +144,7 @@
                     android:layout_height="match_parent"
                     android:fontFamily="@font/alata"
                     android:hint="      Enter your phone number"
-                    android:inputType="text"
+                    android:inputType="phone"
                     android:lines="1"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"

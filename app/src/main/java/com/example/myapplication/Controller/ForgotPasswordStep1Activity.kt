@@ -20,7 +20,7 @@ import java.io.IOException
 
 class ForgotPasswordStep1Activity : AppCompatActivity() {
 
-    private var selectedMethod: String = "Contact Number" // Default selection
+    private var selectedMethod: String = "" // Default selection
     private val client = OkHttpClient()
     private var generatedOtp: String? = null
 
@@ -42,18 +42,22 @@ class ForgotPasswordStep1Activity : AppCompatActivity() {
         getOtpButton = findViewById(R.id.getOtpButton)
 
         // Setup Spinner *after* initializing views
-        val methods = arrayOf("Contact Number", "Email")
+        val methods = arrayOf("Select Recovery Method", "Contact Number", "Email")
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, methods)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         recoveryMethodSpinner.adapter = adapter
         recoveryMethodSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                if (position == 0) return
                 selectedMethod = methods[position]
-                recoveryInput.hint = if (selectedMethod == "Email") "Enter your email" else "Enter your phone number"
+                recoveryInput.hint = if (selectedMethod == "Email") "      Enter your email" else "      Enter your phone number"
                 recoveryLayout.startIconDrawable = if (selectedMethod == "Email") getDrawable(R.drawable.email) else getDrawable(R.drawable.contact)
                 recoveryInput.inputType = if (selectedMethod == "Email") InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS else InputType.TYPE_CLASS_PHONE
             }
-            override fun onNothingSelected(parent: AdapterView<*>) {}
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                recoveryInput.hint = ""
+                recoveryLayout.startIconDrawable = null
+            }
         }
 
         // Rest of your code remains the same...

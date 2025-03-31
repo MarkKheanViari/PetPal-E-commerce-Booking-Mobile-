@@ -144,7 +144,7 @@
                             android:fontFamily="@font/alata"
                             android:textColor="@color/black"
                             android:textSize="15sp"
-                            android:inputType="text"
+                            android:inputType="textEmailAddress"
                             android:lines="1"
                             android:paddingStart="20dp"
                             android:paddingEnd="20dp"/>
@@ -208,7 +208,7 @@
                             android:fontFamily="@font/alata"
                             android:textColor="@color/black"
                             android:textSize="15sp"
-                            android:inputType="text"
+                            android:inputType="phone"
                             android:lines="1"
                             android:paddingStart="20dp"
                             android:paddingEnd="20dp"/>
@@ -237,7 +237,7 @@
                             android:fontFamily="@font/alata"
                             android:textColor="@color/black"
                             android:textSize="15sp"
-                            android:inputType="text"
+                            android:inputType="number"
                             android:lines="1"
                             android:paddingStart="20dp"
                             android:paddingEnd="20dp"/>
