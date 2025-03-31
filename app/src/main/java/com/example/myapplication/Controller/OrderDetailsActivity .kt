@@ -113,11 +113,7 @@ class OrderDetailsActivity : AppCompatActivity() {
             Toast.makeText(this, "❌ User not logged in!", Toast.LENGTH_SHORT).show()
             return
         }
-<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/fetch_orders_mobile.php?mobile_user_id=$userId"
-=======
-        val url = "http://192.168.38.63/backend/fetch_orders_mobile.php?mobile_user_id=$userId"
->>>>>>> Stashed changes
         Log.d("OrderDetailsActivity", "Fetching orders from: $url")
 
         val request = JsonObjectRequest(Request.Method.GET, url, null,

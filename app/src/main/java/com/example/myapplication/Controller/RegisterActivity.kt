@@ -4,7 +4,10 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
 import android.util.Patterns
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -85,55 +88,42 @@ class RegisterActivity : AppCompatActivity() {
 
             var isValid = true
 
-            // Validate username: must not be empty and letters only
-            if (username.isEmpty()) {
-                usernameLayout.error = "Username is Required"
+            if (username.contains(" ")) {
+                usernameLayout.error = "Username cannot contain spaces"
                 isValid = false
-            } else if (!username.matches(Regex("^[A-Za-z]+\$"))) {
-                usernameLayout.error = "Username must consist of letters only (no spaces, numbers, or symbols)"
+            } else if (username.length < 8 || username.length > 16) {
+                usernameLayout.error = "Username must be between 8 to 16 characters"
+                isValid = false
+            } else if (username.isEmpty()) {
+                usernameLayout.error = "Username is Required"
                 isValid = false
             }
 
-            // Validate email: must not be empty, no spaces, must match email pattern,
-            // and the domain must be one of the allowed: @gmail.com, @yahoo.com, or @phinmaed.com
-            if (email.isEmpty()) {
-                emailLayout.error = "Email is Required"
-                isValid = false
-            } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 emailLayout.error = "Invalid email address"
                 isValid = false
             } else if (email.contains(" ")) {
                 emailLayout.error = "Email cannot contain spaces"
                 isValid = false
-            } else {
-                val allowedDomains = listOf("@gmail.com")
-                // Check if the email ends with one of the allowed domains (ignoring case)
-                if (allowedDomains.none { email.lowercase().endsWith(it) }) {
-                    emailLayout.error = "Email must end with a valid email address"
-                    isValid = false
-                }
+            } else if (email.isEmpty()) {
+                emailLayout.error = "Email is Required"
+                isValid = false
             }
 
-            // Validate location
             if (location.isEmpty()) {
                 locationLayout.error = "Location is Required"
                 isValid = false
             }
 
-            // Validate contact: must be 11 characters
-            if (contact.isEmpty()) {
-                contactLayout.error = "Contact Number is Required"
-                isValid = false
-            } else if (contact.length != 11) {
+            if (contact.length != 11) {
                 contactLayout.error = "Invalid contact number"
+                isValid = false
+            } else if (contact.isEmpty()) {
+                contactLayout.error = "Contact Number is Required"
                 isValid = false
             }
 
-            // Validate age: must not be empty, no spaces and between 9 and 80
-            if (age.isEmpty()) {
-                ageLayout.error = "Age is Required"
-                isValid = false
-            } else if (age.contains(" ")) {
+            if (age.contains(" ")) {
                 ageLayout.error = "Age cannot contain spaces"
                 isValid = false
             } else {
@@ -144,11 +134,12 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
 
-            // Validate password and confirm password
-            if (password.isEmpty() || confirmPassword.isEmpty()) {
-                passwordLayout.error = "Password is Required"
+            if (age.isEmpty()) {
+                ageLayout.error = "Age is Required"
                 isValid = false
-            } else if (password.length < 6 || password.length > 16) {
+            }
+
+            if (password.length < 6 || password.length > 16) {
                 passwordLayout.error = "Password must be between 6 to 16 characters"
                 isValid = false
             } else if (password.contains(" ")) {
@@ -156,6 +147,9 @@ class RegisterActivity : AppCompatActivity() {
                 isValid = false
             } else if (password != confirmPassword) {
                 confirmPasswordLayout.error = "Passwords do not match"
+                isValid = false
+            } else if (password.isEmpty() && confirmPassword.isEmpty()) {
+                passwordLayout.error = "Password is Required"
                 isValid = false
             }
 
@@ -169,78 +163,134 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
 
-        // Set up text view underlines and colors for links
+        // Location Input
+
+
         termsLink.paintFlags = termsLink.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
         termsLink.setTextColor(getColor(R.color.smth_orange))
+
         privacyLink.paintFlags = privacyLink.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
         privacyLink.setTextColor(getColor(R.color.smth_orange))
+
         loginSugg.paintFlags = loginSugg.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
         loginSugg.setTextColor(getColor(R.color.smth_orange))
 
-        // Focus listeners to validate fields when focus is lost
+        // Focus listeners to validate fields
         usernameInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus && usernameInput.text.toString().trim().isEmpty()) {
-                usernameLayout.error = "Username is Required"
-            }
-        }
-        emailInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus && emailInput.text.toString().trim().isEmpty()) {
-                emailLayout.error = "Email is Required"
-            }
-        }
-        locationInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus && locationInput.text.toString().trim().isEmpty()) {
-                locationLayout.error = "Location is Required"
-            }
-        }
-        ageInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus && ageInput.text.toString().trim().isEmpty()) {
-                ageLayout.error = "Age is Required"
-            }
-        }
-        contactInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus && contactInput.text.toString().trim().isEmpty()) {
-                contactLayout.error = "Contact Number is Required"
-            }
-        }
-        passwordInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus && passwordInput.text.toString().trim().isEmpty()) {
-                passwordLayout.error = "Password is Required"
-            }
-        }
-        confirmPasswordInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus && confirmPasswordInput.text.toString().trim().isEmpty()) {
-                confirmPasswordLayout.error = "Confirm Password is Required"
+            if (!hasFocus) {
+                val username = usernameInput.text.toString().trim()
+                if (username.isBlank()) {
+                    usernameLayout.error = "Username is Required"
+                }
             }
         }
 
-        // Clear errors on text change
-        usernameInput.addTextChangedListener { usernameLayout.error = null }
-        emailInput.addTextChangedListener { emailLayout.error = null }
-        locationInput.addTextChangedListener { locationLayout.error = null }
-        contactInput.addTextChangedListener { contactLayout.error = null }
-        ageInput.addTextChangedListener { ageLayout.error = null }
-        passwordInput.addTextChangedListener { passwordLayout.error = null }
-        confirmPasswordInput.addTextChangedListener { confirmPasswordLayout.error = null }
+        emailInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val email = emailInput.text.toString().trim()
+                if (email.isBlank()) {
+                    emailLayout.error = "Email is Required"
+                }
+            }
+        }
+
+        locationInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val location = locationInput.text.toString().trim()
+                if (location.isBlank()) {
+                    locationLayout.error = "Location is Required"
+                }
+            }
+        }
+
+        ageInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val age = ageInput.text.toString().trim()
+                if (age.isBlank()) {
+                    ageLayout.error = "Age is Required"
+                }
+            }
+        }
+
+        contactInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val contact = contactInput.text.toString().trim()
+                if (contact.isBlank()) {
+                    contactLayout.error = "Contact Number is Required"
+                }
+            }
+        }
+
+        passwordInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val password = passwordInput.text.toString().trim()
+                if (password.isBlank()) {
+                    passwordLayout.error = "Password is Required"
+                }
+            }
+        }
+
+        confirmPasswordInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val confirmPassword = confirmPasswordInput.text.toString().trim()
+                if (confirmPassword.isBlank()) {
+                    confirmPasswordLayout.error = "Confirm Password is Required"
+                }
+            }
+        }
+
+        // Text change listeners to clear errors
+        usernameInput.addTextChangedListener {
+            usernameLayout.error = null
+        }
+
+        emailInput.addTextChangedListener {
+            emailLayout.error = null
+        }
+
+        locationInput.addTextChangedListener {
+            locationLayout.error = null
+        }
+
+        contactInput.addTextChangedListener {
+            contactLayout.error = null
+        }
+
+        ageInput.addTextChangedListener {
+            ageLayout.error = null
+        }
+
+        passwordInput.addTextChangedListener {
+            passwordLayout.error = null
+        }
+
+        confirmPasswordInput.addTextChangedListener {
+            confirmPasswordLayout.error = null
+        }
 
         // Click listeners for Terms, Privacy Policy, and Login suggestion
         termsLink.setOnClickListener {
             startActivity(Intent(this, TermsActivity::class.java))
         }
+
         privacyLink.setOnClickListener {
             startActivity(Intent(this, PrivacyPolicyActivity::class.java))
         }
+
         loginSugg.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
 
-        // Popup for location input example
         locationInput.setOnClickListener {
             popupWindow?.dismiss() // Dismiss any existing popup first
+
+            // Create the popup content
             val popupView = layoutInflater.inflate(R.layout.popup_address_format, null)
             val popupText = popupView.findViewById<TextView>(R.id.popupText)
-            popupText.text = "Proper Address Format:\nStreet, City, State, ZIP Code\nExample: 123 Main St, Springfield, IL, 62701"
+            popupText.text = "Proper Address Format:\nStreet,Barangay, City/Municipality, Province, ZIP Code"
+
+            // Create and show the PopupWindow
             popupWindow = PopupWindow(
                 popupView,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -250,18 +300,37 @@ class RegisterActivity : AppCompatActivity() {
                 setBackgroundDrawable(ColorDrawable(Color.WHITE))
                 elevation = 8f
                 isOutsideTouchable = true
-                showAsDropDown(locationLayout, 0, 0)
+                showAsDropDown(locationLayout, 0, 0) // Show below the locationLayout
+            }
+        }
+
+        // Show popup when clicking location layout
+        locationLayout.setOnClickListener {
+            popupWindow?.dismiss() // Dismiss any existing popup first
+
+            // Create the popup content
+            val popupView = layoutInflater.inflate(R.layout.popup_address_format, null)
+            val popupText = popupView.findViewById<TextView>(R.id.popupText)
+            popupText.text = "Proper Address Format:\nStreet, City, State, ZIP Code\nExample: 123 Main St, Springfield, IL, 62701"
+
+            // Create and show the PopupWindow
+            popupWindow = PopupWindow(
+                popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
+            ).apply {
+                setBackgroundDrawable(ColorDrawable(Color.WHITE))
+                elevation = 8f
+                isOutsideTouchable = true
+                showAsDropDown(locationLayout, 0, 0) // Show below the locationLayout
             }
         }
     }
 
     private fun registerUser(username: String, email: String, location: String, contact: String, age: String, password: String) {
-<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/mobile_register.php"
 
-=======
-        val url = "http://192.168.80.63/backend/mobile_register.php"
->>>>>>> Stashed changes
         val jsonObject = JSONObject().apply {
             put("username", username)
             put("email", email)
@@ -270,17 +339,19 @@ class RegisterActivity : AppCompatActivity() {
             put("age", age)
             put("contact_number", contact)
         }
+
         val mediaType = "application/json; charset=utf-8".toMediaType()
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
         val request = Request.Builder().url(url).post(requestBody).build()
-        val client = OkHttpClient()
 
+        val client = OkHttpClient()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
                     Toast.makeText(this@RegisterActivity, "❌ Network error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
+
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
                 runOnUiThread {

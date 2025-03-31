@@ -88,11 +88,7 @@ class ForgotPasswordStep2Activity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-<<<<<<< Updated upstream
             .url("http://192.168.43.55/backend/verify_otp.php")
-=======
-            .url("http://192.168.38.63/backend/verify_otp.php")
->>>>>>> Stashed changes
             .post(requestBody)
             .build()
 

@@ -65,11 +65,7 @@ class CartFragment : Fragment(), CartActionListener {
     }
 
     override fun updateCartQuantity(cartId: Int, newQuantity: Int) {
-<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/update_cart.php"
-=======
-        val url = "http://192.168.38.63/backend/update_cart.php"
->>>>>>> Stashed changes
         val json = JSONObject().apply {
             put("cart_id", cartId)
             put("quantity", newQuantity)
@@ -104,11 +100,7 @@ class CartFragment : Fragment(), CartActionListener {
     }
 
     override fun removeItemFromCart(cartId: Int) {
-<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/remove_from_cart.php"
-=======
-        val url = "http://192.168.38.63/backend/remove_from_cart.php"
->>>>>>> Stashed changes
         val json = JSONObject().apply { put("cart_id", cartId) }
         val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = Request.Builder().url(url).post(requestBody).build()
@@ -150,11 +142,7 @@ class CartFragment : Fragment(), CartActionListener {
             return
         }
 
-<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/fetch_cart.php?mobile_user_id=$mobileUserId"
-=======
-        val url = "http://192.168.38.63/backend/fetch_cart.php?mobile_user_id=$mobileUserId"
->>>>>>> Stashed changes
         val request = Request.Builder().url(url).get().build()
 
         client.newCall(request).enqueue(object : Callback {

@@ -127,11 +127,7 @@ class LoginActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-<<<<<<< Updated upstream
             .url("http://192.168.43.55/backend/mobile_login.php")
-=======
-            .url("http://192.168.38.63/backend/mobile_login.php")
->>>>>>> Stashed changes
             .post(requestBody)
             .build()
 

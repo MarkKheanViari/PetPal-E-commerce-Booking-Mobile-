@@ -82,11 +82,7 @@ class LikedProductsActivity : AppCompatActivity() {
             return
         }
 
-<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/fetch_liked_products.php?mobile_user_id=$mobileUserId"
-=======
-        val url = "http://192.168.38.63/backend/fetch_liked_products.php?mobile_user_id=$mobileUserId"
->>>>>>> Stashed changes
         val request = Request.Builder().url(url).build()
         val client = OkHttpClient()
 
@@ -205,11 +201,7 @@ class LikedProductsActivity : AppCompatActivity() {
                 .toRequestBody("application/json; charset=utf-8".toMediaType())
 
             val request = Request.Builder()
-<<<<<<< Updated upstream
                 .url("http://192.168.43.55/backend/report_product.php")
-=======
-                .url("http://192.168.38.63/backend/report_product.php")
->>>>>>> Stashed changes
                 .post(requestBody)
                 .build()
 

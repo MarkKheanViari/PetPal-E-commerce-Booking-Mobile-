@@ -79,11 +79,7 @@ class AddAddressActivity : AppCompatActivity() {
             return
         }
 
-<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/add_address.php"
-=======
-        val url = "http://192.168.38.63/backend/add_address.php"
->>>>>>> Stashed changes
         val json = """
         {
           "user_id": "$mobileUserId",

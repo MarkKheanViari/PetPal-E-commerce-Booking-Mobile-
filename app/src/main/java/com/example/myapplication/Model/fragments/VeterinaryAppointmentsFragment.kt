@@ -45,11 +45,7 @@ class VeterinaryAppointmentsFragment : Fragment() {
             return
         }
 
-<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/fetch_appointments.php?mobile_user_id=$mobileUserId"
-=======
-        val url = "http://192.168.38.63/backend/fetch_appointments.php?mobile_user_id=$mobileUserId"
->>>>>>> Stashed changes
 
         val request = JsonObjectRequest(Request.Method.GET, url, null,
             { response ->

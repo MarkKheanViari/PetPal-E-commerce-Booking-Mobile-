@@ -67,15 +67,9 @@ class ServiceFragment : Fragment(R.layout.fragment_service) {
 
     private fun fetchServices(serviceType: String) {
         val url = if (serviceType == "Grooming") {
-<<<<<<< Updated upstream
             "http://192.168.43.55/backend/fetch_grooming_services.php"
         } else {
             "http://192.168.43.55/backend/fetch_veterinary_services.php"
-=======
-            "http://192.168.38.63/backend/fetch_grooming_services.php"
-        } else {
-            "http://192.168.38.63/backend/fetch_veterinary_services.php"
->>>>>>> Stashed changes
         }
 
         val queue: RequestQueue = Volley.newRequestQueue(requireContext())

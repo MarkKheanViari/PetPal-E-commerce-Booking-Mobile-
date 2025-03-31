@@ -45,11 +45,7 @@ class AppointmentAdapter(
 
         // Load image
         Glide.with(context)
-<<<<<<< Updated upstream
             .load("http://192.168.43.55/backend/${appointment.image}")
-=======
-            .load("http://192.168.38.63/backend/${appointment.image}")
->>>>>>> Stashed changes
             .placeholder(R.drawable.cat)
             .into(holder.serviceImage)
 
@@ -128,11 +124,7 @@ class AppointmentAdapter(
             return
         }
 
-<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/cancel_service_request.php"
-=======
-        val url = "http://192.168.38.63/backend/cancel_service_request.php"
->>>>>>> Stashed changes
 
         val requestData = JSONObject().apply {
             put("mobile_user_id", mobileUserId)

@@ -305,11 +305,7 @@ class MainActivity : AppCompatActivity() {
                 .toRequestBody("application/json; charset=utf-8".toMediaType())
 
             val request = Request.Builder()
-<<<<<<< Updated upstream
                 .url("http://192.168.43.55/backend/report_product.php")
-=======
-                .url("http://192.168.38.63/backend/report_product.php")
->>>>>>> Stashed changes
                 .post(requestBody)
                 .build()
 
@@ -413,11 +409,7 @@ class MainActivity : AppCompatActivity() {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-<<<<<<< Updated upstream
             .url("http://192.168.43.55/backend/add_to_liked_products.php")
-=======
-            .url("http://192.168.38.63/backend/add_to_liked_products.php")
->>>>>>> Stashed changes
             .post(requestBody)
             .build()
 
@@ -514,11 +506,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkForApprovedAppointments(userId: Int) {
-<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
-=======
-        val url = "http://192.168.38.63/backend/fetch_approved_appointments.php?mobile_user_id=$userId"
->>>>>>> Stashed changes
         val request = JsonObjectRequest(
             com.android.volley.Request.Method.GET, url, null,
             { response ->
@@ -649,11 +637,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchProducts() {
-<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/fetch_product.php"
-=======
-        val url = "http://192.168.38.63/backend/fetch_product.php"
->>>>>>> Stashed changes
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -671,11 +655,7 @@ class MainActivity : AppCompatActivity() {
 
                     val productsArray = json.optJSONArray("products") ?: JSONArray()
                     val fetchedProducts = mutableListOf<Product>()
-<<<<<<< Updated upstream
                     val baseImageUrl = "http://192.168.43.55/backend/uploads/"
-=======
-                    val baseImageUrl = "http://192.168.38.63/backend/uploads/"
->>>>>>> Stashed changes
 
                     for (i in 0 until productsArray.length()) {
                         val productJson = productsArray.getJSONObject(i)
@@ -727,11 +707,7 @@ class MainActivity : AppCompatActivity() {
         displayedProducts.clear()
         productAdapter.notifyDataSetChanged()
 
-<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/fetch_product.php?category=$category"
-=======
-        val url = "http://192.168.38.63/backend/fetch_product.php?category=$category"
->>>>>>> Stashed changes
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -755,19 +731,11 @@ class MainActivity : AppCompatActivity() {
                         val productJson = productsArray.getJSONObject(i)
                         val rawImage = productJson.optString("image", "").trim()
                         val fullImageUrl = if (rawImage.isNotEmpty() && !rawImage.startsWith("http")) {
-<<<<<<< Updated upstream
                             "http://192.168.43.55/backend/uploads/$rawImage"
                         } else {
                             rawImage
                         }
                         val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.43.55/backend/uploads/default.jpg"
-=======
-                            "http://192.168.38.63/backend/uploads/$rawImage"
-                        } else {
-                            rawImage
-                        }
-                        val finalImageUrl = if (fullImageUrl.isNotEmpty()) fullImageUrl else "http://192.168.38.63/backend/uploads/default.jpg"
->>>>>>> Stashed changes
 
                         categoryProducts.add(
                             Product(

@@ -169,24 +169,6 @@
                 android:lineSpacingExtra="4dp"
                 android:paddingBottom="24dp"/>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="7. GCash refundable?"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="#212121"
-                android:paddingBottom="8dp"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Gcash Payment is not Refundable. Please note that once your payment is confirmed, it is final and cannot be reversed or refunded. For any inquiries regarding payment or order issues, please contact our support team. Thank you so much for choosing our service."
-                android:textSize="16sp"
-                android:textColor="#666666"
-                android:lineSpacingExtra="4dp"
-                android:paddingBottom="24dp"/>
-
             <!-- Closing Note -->
             <TextView
                 android:layout_width="match_parent"

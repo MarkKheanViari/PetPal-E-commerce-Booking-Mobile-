@@ -53,11 +53,7 @@ class ServiceHistoryActivity : AppCompatActivity() {
     }
 
     private fun fetchServiceHistory() {
-<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/fetch_service_history.php?user_id=$userId"
-=======
-        val url = "http://192.168.38.63/backend/fetch_service_history.php?user_id=$userId"
->>>>>>> Stashed changes
         val request = Request.Builder().url(url).get().build()
 
         runOnUiThread { progressBar.visibility = View.VISIBLE }
@@ -125,11 +121,7 @@ class ServiceHistoryActivity : AppCompatActivity() {
     }
 
     private fun clearServiceHistory() {
-<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/clear_service_history.php"
-=======
-        val url = "http://192.168.38.63/backend/clear_service_history.php"
->>>>>>> Stashed changes
         val jsonBody = """
     {
         "mobile_user_id": $userId
@@ -192,11 +184,7 @@ class ServiceHistoryActivity : AppCompatActivity() {
 
 
     fun cancelServiceRequest(serviceId: Int) {
-<<<<<<< Updated upstream
         val url = "http://192.168.43.55/backend/cancel_service_request.php"
-=======
-        val url = "http://192.168.38.63/backend/cancel_service_request.php"
->>>>>>> Stashed changes
         val jsonBody = """
     {
         "service_id": $serviceId
