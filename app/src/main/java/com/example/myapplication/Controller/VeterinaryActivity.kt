@@ -86,7 +86,7 @@ class VeterinaryActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString().toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
-            .url("http://192.168.43.55/backend/submit_veterinary_appointment.php")
+            .url("http://192.168.80.63/backend/submit_veterinary_appointment.php")
             .post(requestBody)
             .build()
 
